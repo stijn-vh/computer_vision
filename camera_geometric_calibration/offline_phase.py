@@ -44,7 +44,7 @@ def run_3(self):
 
 # Execute all runs in order and return list of params to main
 def execute_offline_phase():
-    abs_path = 'D:\school\master\computer_vision\camera_geometric_calibration\images\ja.png.jpeg'
+    abs_path = r'C:\Users\fedor\Desktop\Computer Vision\computer_vision\camera_geometric_calibration\images\WIN_20230212_15_51_43_Pro.jpg'
     print(abs_path)
     current_image = cv2.imread(abs_path, 1)
     cv2.imshow('current_image', current_image)
