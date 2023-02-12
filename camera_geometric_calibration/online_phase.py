@@ -1,4 +1,12 @@
+
+# From slides: 
+# Workflow online:
+# • Read an image/camera frame
+# • Draw a box on a detected chessboard in the right perspective
+
 class online_phase:
+    test_image = None
+
     # take the test image and draw the world 3D axes (XYZ) with the origin at the center 
     # of the world coordinates, using the estimated camera parameters
     def draw_axes_on_image(image, estimated_camera_params):
