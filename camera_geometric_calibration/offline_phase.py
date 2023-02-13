@@ -34,26 +34,31 @@ def draw_chessboard_corners(corners, gray, criteria, ret, current_image):
 
 def click_event(event, x, y, flags, params):
     current_image = params
-    if event == cv.EVENT_LBUTTONDOWN:
+    if event == cv.EVENT_LBUTTONDOWN and len(corner_points) < 5:
         print('new cornerpoint added: (' + str(x) + ', ' + str(y) + ')')
         corner_points.append((x, y))
 
         cv.circle(current_image, (x,y), radius=6, color=(0, 0, 255), thickness=1)
         cv.imshow('current_image', current_image)
-        
-    if len(corner_points) == 4:
-        return corner_points
 
-def interpolate_four_corners():
-    return
+def interpolate_four_corners(four_corners):
+    corners = []
+    
+    return corners
 
 def determine_points_mannually(current_image):
     cv.imshow('current_image', current_image)
     cv.setMouseCallback('current_image', click_event, current_image)
 
-    cv.waitKey(0)
-    print('hoi')
-    cv.destroyAllWindows()
+    while(1):
+        k = cv.waitKey(0)
+        count_points = len(corner_points)
+        if (count_points == 3):
+            break
+        else:
+            print('Only ' + str(count_points) + ' added, please add ' + str(3 - count_points) + ' more')
+
+    return interpolate_four_corners(corner_points)
 
 def handle_image(img_path, criteria):
     current_image = cv.imread(img_path)
@@ -64,7 +69,7 @@ def handle_image(img_path, criteria):
 
     # If found, add object points, image points (after refining them)
     if ret != True:
-        determine_points_mannually(current_image)
+        corners = determine_points_mannually(current_image)
     
     draw_chessboard_corners(corners, gray, criteria, ret, current_image)
 
