@@ -15,7 +15,22 @@ detectable_training_images = []
 undetectable_training_images = []
 all_training_images = np.concatenate((detectable_training_images, undetectable_training_images))
 
+# Arrays to store object points and image points from all the images.
+objpoints = [] # 3d point in real world space
+imgpoints = [] # 2d points in image plane.
+images = glob.glob('images/*.jpg')
+
 corner_points = []
+
+def draw_chessboard_corners(corners, gray, criteria, ret, current_image):
+    corners2 = cv.cornerSubPix(gray,corners, (11,11), (-1,-1), criteria)
+    # Draw and display the corners
+    cv.drawChessboardCorners(current_image, (9,6), corners2, ret)
+    cv.imshow('current_image', current_image)
+    cv.waitKey(300)    
+
+    objpoints.append(np.zeros((9*6,3), np.float32))
+    imgpoints.append(corners2)
 
 def click_event(event, x, y, flags, params):
     current_image = params
@@ -29,30 +44,31 @@ def click_event(event, x, y, flags, params):
     if len(corner_points) == 4:
         return corner_points
 
+def interpolate_four_corners():
+    return
+
 def determine_points_mannually(current_image):
     cv.imshow('current_image', current_image)
     cv.setMouseCallback('current_image', click_event, current_image)
 
     cv.waitKey(0)
+    print('hoi')
     cv.destroyAllWindows()
 
-def handle_image(img_path, objp, criteria):
+def handle_image(img_path, criteria):
     current_image = cv.imread(img_path)
     gray = cv.cvtColor(current_image, cv.COLOR_BGR2GRAY)
 
     # Find the chess board corners
     ret, corners = cv.findChessboardCorners(gray, (9,6), None)
+
     # If found, add object points, image points (after refining them)
-    if ret == True:
-        corners2 = cv.cornerSubPix(gray,corners, (11,11), (-1,-1), criteria)
-        # Draw and display the corners
-        cv.drawChessboardCorners(current_image, (9,6), corners2, ret)
-        cv.imshow('current_image', current_image)
-        cv.waitKey(500)
-    else:
+    if ret != True:
         determine_points_mannually(current_image)
     
-    return objp, corners2, gray
+    draw_chessboard_corners(corners, gray, criteria, ret, current_image)
+
+    return gray
 
 def geometric_camera_calibration():
     # termination criteria
@@ -61,16 +77,10 @@ def geometric_camera_calibration():
     objp = np.zeros((9*6,3), np.float32)
     objp[:,:2] = 24*np.mgrid[0:9,0:6].T.reshape(-1,2)
 
-    # Arrays to store object points and image points from all the images.
-    objpoints = [] # 3d point in real world space
-    imgpoints = [] # 2d points in image plane.
-    images = glob.glob('images/*.jpg')
-
     for fname in images:
-        objp, imgp, gray = handle_image(fname, objp, criteria)
-        objpoints.append(objp)
-        imgpoints.append(imgp)
+        gray = handle_image(fname, criteria)
 
+    # TODO takes gray of last image?
     ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
 
     cv.destroyAllWindows()
