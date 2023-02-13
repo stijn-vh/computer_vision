@@ -22,6 +22,9 @@ images = glob.glob('images/*.jpg')
 
 corner_points = []
 
+objp = np.zeros((9*6,3), np.float32)
+objp[:,:2] = 24*np.mgrid[0:9,0:6].T.reshape(-1,2)
+
 def draw_chessboard_corners(corners, gray, criteria, ret, current_image):
     corners2 = cv.cornerSubPix(gray,corners, (11,11), (-1,-1), criteria)
     # Draw and display the corners
@@ -29,7 +32,7 @@ def draw_chessboard_corners(corners, gray, criteria, ret, current_image):
     cv.imshow('current_image', current_image)
     cv.waitKey(300)    
 
-    objpoints.append(np.zeros((9*6,3), np.float32))
+    objpoints.append(objp)
     imgpoints.append(corners2)
 
 def click_event(event, x, y, flags, params):
@@ -43,7 +46,7 @@ def click_event(event, x, y, flags, params):
 
 def interpolate_four_corners(four_corners):
     corners = []
-    
+
     return corners
 
 def determine_points_mannually(current_image):
@@ -79,9 +82,6 @@ def geometric_camera_calibration():
     # termination criteria
     criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
-    objp = np.zeros((9*6,3), np.float32)
-    objp[:,:2] = 24*np.mgrid[0:9,0:6].T.reshape(-1,2)
-
     for fname in images:
         gray = handle_image(fname, criteria)
 
@@ -89,6 +89,8 @@ def geometric_camera_calibration():
     ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
 
     cv.destroyAllWindows()
+
+    return {'mtx': mtx, 'dist': dist}
     
 # Run 1: use all training images (including the images with manually provided corner points)
 def calibrate_on_all_images(self, images):
@@ -105,6 +107,4 @@ def run_3(self):
 
 # Execute all runs in order and return list of params to main
 def execute_offline_phase():
-    geometric_camera_calibration()
-
-execute_offline_phase()
+    return geometric_camera_calibration()
