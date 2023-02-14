@@ -11,16 +11,12 @@ import glob
 # • Determine camera parameters using OpenCV functions (browse!)
 # • Now your camera is calibrated
 
-detectable_training_images = []
-undetectable_training_images = []
-all_training_images = np.concatenate((detectable_training_images, undetectable_training_images))
 num_cols = 9
 num_rows = 6
 
 # Arrays to store object points and image points from all the images.
 objpoints = []  # 3d point in real world space
 imgpoints = []  # 2d points in image plane.
-images = glob.glob('images/*.jpg')
 
 corner_points = []
 
@@ -93,7 +89,7 @@ def handle_image(img_path, criteria):
 
     # Find the chess board corners
     ret, corners = cv.findChessboardCorners(gray, (num_cols, num_rows), None)
-
+    print(ret)
     # If found, add object points, image points (after refining them)
     if ret == False:
         corners = determine_points_mannually(current_image)
@@ -103,17 +99,15 @@ def handle_image(img_path, criteria):
 
     return gray
 
-def geometric_camera_calibration():
-    # termination criteria
+def calibrate_on_images(images):
     criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
-    objp = np.zeros((num_cols * num_rows, 3), np.float32)
-    objp[:, :2] = 24 * np.mgrid[0:num_cols, 0:num_rows].T.reshape(-1, 2)
+    count = 0
+    for image in images:
+        gray = handle_image(image, criteria)
+        print('image ' + str(count) + ' is: ')
+        count += 1
 
-    for fname in images:
-        gray = handle_image(fname, criteria)
-
-    # TODO takes gray of last image?
     ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
 
     cv.destroyAllWindows()
@@ -121,18 +115,28 @@ def geometric_camera_calibration():
     return {'mtx': mtx, 'dist': dist}
 
 # Run 1: use all training images (including the images with manually provided corner points)
-def calibrate_on_all_images(self, images):
-    return
+def phase_1():
+    auto_images = glob.glob('images/automatic/*.jpg')
+    manual_images = glob.glob('images/manual/*.jpg')
+    all_images = auto_images + manual_images
+
+    return calibrate_on_images(all_images)
+
 
 # Run 2:  use only ten images for which corner points were found automatically
-def calibrate_on_automatic_images(self, images, amount=10):
-    return
+def phase_2():
+    auto_images = glob.glob('images/automatic/*.jpg')
+
+    return calibrate_on_images(auto_images)
 
 # Run 3: use only five out of the ten images in Run 2. In each run, you will calibrate the camera
-def run_3(self):
-    # Could maybe be done in function of Run 2?
-    return
+def phase_3(self):
+    auto_images = glob.glob('images/automatic/*.jpg')[:5]
+
+    return calibrate_on_images(auto_images)
 
 # Execute all runs in order and return list of params to main
 def execute_offline_phase():
-    return geometric_camera_calibration()
+    phase_1_results = phase_2()
+
+    return phase_1_results

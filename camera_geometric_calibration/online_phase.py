@@ -66,6 +66,5 @@ def draw_cube_on_webcam(estimated_camera_params):
     
     return
 
-
 def execute_online_phase(estimated_camera_params):
     draw_cube_on_webcam(estimated_camera_params)
