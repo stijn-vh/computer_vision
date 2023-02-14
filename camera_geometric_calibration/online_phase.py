@@ -8,13 +8,21 @@ import glob
 
 test_image = None
 
+def get_point_tuple(pts):
+    return tuple(map(int, pts.ravel()))
+
 # take the test image and draw the world 3D axes (XYZ) with the origin at the center 
 # of the world coordinates, using the estimated camera parameters
 def draw_axes_on_image(img, corners, imgpts):
-    corner = tuple(corners[0].ravel())
-    img = cv.line(img, corner, tuple(imgpts[0].ravel()), (255,0,0), 5)
-    img = cv.line(img, corner, tuple(imgpts[1].ravel()), (0,255,0), 5)
-    img = cv.line(img, corner, tuple(imgpts[2].ravel()), (0,0,255), 5)
+    corner = get_point_tuple(corners[0])
+
+    imgp0 = get_point_tuple(imgpts[0])
+    imgp1 = get_point_tuple(imgpts[1])
+    imgp2 = get_point_tuple(imgpts[2])
+
+    img = cv.line(img, corner, imgp0, (255,0,0), 5)
+    img = cv.line(img, corner, imgp1, (0,255,0), 5)
+    img = cv.line(img, corner, imgp2, (0,0,255), 5)
 
     return img
 
@@ -40,15 +48,17 @@ def handle_image(img, estimated_camera_params):
         # project 3D points to image plane
         imgpts, jac = cv.projectPoints(axis, rvecs, tvecs, estimated_camera_params['mtx'], estimated_camera_params['dist'])
         img = draw_axes_on_image(img, corners2, imgpts)
-        cv.imshow('img',img)
+        cv.imshow('current_image',img)
+        cv.waitKey(50)
 
 def draw_cube_on_webcam(estimated_camera_params):
     images = glob.glob('images/*.jpg')
 
     for img in images:
         current_image = cv.imread(img)
-
         handle_image(current_image, estimated_camera_params)
+
+    return
     cam = cv.VideoCapture(0)
 
     while(True):

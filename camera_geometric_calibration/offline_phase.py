@@ -31,7 +31,7 @@ def draw_chessboard_corners(corners, gray, criteria, ret, current_image):
     # Draw and display the corners
     cv.drawChessboardCorners(current_image, (num_cols, num_rows), corners, ret)
     cv.imshow('current_image', current_image)
-    cv.waitKey(500)
+    cv.waitKey(50)
 
     objpoints.append(objp)
     imgpoints.append(corners)
