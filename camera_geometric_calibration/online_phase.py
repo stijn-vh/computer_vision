@@ -1,60 +1,78 @@
 import cv2 as cv
 import numpy as np
 import glob
-# From slides: 
+
+
+# From slides:
 # Workflow online:
 # • Read an image/camera frame
 # • Draw a box on a detected chessboard in the right perspective
 
-test_image = None
-
 def get_point_tuple(pts):
     return tuple(map(int, pts.ravel()))
 
-# take the test image and draw the world 3D axes (XYZ) with the origin at the center 
+
+# take the test image and draw the world 3D axes (XYZ) with the origin at the center
 # of the world coordinates, using the estimated camera parameters
-def draw_axes_on_image(img, corners, imgpts):
-    corner = get_point_tuple(corners[0])
+def draw_axes_on_image(img, imgpts, fixedOrigin):
+    # Experiment with the projected origin and the fixed origin
 
-    imgp0 = get_point_tuple(imgpts[0])
-    imgp1 = get_point_tuple(imgpts[1])
-    imgp2 = get_point_tuple(imgpts[2])
+    origin = get_point_tuple(imgpts[0])
+    # origin = fixedOrigin
 
-    img = cv.line(img, corner, imgp0, (255,0,0), 5)
-    img = cv.line(img, corner, imgp1, (0,255,0), 5)
-    img = cv.line(img, corner, imgp2, (0,0,255), 5)
+    imgpx = get_point_tuple(imgpts[1])
+    imgpy = get_point_tuple(imgpts[2])
+    imgpz = get_point_tuple(imgpts[3])
+
+    img = cv.line(img, origin, imgpx, (255, 0, 0), 5)
+    img = cv.line(img, origin, imgpy, (0, 255, 0), 5)
+    img = cv.line(img, origin, imgpz, (0, 0, 255), 5)
 
     return img
 
-# draw a cube which is located at the origin of the world coordinates. 
+
+# draw a cube which is located at the origin of the world coordinates.
 # You can get bonus points for doing this in real time using your webcam
-def draw_cube_on_image(image):
-    return
+def draw_cube_on_image(img, imgpts, fixedOrigin):
+    # maybe use fixed origin aswell
+    imgpts = np.array(list(map(get_point_tuple, imgpts)))
+    img = cv.drawContours(img, [imgpts[:4]], -1, (120, 120, 0), 3)
+    # draw pillars in blue color
+    for i, j in zip(range(4), range(4, 8)):
+        img = cv.line(img, tuple(imgpts[i]), tuple(imgpts[j]), (120, 120, 0), 3)
+    img = cv.drawContours(img, [imgpts[4:]], -1, (120, 120, 0), 3)
+    return img
+
 
 def handle_image(img, estimated_camera_params):
-    criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
-    objp = np.zeros((9*6,3), np.float32)
-    objp[:,:2] = np.mgrid[0:9,0:6].T.reshape(-1,2)
+    axsize = 6
+    cubesize = 4
 
-    axis = np.float32([[3,0,0], [0,3,0], [0,0,-3]]).reshape(-1,3)
+    axis = np.float32([[0, 0, 0], [axsize, 0, 0], [0, axsize, 0], [0, 0, -axsize]])
+    cube = np.float32([[0, 0, 0], [cubesize, 0, 0], [cubesize, cubesize, 0], [0, cubesize, 0], [0, 0, -cubesize],
+                       [cubesize, 0, -cubesize], [cubesize, cubesize, -cubesize], [0, cubesize, -cubesize]])
 
-    gray = cv.cvtColor(img,cv.COLOR_BGR2GRAY)
-    ret, corners = cv.findChessboardCorners(gray, (9,6),None)
+    gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+    ret, corners = cv.findChessboardCorners(gray, (num_cols, num_rows), None)
 
     if ret == True:
-        corners2 = cv.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
+        corners2 = cv.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
         # Find the rotation and translation vectors.
-        ret,rvecs, tvecs = cv.solvePnP(objp, corners2, estimated_camera_params['mtx'], estimated_camera_params['dist'])
+        ret, rvec, tvec = cv.solvePnP(objp, corners2, estimated_camera_params['mtx'], estimated_camera_params['dist'])
         # project 3D points to image plane
-        imgpts, jac = cv.projectPoints(axis, rvecs, tvecs, estimated_camera_params['mtx'], estimated_camera_params['dist'])
-        img = draw_axes_on_image(img, corners2, imgpts)
-        cv.imshow('webcam',img)
-        cv.waitKey(50)
+        axpts, jac = cv.projectPoints(axis, rvec, tvec, estimated_camera_params['mtx'],
+                                      estimated_camera_params['dist'])
+        cubepts, _ = cv.projectPoints(cube, rvec, tvec, estimated_camera_params['mtx'], estimated_camera_params['dist'])
+        img = draw_axes_on_image(img, axpts, get_point_tuple(corners2[0]))
+        img = draw_cube_on_image(img, cubepts, get_point_tuple(corners2[0]))
+        cv.imshow('webcam', img)
+        cv.waitKey(1)
+
 
 def draw_cube_on_webcam(estimated_camera_params):
     cam = cv.VideoCapture(0)
 
-    while(True):
+    while (True):
         ret, frame = cam.read()
         cv.imshow('webcam', frame)
         handle_image(frame, estimated_camera_params)
@@ -63,8 +81,18 @@ def draw_cube_on_webcam(estimated_camera_params):
 
         if (key != -1):
             break
-    
+
     return
+
 
 def execute_online_phase(estimated_camera_params):
     draw_cube_on_webcam(estimated_camera_params)
+
+
+def set_config(c):
+    global criteria, num_cols, num_rows, objp
+    criteria = c['criteria']
+    num_cols = c['num_cols']
+    num_rows = c['num_rows']
+    objp = np.zeros((num_cols * num_rows, 3), np.float32)
+    objp[:, :2] = np.mgrid[0:num_cols, 0:num_rows].T.reshape(-1, 2)
