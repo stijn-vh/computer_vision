@@ -48,28 +48,23 @@ def handle_image(img, estimated_camera_params):
         # project 3D points to image plane
         imgpts, jac = cv.projectPoints(axis, rvecs, tvecs, estimated_camera_params['mtx'], estimated_camera_params['dist'])
         img = draw_axes_on_image(img, corners2, imgpts)
-        cv.imshow('current_image',img)
+        cv.imshow('webcam',img)
         cv.waitKey(50)
 
 def draw_cube_on_webcam(estimated_camera_params):
-    images = glob.glob('images/*.jpg')
-
-    for img in images:
-        current_image = cv.imread(img)
-        handle_image(current_image, estimated_camera_params)
-
-    return
     cam = cv.VideoCapture(0)
 
     while(True):
         ret, frame = cam.read()
         cv.imshow('webcam', frame)
-        handle_image(frame)
+        handle_image(frame, estimated_camera_params)
 
         key = cv.waitKey(1)
 
         if (key != -1):
             break
+    
+    return
 
 
 def execute_online_phase(estimated_camera_params):
