@@ -27,6 +27,7 @@ def interpolate_three_corners(three_corners):
             currenty += col_diry
     return corners
 
+"""
 num_cols = 5
 num_rows = 3
 x = interpolate_three_corners([(5, 1), (5, 3), (1, 3)])
@@ -36,18 +37,23 @@ num_cols = 3
 num_rows = 3
 x = interpolate_three_corners([(2, 0), (4, 2), (2, 4)])
 print("interpolation of [(2, 0), (4, 2), (2, 4)] = \n", x)
-
+"""
 
 
 
 num_cols = 9
 num_rows = 6
-corners = interpolate_three_corners([(366, 237), (253, 333), (127, 222)])
-print("interpolation of [(366, 237), (253, 333), (127, 222)] = \n", x)
 
+img = cv.imread("images/WIN_20230212_15_51_43_Pro.jpg")
+gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+# Find the chess board corners
+ret, corners = cv.findChessboardCorners(gray, (num_cols, num_rows), None)
 
-img = cv.imread("/images/WIN_20230212_15_51_43_Pro")
-cv.drawChessboardCorners(img, (num_cols, num_rows), corners, False)
+corners2 = interpolate_three_corners([(366, 237), (253, 333), (127, 222)])
+corners2 = np.float32(corners2)
+print("interpolation of [(366, 237), (253, 333), (127, 222)] = \n", corners2)
+
+cv.drawChessboardCorners(img, (num_cols, num_rows), corners2, ret)
 cv.imshow('current_image', img)
-
-cv.waitKey(100)
+cv.waitKey(10000)
+cv.destroyAllWindows()
