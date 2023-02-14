@@ -28,14 +28,13 @@ objp = np.zeros((num_cols*num_rows,3), np.float32)
 objp[:,:2] = 24*np.mgrid[0:num_cols,0:num_rows].T.reshape(-1,2)
 
 def draw_chessboard_corners(corners, gray, criteria, ret, current_image):
-    corners2 = cv.cornerSubPix(gray,corners, (11,11), (-1,-1), criteria)
     # Draw and display the corners
-    cv.drawChessboardCorners(current_image, (9,6), corners2, ret)
+    cv.drawChessboardCorners(current_image, (num_cols, num_rows), corners, ret)
     cv.imshow('current_image', current_image)
-    cv.waitKey(300)
+    cv.waitKey(500)
 
     objpoints.append(objp)
-    imgpoints.append(corners2)
+    imgpoints.append(corners)
 
 def click_event(event, x, y, flags, params):
     current_image = params
@@ -70,7 +69,8 @@ def interpolate_three_corners(three_corners):
             index += 1
             currentx += col_dirx
             currenty += col_diry
-    return corners
+
+    return np.float32(corners)
 
 def determine_points_mannually(current_image):
     cv.imshow('current_image', current_image)
@@ -97,6 +97,7 @@ def handle_image(img_path, criteria):
     # If found, add object points, image points (after refining them)
     if ret == False:
         corners = determine_points_mannually(current_image)
+        ret = True
 
     draw_chessboard_corners(corners, gray, criteria, ret, current_image)
 
