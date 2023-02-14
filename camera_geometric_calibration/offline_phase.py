@@ -30,7 +30,7 @@ def draw_chessboard_corners(corners, gray, criteria, ret, current_image):
     # Draw and display the corners
     cv.drawChessboardCorners(current_image, (9,6), corners2, ret)
     cv.imshow('current_image', current_image)
-    cv.waitKey(300)    
+    cv.waitKey(1000)    
 
     objpoints.append(objp)
     imgpoints.append(corners2)
@@ -57,11 +57,11 @@ def determine_points_mannually(current_image):
         k = cv.waitKey(0)
         count_points = len(corner_points)
         if (count_points == 3):
-            break
+            return interpolate_four_corners(corner_points)
         else:
             print('Only ' + str(count_points) + ' added, please add ' + str(3 - count_points) + ' more')
-
-    return interpolate_four_corners(corner_points)
+    
+    
 
 def handle_image(img_path, criteria):
     current_image = cv.imread(img_path)
