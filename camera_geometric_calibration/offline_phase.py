@@ -78,6 +78,7 @@ def determine_points_mannually(current_image):
         if count_points == 3:
             print("corner points = ", corner_points)
             print("interpolation = ", interpolate_three_corners(corner_points))
+
             return interpolate_three_corners(corner_points)
         else:
             print('Only ' + str(count_points) + ' added, please add ' + str(3 - count_points) + ' more')
@@ -100,13 +101,13 @@ def handle_image(img_path, criteria):
     return gray
 
 def calibrate_on_images(images):
+    global corner_points
+
     criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
-    count = 0
     for image in images:
         gray = handle_image(image, criteria)
-        print('image ' + str(count) + ' is: ')
-        count += 1
+        corner_points = []
 
     ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
 
@@ -137,6 +138,6 @@ def phase_3(self):
 
 # Execute all runs in order and return list of params to main
 def execute_offline_phase():
-    phase_1_results = phase_2()
+    phase_1_results = phase_1()
 
     return phase_1_results
