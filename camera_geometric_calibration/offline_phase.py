@@ -18,19 +18,18 @@ imgpoints = []  # 2d points in image plane.
 corner_points = []
 
 
-def draw_chessboard_corners(corners, gray, ret, current_image):
+def draw_chessboard_corners(corners, current_image):
     # Draw and display the corners
-    # corners = cv.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
-    cv.drawChessboardCorners(current_image, (num_cols, num_rows), corners, ret)
+    cv.drawChessboardCorners(current_image, (num_cols, num_rows), corners, True)
     cv.imshow('current_image', current_image)
-    cv.waitKey(50)
+    cv.waitKey(5000)
 
 
 def click_event(event, x, y, flags, params):
     current_image = params
     if event == cv.EVENT_LBUTTONDOWN and len(corner_points) < 4:
         print('new cornerpoint added: (' + str(x) + ', ' + str(y) + ')')
-        corner_points.append((x, y))
+        corner_points.append([x, y])
 
         cv.circle(current_image, (x, y), radius=6, color=(0, 0, 255), thickness=1)
         cv.imshow('current_image', current_image)
@@ -66,15 +65,15 @@ def interpolate_four_corners(four_corners):
     return np.float32(corners)
 
 
-def determine_points_mannually(current_image):
+def determine_points_mannually(current_image, gray):
     cv.imshow('current_image', current_image)
     cv.setMouseCallback('current_image', click_event, current_image)
-
     while 1:
         cv.waitKey(0)
         count_points = len(corner_points)
         if count_points == 4:
-            return interpolate_four_corners(corner_points)
+            improved_four_corners = cv.cornerSubPix(gray, np.float32(corner_points), (10, 10), (-1, -1), criteria)
+            return interpolate_four_corners(improved_four_corners)
         else:
             print('Only ' + str(count_points) + ' added, please add ' + str(4 - count_points) + ' more')
 
@@ -84,12 +83,10 @@ def handle_image(current_image):
     gray = cv.cvtColor(current_image, cv.COLOR_BGR2GRAY)
     # Find the chess board corners
     ret, corners = cv.findChessboardCorners(gray, (num_cols, num_rows), None)
-    print(ret)
     # If found, add object points, image points (after refining them)
     if ret == False:
-        corners = determine_points_mannually(current_image)
-        ret = True
-    draw_chessboard_corners(corners, gray, ret, current_image)
+        corners = determine_points_mannually(current_image, gray)
+    draw_chessboard_corners(corners, current_image)
     objpoints.append(objp)
     imgpoints.append(corners)
     corner_points = []
@@ -111,7 +108,7 @@ def calibrate_on_images(images):
 def phase_1():
     auto_images = glob.glob('images/automatic/*.jpg')
     manual_images = glob.glob('images/manual/*.jpg')
-    all_images = auto_images + manual_images
+    all_images =  manual_images
 
     return calibrate_on_images(all_images)
 
@@ -132,7 +129,7 @@ def phase_3():
 
 # Execute all runs in order and return list of params to main
 def execute_offline_phase():
-    phase_1_results = phase_2()
+    phase_1_results = phase_1()
     return phase_1_results
 
 
