@@ -108,7 +108,7 @@ def calibrate_on_images(images):
 def phase_1():
     auto_images = glob.glob('images/automatic/*.jpg')
     manual_images = glob.glob('images/manual/*.jpg')
-    all_images =  manual_images
+    all_images = auto_images + manual_images
 
     return calibrate_on_images(all_images)
 
