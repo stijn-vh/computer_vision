@@ -1,7 +1,12 @@
+import copy
 import os
 import numpy as np
 import cv2 as cv
 import glob
+
+# Sources:
+# https://docs.opencv.org/4.x/dc/dbb/tutorial_py_calibration.html
+
 
 # From slides:
 # Workflow offline:
@@ -11,9 +16,7 @@ import glob
 # • Determine camera parameters using OpenCV functions (browse!)
 # • Now your camera is calibrated
 
-# Arrays to store object points and image points from all the images.
-objpoints = []  # 3d point in real world space
-imgpoints = []  # 2d points in image plane.
+
 
 corner_points = []
 
@@ -24,9 +27,6 @@ def draw_chessboard_corners(corners, gray, ret, current_image):
     cv.drawChessboardCorners(current_image, (num_cols, num_rows), corners, ret)
     cv.imshow('current_image', current_image)
     cv.waitKey(50)
-
-    objpoints.append(objp)
-    imgpoints.append(corners)
 
 
 def click_event(event, x, y, flags, params):
@@ -82,8 +82,8 @@ def determine_points_mannually(current_image):
             print('Only ' + str(count_points) + ' added, please add ' + str(4 - count_points) + ' more')
 
 
-def handle_image(img_path):
-    current_image = cv.imread(img_path)
+def handle_image(current_image):
+    global corner_points
     gray = cv.cvtColor(current_image, cv.COLOR_BGR2GRAY)
 
     # Find the chess board corners
@@ -93,24 +93,39 @@ def handle_image(img_path):
     if ret == False:
         corners = determine_points_mannually(current_image)
         ret = True
-
     draw_chessboard_corners(corners, gray, ret, current_image)
-
-    return gray
+    corner_points = []
+    return corners
 
 
 def calibrate_on_images(images):
-    global corner_points
+    # Arrays to store object points and image points from all the images.
+    objpoints = []  # 3d point in real world space
+    imgpoints = []  # 2d points in image plane.
 
-    for image in images:
-        gray = handle_image(image)
-        corner_points = []
-
-    ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
-
+    for i,img_path in enumerate(images):
+        image = cv.imread(img_path)
+        corners = handle_image(image)
+        if i == 0:
+            rms, mtx, dist, rvecs, tvecs = cv.calibrateCamera([objp], [corners], image.shape[0:2][::-1], None, None)
+            prevrms = rms
+            prevmtx = mtx
+            prevdist = dist
+            # objpoints.append(objp)
+            # imgpoints.append(corners)
+        else:
+            mtx = copy.deepcopy(prevmtx) #needed because these values themselves are changed
+            dist = copy.deepcopy(prevdist)
+            rms, mtx, dist, rvecs, tvecs = cv.calibrateCamera([objp], [corners], image.shape[0:2][::-1], mtx, dist)
+            if rms < prevrms:
+                prevrms = rms
+                prevmtx = mtx
+                prevdist = dist
+                # objpoints.append(objp)
+                # imgpoints.append(corners)
     cv.destroyAllWindows()
 
-    return {'mtx': mtx, 'dist': dist}
+    return {'mtx': prevmtx, 'dist': prevdist}
 
 
 # Run 1: use all training images (including the images with manually provided corner points)
@@ -138,7 +153,7 @@ def phase_3():
 
 # Execute all runs in order and return list of params to main
 def execute_offline_phase():
-    phase_1_results = phase_1()
+    phase_1_results = phase_2()
     return phase_1_results
 
 
