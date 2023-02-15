@@ -100,7 +100,7 @@ def calibrate_on_images(images):
         current_image = cv.imread(img_path)
         handle_image(current_image)
 
-    ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, current_image[0:2].shape[::-1], None, None)
+    ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, current_image.shape[0:2][::-1], None, None)
 
     cv.destroyAllWindows()
 
