@@ -104,6 +104,4 @@ def set_config(c):
     num_cols = c['num_cols']
     num_rows = c['num_rows']
     image_name = c['image_name']
-
-    objp = np.zeros((num_cols * num_rows, 3), np.float32)
-    objp[:, :2] = np.mgrid[0:num_cols, 0:num_rows].T.reshape(-1, 2)
+    objp = c['objp']
