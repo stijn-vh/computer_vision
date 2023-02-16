@@ -47,15 +47,15 @@ def draw_cube_on_image(img, imgpts):
 
 # Improve found corners, find correct rotation and translation vectors,
 # project points from 3D to image based on found matrices and draw axes/cube on image
-def project_points(gray, corners, axis, cube, estimated_camera_params):
+def project_points(img, gray, corners, axis, cube, estimated_camera_params):
     corners2 = cv.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
     ret, rvec, tvec = cv.solvePnP(objp, corners2, estimated_camera_params['mtx'], estimated_camera_params['dist'])
 
     axpts, jac = cv.projectPoints(axis, rvec, tvec, estimated_camera_params['mtx'], estimated_camera_params['dist'])
     cubepts, _ = cv.projectPoints(cube, rvec, tvec, estimated_camera_params['mtx'], estimated_camera_params['dist'])
 
-    img = draw_axes_on_image(img, axpts, get_point_tuple(corners2[0]))
-    img = draw_cube_on_image(img, cubepts, get_point_tuple(corners2[0]))
+    img = draw_axes_on_image(img, axpts)
+    img = draw_cube_on_image(img, cubepts)
 
     return img
 
@@ -72,7 +72,7 @@ def handle_image(img, estimated_camera_params):
     ret, corners = cv.findChessboardCorners(gray, (num_cols, num_rows), None)
 
     if ret == True:
-        img = project_points(gray, corners, axis, cube, estimated_camera_params)
+        img = project_points(img, gray, corners, axis, cube, estimated_camera_params)
         show_image(img)
         cv.waitKey(1)
 
@@ -97,9 +97,11 @@ def draw_on_image(estimated_camera_params):
     test_image = cv.imread(glob.glob('images/test_image.jpg')[0])
     handle_image(test_image, estimated_camera_params)
 
+    cv.waitKey(5000)
+
 # Perform online phase (draw cube and axes on image/webcam)
 def execute_online_phase(estimated_camera_params):
-    # draw_on_image(estimated_camera_params)
+    draw_on_image(estimated_camera_params)
     draw_on_webcam(estimated_camera_params)
 
     cv.waitKey(0)

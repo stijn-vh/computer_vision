@@ -139,7 +139,7 @@ def phase_1():
 
 # Run 2:  use only ten images for which corner points were found automatically
 def phase_2():
-    auto_images = glob.glob('images/test/*.jpg')
+    auto_images = glob.glob('images/automatic/*.jpg')[:10]
     return calibrate_on_images(auto_images)
 
 
@@ -152,7 +152,7 @@ def phase_3():
 
 # Execute all runs in order and return list of params to main
 def execute_offline_phase():
-    results = phase_1()
+    results = phase_2()
 
     print(results['mtx'])
     print(results['ret'])
