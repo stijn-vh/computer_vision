@@ -80,7 +80,7 @@ def interpolate_four_corners(four_corners):
 show image, wait for 4 user-clicks which indicate the corners of the chessboard. 
 if 4 corners are specified, 
 """
-def determine_points_mannually(current_image, gray):
+def determine_points_mannually(gray):
     show_image(gray, title="Choose points in Z pattern starting at the upper left")
     cv.setMouseCallback(image_name, click_event, gray)
 

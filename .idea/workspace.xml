@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5e0f08bd-db32-4723-bd75-82042f88900f" name="Changes" comment="general improvements" />
+    <list default="true" id="5e0f08bd-db32-4723-bd75-82042f88900f" name="Changes" comment="new images" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -74,7 +74,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1676545016013</updated>
-      <workItem from="1676545017226" duration="5896000" />
+      <workItem from="1676545017226" duration="6222000" />
     </task>
     <task id="LOCAL-00001" summary="renamed gray to improved_gray">
       <created>1676549336574</created>
@@ -90,7 +90,14 @@
       <option name="project" value="LOCAL" />
       <updated>1676552116339</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="new images">
+      <created>1676552771362</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1676552771362</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -99,14 +106,15 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="renamed gray to improved_gray" />
     <MESSAGE value="general improvements" />
-    <option name="LAST_COMMIT_MESSAGE" value="general improvements" />
+    <MESSAGE value="new images" />
+    <option name="LAST_COMMIT_MESSAGE" value="new images" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/camera_geometric_calibration/offline_phase.py</url>
-          <line>112</line>
+          <line>126</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
       </breakpoints>
@@ -114,7 +122,7 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/computer_vision$online_phase.coverage" NAME="online_phase Coverage Results" MODIFIED="1676387986290" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
-    <SUITE FILE_PATH="coverage/computer_vision$main.coverage" NAME="main Coverage Results" MODIFIED="1676551299705" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
+    <SUITE FILE_PATH="coverage/computer_vision$main.coverage" NAME="main Coverage Results" MODIFIED="1676552780729" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
     <SUITE FILE_PATH="coverage/computer_vision$image_enhancement_test.coverage" NAME="image_enhancement_test Coverage Results" MODIFIED="1676547921218" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
     <SUITE FILE_PATH="coverage/computer_vision$.coverage" NAME=" Coverage Results" MODIFIED="1676469203670" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
     <SUITE FILE_PATH="coverage/computer_vision$offline_phase.coverage" NAME="offline_phase Coverage Results" MODIFIED="1676548468411" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
