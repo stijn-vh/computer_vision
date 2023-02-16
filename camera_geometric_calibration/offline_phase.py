@@ -1,4 +1,3 @@
-import os
 import numpy as np
 import cv2 as cv
 import glob
@@ -15,23 +14,26 @@ import glob
 objpoints = []  # 3d point in real world space
 imgpoints = []  # 2d points in image plane.
 
-corner_points = []
-
-
+"""
+Create window with provided image
+"""
 def show_image(img, title='Current Image'):
     cv.namedWindow(image_name, cv.WINDOW_KEEPRATIO)
     cv.imshow(image_name, img)
     cv.setWindowTitle(image_name, title)
     cv.resizeWindow(image_name, 1900, 1080)
 
-
+"""
+Draw and show chessboardcorners based on found corners in image
+"""
 def draw_chessboard_corners(corners, current_image, time):
-    # Draw and display the corners
     cv.drawChessboardCorners(current_image, (num_cols, num_rows), corners, True)
     show_image(current_image)
     cv.waitKey(time)
 
-
+"""
+handle click event: if left mouse button is clicked on image, add coordinates of mouse to cornerspoint
+"""
 def click_event(event, x, y, flags, params):
     current_image = params
     if event == cv.EVENT_LBUTTONDOWN and len(corner_points) < 4:
@@ -42,6 +44,9 @@ def click_event(event, x, y, flags, params):
         show_image(current_image)
 
 
+"""
+Determine coordinates of next corner based on current coordinates and amount of columns/rows
+"""
 def direction_step(p1, p2, num_steps):
     x1, y1 = p1
     x2, y2 = p2
@@ -71,14 +76,18 @@ def interpolate_four_corners(four_corners):
             index += 1
     return np.float32(corners)
 
-
-def determine_points_mannually(gray):
+"""
+show image, wait for 4 user-clicks which indicate the corners of the chessboard. 
+if 4 corners are specified, 
+"""
+def determine_points_mannually(current_image, gray):
     show_image(gray, title="Choose points in Z pattern starting at the upper left")
     cv.setMouseCallback(image_name, click_event, gray)
 
     while 1:
         cv.waitKey(0)
         count_points = len(corner_points)
+
         if count_points == 4:
             return interpolate_four_corners(corner_points)
         else:
@@ -87,19 +96,24 @@ def determine_points_mannually(gray):
 
 def handle_image(img):
     global corner_points
+
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     smoothed = cv.GaussianBlur(gray, (0, 0), 3)
     improved_gray = cv.addWeighted(gray, 2, smoothed, -1, 0)  # params alpha/beta/gamma
+
     # Find the chess board corners
     ret, corners = cv.findChessboardCorners(improved_gray, (num_cols, num_rows), None)
     time = 50
+
     # If found, add object points, image points (after refining them)
     if ret == False:
         corners = determine_points_mannually(improved_gray)
         time = 2000
+
     improved_corners = cv.cornerSubPix(improved_gray, corners, (3, 3), (-1, -1), criteria)
     # improved_corners = corners
     draw_chessboard_corners(improved_corners, img, time)
+    
     objpoints.append(objp)
     imgpoints.append(improved_corners)
     corner_points = []
@@ -150,9 +164,10 @@ def execute_offline_phase():
 
 
 def set_config(c):
-    global criteria, num_cols, num_rows, objp, image_name
+    global criteria, num_cols, num_rows, objp, image_name, corner_points
     criteria = c['criteria']
     num_cols = c['num_cols']
     num_rows = c['num_rows']
     image_name = c['image_name']
     objp = c['objp']
+    corner_points = []
