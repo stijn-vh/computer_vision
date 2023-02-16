@@ -2,11 +2,15 @@ import cv2 as cv
 import numpy as np
 import glob
 
-
 # From slides:
 # Workflow online:
 # • Read an image/camera frame
 # • Draw a box on a detected chessboard in the right perspective
+
+def show_image(img):
+    cv.namedWindow(image_name, cv.WINDOW_KEEPRATIO)
+    cv.imshow(image_name, img)
+    cv.resizeWindow(image_name, 1900, 1080)
 
 def get_point_tuple(pts):
     return tuple(map(int, pts.ravel()))
@@ -65,16 +69,16 @@ def handle_image(img, estimated_camera_params):
         cubepts, _ = cv.projectPoints(cube, rvec, tvec, estimated_camera_params['mtx'], estimated_camera_params['dist'])
         img = draw_axes_on_image(img, axpts, get_point_tuple(corners2[0]))
         img = draw_cube_on_image(img, cubepts, get_point_tuple(corners2[0]))
-        cv.imshow('webcam', img)
+        show_image(img)
         cv.waitKey(1)
 
 
-def draw_cube_on_webcam(estimated_camera_params):
+def draw_on_webcam(estimated_camera_params):
     cam = cv.VideoCapture(0)
 
     while (True):
         ret, frame = cam.read()
-        cv.imshow('webcam', frame)
+        show_image(frame)
         handle_image(frame, estimated_camera_params)
 
         key = cv.waitKey(1)
@@ -84,15 +88,22 @@ def draw_cube_on_webcam(estimated_camera_params):
 
     return
 
+def draw_on_image(estimated_camera_params):
+    test_image = cv.imread(glob.glob('images/test_image.jpg')[0])
+    handle_image(test_image, estimated_camera_params)
 
 def execute_online_phase(estimated_camera_params):
-    draw_cube_on_webcam(estimated_camera_params)
+    draw_on_image(estimated_camera_params)
+    # draw_on_webcam(estimated_camera_params)
 
+    cv.waitKey(0)
 
 def set_config(c):
-    global criteria, num_cols, num_rows, objp
+    global criteria, num_cols, num_rows, objp, image_name
     criteria = c['criteria']
     num_cols = c['num_cols']
     num_rows = c['num_rows']
+    image_name = c['image_name']
+
     objp = np.zeros((num_cols * num_rows, 3), np.float32)
     objp[:, :2] = np.mgrid[0:num_cols, 0:num_rows].T.reshape(-1, 2)

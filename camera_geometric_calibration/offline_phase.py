@@ -17,12 +17,16 @@ imgpoints = []  # 2d points in image plane.
 
 corner_points = []
 
+def show_image(img):
+    cv.namedWindow(image_name, cv.WINDOW_KEEPRATIO)
+    cv.imshow(image_name, img)
+    cv.resizeWindow(image_name, 1900, 1080)
 
 def draw_chessboard_corners(corners, gray, ret, current_image):
     # Draw and display the corners
     # corners = cv.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
     cv.drawChessboardCorners(current_image, (num_cols, num_rows), corners, ret)
-    cv.imshow('current_image', current_image)
+    show_image(current_image)
     cv.waitKey(50)
 
     objpoints.append(objp)
@@ -36,7 +40,7 @@ def click_event(event, x, y, flags, params):
         corner_points.append((x, y))
 
         cv.circle(current_image, (x, y), radius=6, color=(0, 0, 255), thickness=1)
-        cv.imshow('current_image', current_image)
+        show_image(current_image)
 
 
 def direction_step(p1, p2, num_steps):
@@ -70,8 +74,8 @@ def interpolate_four_corners(four_corners):
 
 
 def determine_points_mannually(current_image):
-    cv.imshow('current_image', current_image)
-    cv.setMouseCallback('current_image', click_event, current_image)
+    show_image(current_image)
+    cv.setMouseCallback(image_name, click_event, current_image)
 
     while 1:
         cv.waitKey(0)
@@ -110,7 +114,7 @@ def calibrate_on_images(images):
 
     cv.destroyAllWindows()
 
-    return {'mtx': mtx, 'dist': dist}
+    return {'ret': ret, 'mtx': mtx, 'dist': dist}
 
 
 # Run 1: use all training images (including the images with manually provided corner points)
@@ -138,14 +142,19 @@ def phase_3():
 
 # Execute all runs in order and return list of params to main
 def execute_offline_phase():
-    phase_1_results = phase_1()
+    phase_1_results = phase_3()
+
+    print(phase_1_results['mtx'])
+    print(phase_1_results['ret'])
+
     return phase_1_results
 
 
 def set_config(c):
-    global criteria, num_cols, num_rows, objp
+    global criteria, num_cols, num_rows, objp, image_name
     criteria = c['criteria']
     num_cols = c['num_cols']
     num_rows = c['num_rows']
+    image_name = c['image_name']
     objp = np.zeros((num_cols * num_rows, 3), np.float32)
     objp[:, :2] = np.mgrid[0:num_cols, 0:num_rows].T.reshape(-1, 2)
