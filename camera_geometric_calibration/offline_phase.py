@@ -17,16 +17,17 @@ imgpoints = []  # 2d points in image plane.
 
 corner_points = []
 
-def show_image(img):
+def show_image(img, title = 'Current Image'):
     cv.namedWindow(image_name, cv.WINDOW_KEEPRATIO)
     cv.imshow(image_name, img)
+    cv.setWindowTitle(image_name, title)
     cv.resizeWindow(image_name, 1900, 1080)
 
-def draw_chessboard_corners(corners, current_image):
+def draw_chessboard_corners(corners, current_image, time):
     # Draw and display the corners
     cv.drawChessboardCorners(current_image, (num_cols, num_rows), corners, True)
     show_image(current_image)
-    cv.waitKey(200)
+    cv.waitKey(time)
 
 
 def click_event(event, x, y, flags, params):
@@ -69,31 +70,35 @@ def interpolate_four_corners(four_corners):
     return np.float32(corners)
 
 
-def determine_points_mannually(current_image, gray):
-    show_image(current_image)
-    cv.setMouseCallback(image_name, click_event, current_image)
+def determine_points_mannually(gray):
+    show_image(gray, "Choose points in Z pattern starting at the upper left")
+    cv.setMouseCallback(image_name, click_event, gray)
 
     while 1:
         cv.waitKey(0)
         count_points = len(corner_points)
         if count_points == 4:
-            improved_four_corners = cv.cornerSubPix(gray, np.float32(corner_points), (10, 10), (-1, -1), criteria)
-            return interpolate_four_corners(improved_four_corners)
+            return interpolate_four_corners(corner_points)
         else:
             print('Only ' + str(count_points) + ' added, please add ' + str(4 - count_points) + ' more')
 
 
-def handle_image(current_image):
+def handle_image(img):
     global corner_points
-    gray = cv.cvtColor(current_image, cv.COLOR_BGR2GRAY)
+    gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+    smoothed = cv.GaussianBlur(gray, (0, 0), 3)
+    improved_gray = cv.addWeighted(gray, 2, smoothed, -1, 0)  # params alpha/beta/gamma
     # Find the chess board corners
-    ret, corners = cv.findChessboardCorners(gray, (num_cols, num_rows), None)
+    ret, corners = cv.findChessboardCorners(improved_gray, (num_cols, num_rows), None)
+    time = 50
     # If found, add object points, image points (after refining them)
     if ret == False:
-        corners = determine_points_mannually(current_image, gray)
-    draw_chessboard_corners(corners, current_image)
+        corners = determine_points_mannually(improved_gray)
+        time = 2000
+    improved_corners = cv.cornerSubPix(improved_gray, corners, (10, 10), (-1, -1), criteria)
+    draw_chessboard_corners(improved_corners, img, time)
     objpoints.append(objp)
-    imgpoints.append(corners)
+    imgpoints.append(improved_corners)
     corner_points = []
 
 
