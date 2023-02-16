@@ -17,11 +17,13 @@ imgpoints = []  # 2d points in image plane.
 
 corner_points = []
 
-def show_image(img, title = 'Current Image'):
+
+def show_image(img, title='Current Image'):
     cv.namedWindow(image_name, cv.WINDOW_KEEPRATIO)
     cv.imshow(image_name, img)
     cv.setWindowTitle(image_name, title)
     cv.resizeWindow(image_name, 1900, 1080)
+
 
 def draw_chessboard_corners(corners, current_image, time):
     # Draw and display the corners
@@ -71,7 +73,7 @@ def interpolate_four_corners(four_corners):
 
 
 def determine_points_mannually(gray):
-    show_image(gray, "Choose points in Z pattern starting at the upper left")
+    show_image(gray, title="Choose points in Z pattern starting at the upper left")
     cv.setMouseCallback(image_name, click_event, gray)
 
     while 1:
@@ -95,7 +97,8 @@ def handle_image(img):
     if ret == False:
         corners = determine_points_mannually(improved_gray)
         time = 2000
-    improved_corners = cv.cornerSubPix(improved_gray, corners, (10, 10), (-1, -1), criteria)
+    improved_corners = cv.cornerSubPix(improved_gray, corners, (3, 3), (-1, -1), criteria)
+    # improved_corners = corners
     draw_chessboard_corners(improved_corners, img, time)
     objpoints.append(objp)
     imgpoints.append(improved_corners)
@@ -125,8 +128,7 @@ def phase_1():
 
 # Run 2:  use only ten images for which corner points were found automatically
 def phase_2():
-    auto_images = glob.glob('images/automatic/*.jpg')[:10]
-
+    auto_images = glob.glob('images/test/*.jpg')
     return calibrate_on_images(auto_images)
 
 
@@ -139,12 +141,12 @@ def phase_3():
 
 # Execute all runs in order and return list of params to main
 def execute_offline_phase():
-    phase_1_results = phase_1()
+    results = phase_1()
 
-    print(phase_1_results['mtx'])
-    print(phase_1_results['ret'])
+    print(results['mtx'])
+    print(results['ret'])
 
-    return phase_1_results
+    return results
 
 
 def set_config(c):

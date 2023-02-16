@@ -2,6 +2,7 @@ import cv2 as cv
 import numpy as np
 import glob
 
+
 # From slides:
 # Workflow online:
 # • Read an image/camera frame
@@ -11,6 +12,7 @@ def show_image(img):
     cv.namedWindow(image_name, cv.WINDOW_KEEPRATIO)
     cv.imshow(image_name, img)
     cv.resizeWindow(image_name, 1900, 1080)
+
 
 def get_point_tuple(pts):
     return tuple(map(int, pts.ravel()))
@@ -88,15 +90,18 @@ def draw_on_webcam(estimated_camera_params):
 
     return
 
+
 def draw_on_image(estimated_camera_params):
     test_image = cv.imread(glob.glob('images/test_image.jpg')[0])
     handle_image(test_image, estimated_camera_params)
 
+
 def execute_online_phase(estimated_camera_params):
-    draw_on_image(estimated_camera_params)
-    # draw_on_webcam(estimated_camera_params)
+    # draw_on_image(estimated_camera_params)
+    draw_on_webcam(estimated_camera_params)
 
     cv.waitKey(0)
+
 
 def set_config(c):
     global criteria, num_cols, num_rows, objp, image_name

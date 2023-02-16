@@ -4,10 +4,42 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5e0f08bd-db32-4723-bd75-82042f88900f" name="Changes" comment="">
+    <list default="true" id="5e0f08bd-db32-4723-bd75-82042f88900f" name="Changes" comment="renamed gray to improved_gray">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/image_enhancement_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/camera_geometric_calibration/image_enhancement_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/calibration_test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_36_Pro.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_37_Pro.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_38_Pro.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_40_Pro.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_41_Pro.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_42_Pro.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_44_Pro.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_45_Pro.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_46_Pro.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_48_Pro.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_49_Pro.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_50_Pro.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_52_Pro.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_53_Pro.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_55_Pro.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_57_Pro.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_59_Pro.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_47_03_Pro.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_47_05_Pro.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_47_08_Pro.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_47_09_Pro.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_47_10_Pro.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_47_11_Pro.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_47_13_Pro.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_47_14_Pro.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/manual/WIN_20230214_14_46_56_Pro.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/manual/WIN_20230214_14_47_00_Pro.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/manual/WIN_20230214_14_47_01_Pro.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/manual/WIN_20230214_14_47_02_Pro.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/manual/WIN_20230214_14_47_06_Pro.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/test_image.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/camera_geometric_calibration/images/test_image.jpg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/offline_phase.py" beforeDir="false" afterPath="$PROJECT_DIR$/camera_geometric_calibration/offline_phase.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/online_phase.py" beforeDir="false" afterPath="$PROJECT_DIR$/camera_geometric_calibration/online_phase.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,18 +64,19 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/fedor/Desktop/Computer Vision/computer_vision/camera_geometric_calibration/main.py&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "C:/Users/fedor/Desktop/Computer Vision/computer_vision/camera_geometric_calibration/main.py",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration name="main" type="PythonConfigurationType" factoryName="Python">
       <module name="computer_vision" />
@@ -77,19 +110,31 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1676545016013</updated>
-      <workItem from="1676545017226" duration="2252000" />
+      <workItem from="1676545017226" duration="5548000" />
     </task>
+    <task id="LOCAL-00001" summary="renamed gray to improved_gray">
+      <created>1676549336574</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1676549336574</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="renamed gray to improved_gray" />
+    <option name="LAST_COMMIT_MESSAGE" value="renamed gray to improved_gray" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/camera_geometric_calibration/offline_phase.py</url>
-          <line>102</line>
+          <line>112</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
       </breakpoints>
@@ -97,7 +142,7 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/computer_vision$online_phase.coverage" NAME="online_phase Coverage Results" MODIFIED="1676387986290" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
-    <SUITE FILE_PATH="coverage/computer_vision$main.coverage" NAME="main Coverage Results" MODIFIED="1676548786966" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
+    <SUITE FILE_PATH="coverage/computer_vision$main.coverage" NAME="main Coverage Results" MODIFIED="1676551299705" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
     <SUITE FILE_PATH="coverage/computer_vision$image_enhancement_test.coverage" NAME="image_enhancement_test Coverage Results" MODIFIED="1676547921218" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
     <SUITE FILE_PATH="coverage/computer_vision$.coverage" NAME=" Coverage Results" MODIFIED="1676469203670" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
     <SUITE FILE_PATH="coverage/computer_vision$offline_phase.coverage" NAME="offline_phase Coverage Results" MODIFIED="1676548468411" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
