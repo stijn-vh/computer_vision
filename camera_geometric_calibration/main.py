@@ -3,6 +3,7 @@ import offline_phase as Offline
 import numpy as np
 import cv2 as cv
 
+# Configure global variables and call necessary offline/online functions
 if __name__ == '__main__':
     num_cols = 9
     num_rows = 6
