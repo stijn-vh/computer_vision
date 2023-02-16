@@ -4,43 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5e0f08bd-db32-4723-bd75-82042f88900f" name="Changes" comment="renamed gray to improved_gray">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/calibration_test.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_36_Pro.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_37_Pro.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_38_Pro.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_40_Pro.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_41_Pro.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_42_Pro.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_44_Pro.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_45_Pro.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_46_Pro.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_48_Pro.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_49_Pro.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_50_Pro.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_52_Pro.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_53_Pro.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_55_Pro.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_57_Pro.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_46_59_Pro.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_47_03_Pro.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_47_05_Pro.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_47_08_Pro.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_47_09_Pro.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_47_10_Pro.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_47_11_Pro.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_47_13_Pro.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/automatic/WIN_20230214_14_47_14_Pro.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/manual/WIN_20230214_14_46_56_Pro.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/manual/WIN_20230214_14_47_00_Pro.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/manual/WIN_20230214_14_47_01_Pro.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/manual/WIN_20230214_14_47_02_Pro.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/manual/WIN_20230214_14_47_06_Pro.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/images/test_image.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/camera_geometric_calibration/images/test_image.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/offline_phase.py" beforeDir="false" afterPath="$PROJECT_DIR$/camera_geometric_calibration/offline_phase.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/online_phase.py" beforeDir="false" afterPath="$PROJECT_DIR$/camera_geometric_calibration/online_phase.py" afterDir="false" />
-    </list>
+    <list default="true" id="5e0f08bd-db32-4723-bd75-82042f88900f" name="Changes" comment="general improvements" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -110,7 +74,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1676545016013</updated>
-      <workItem from="1676545017226" duration="5548000" />
+      <workItem from="1676545017226" duration="5896000" />
     </task>
     <task id="LOCAL-00001" summary="renamed gray to improved_gray">
       <created>1676549336574</created>
@@ -119,7 +83,14 @@
       <option name="project" value="LOCAL" />
       <updated>1676549336574</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="general improvements">
+      <created>1676552116339</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1676552116339</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -127,7 +98,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="renamed gray to improved_gray" />
-    <option name="LAST_COMMIT_MESSAGE" value="renamed gray to improved_gray" />
+    <MESSAGE value="general improvements" />
+    <option name="LAST_COMMIT_MESSAGE" value="general improvements" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

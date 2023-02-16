@@ -1,0 +1,202 @@
+Index: camera_geometric_calibration/image_enhancement_test.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+># Source:\r\n# https://stackoverflow.com/questions/4993082/how-can-i-sharpen-an-image-in-opencv\r\nimport glob\r\n\r\nimport cv2 as cv\r\n\r\nmanual_images = glob.glob('images/manual/*.jpg')\r\nfor img_path in manual_images:\r\n    img = cv.imread(img_path)\r\n    #img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)\r\n\r\n    smoothed = cv.GaussianBlur(img, (0, 0), 3)\r\n\r\n    improved = cv.addWeighted(img, 2, smoothed, -1, 0) #params alpha/beta/gamma\r\n\r\n    #cv.imshow('original', img)\r\n    ret, ogcorners = cv.findChessboardCorners(img, (9, 6), None)\r\n    print(\"original returns \", ret)\r\n\r\n    #cv.imshow('smoothed', smoothed)\r\n    ret, smcorners = cv.findChessboardCorners(smoothed, (9, 6), None)\r\n    print(\"smoothed returns \", ret)\r\n\r\n    #cv.imshow('improved', improved)\r\n    ret, imcorners = cv.findChessboardCorners(improved, (9, 6), None)\r\n    print(\"improved returns \", ret)\r\n\r\ncv.waitKey(100000)\r\ncv.destroyAllWindows()\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/camera_geometric_calibration/image_enhancement_test.py b/camera_geometric_calibration/image_enhancement_test.py
+--- a/camera_geometric_calibration/image_enhancement_test.py	(revision 1944bf5ade67a2c1e538aff067272b9404097f7f)
++++ b/camera_geometric_calibration/image_enhancement_test.py	(date 1676548104914)
+@@ -7,21 +7,21 @@
+ manual_images = glob.glob('images/manual/*.jpg')
+ for img_path in manual_images:
+     img = cv.imread(img_path)
+-    #img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
++    img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+ 
+     smoothed = cv.GaussianBlur(img, (0, 0), 3)
+ 
+     improved = cv.addWeighted(img, 2, smoothed, -1, 0) #params alpha/beta/gamma
+ 
+-    #cv.imshow('original', img)
++    cv.imshow('original', img)
+     ret, ogcorners = cv.findChessboardCorners(img, (9, 6), None)
+     print("original returns ", ret)
+ 
+-    #cv.imshow('smoothed', smoothed)
++    cv.imshow('smoothed', smoothed)
+     ret, smcorners = cv.findChessboardCorners(smoothed, (9, 6), None)
+     print("smoothed returns ", ret)
+ 
+-    #cv.imshow('improved', improved)
++    cv.imshow('improved', improved)
+     ret, imcorners = cv.findChessboardCorners(improved, (9, 6), None)
+     print("improved returns ", ret)
+ 
+Index: camera_geometric_calibration/offline_phase.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import os\r\nimport numpy as np\r\nimport cv2 as cv\r\nimport glob\r\n\r\n# From slides:\r\n# Workflow offline:\r\n# • Print checkerboard on piece of paper (or take a real one)\r\n# • Measure the stride length and fill it in\r\n# • Take a number of pictures with the camera\r\n# • Determine camera parameters using OpenCV functions (browse!)\r\n# • Now your camera is calibrated\r\n\r\n# Arrays to store object points and image points from all the images.\r\nobjpoints = []  # 3d point in real world space\r\nimgpoints = []  # 2d points in image plane.\r\n\r\ncorner_points = []\r\n\r\n\r\ndef draw_chessboard_corners(corners, current_image):\r\n    # Draw and display the corners\r\n    cv.drawChessboardCorners(current_image, (num_cols, num_rows), corners, True)\r\n    cv.imshow('current_image', current_image)\r\n    cv.waitKey(5000)\r\n\r\n\r\ndef click_event(event, x, y, flags, params):\r\n    current_image = params\r\n    if event == cv.EVENT_LBUTTONDOWN and len(corner_points) < 4:\r\n        print('new cornerpoint added: (' + str(x) + ', ' + str(y) + ')')\r\n        corner_points.append([x, y])\r\n\r\n        cv.circle(current_image, (x, y), radius=6, color=(0, 0, 255), thickness=1)\r\n        cv.imshow('current_image', current_image)\r\n\r\n\r\ndef direction_step(p1, p2, num_steps):\r\n    x1, y1 = p1\r\n    x2, y2 = p2\r\n    return (x2 - x1) / num_steps, (y2 - y1) / num_steps\r\n\r\n\r\ndef interpolate_four_corners(four_corners):\r\n    upper_left_cor, upper_right_cor, lower_left_cor, lower_right_cor = four_corners\r\n    ur_corx, ur_cory = upper_right_cor\r\n    ul_corx, ul_cory = upper_left_cor\r\n\r\n    # direction is also scaled to stepsize.\r\n    rrow_dirx, rrow_diry = direction_step(upper_right_cor, lower_right_cor, (num_rows - 1))\r\n    lrow_dirx, lrow_diry = direction_step(upper_left_cor, lower_left_cor, (num_rows - 1))\r\n\r\n    corners = np.zeros((num_rows * num_cols, 1, 2))\r\n    index = 0\r\n\r\n    for i in range(num_rows):\r\n        rrowptx = ur_corx + i * rrow_dirx\r\n        rrowpty = ur_cory + i * rrow_diry\r\n        lrowptx = ul_corx + i * lrow_dirx\r\n        lrowpty = ul_cory + i * lrow_diry\r\n        col_dirx, col_diry = direction_step((lrowptx, lrowpty), (rrowptx, rrowpty), (num_cols - 1))\r\n        for j in range(num_cols):\r\n            corners[index] = [lrowptx + j * col_dirx, lrowpty + j * col_diry]\r\n            index += 1\r\n    return np.float32(corners)\r\n\r\n\r\ndef determine_points_mannually(current_image, gray):\r\n    cv.imshow('current_image', current_image)\r\n    cv.setMouseCallback('current_image', click_event, current_image)\r\n    while 1:\r\n        cv.waitKey(0)\r\n        count_points = len(corner_points)\r\n        if count_points == 4:\r\n            improved_four_corners = cv.cornerSubPix(gray, np.float32(corner_points), (10, 10), (-1, -1), criteria)\r\n            return interpolate_four_corners(improved_four_corners)\r\n        else:\r\n            print('Only ' + str(count_points) + ' added, please add ' + str(4 - count_points) + ' more')\r\n\r\n\r\ndef handle_image(current_image):\r\n    global corner_points\r\n    gray = cv.cvtColor(current_image, cv.COLOR_BGR2GRAY)\r\n    # Find the chess board corners\r\n    ret, corners = cv.findChessboardCorners(gray, (num_cols, num_rows), None)\r\n    # If found, add object points, image points (after refining them)\r\n    if ret == False:\r\n        corners = determine_points_mannually(current_image, gray)\r\n    draw_chessboard_corners(corners, current_image)\r\n    objpoints.append(objp)\r\n    imgpoints.append(corners)\r\n    corner_points = []\r\n\r\n\r\ndef calibrate_on_images(images):\r\n    for img_path in images:\r\n        current_image = cv.imread(img_path)\r\n        handle_image(current_image)\r\n\r\n    ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, current_image.shape[0:2][::-1], None, None)\r\n\r\n    cv.destroyAllWindows()\r\n\r\n    return {'mtx': mtx, 'dist': dist}\r\n\r\n\r\n# Run 1: use all training images (including the images with manually provided corner points)\r\ndef phase_1():\r\n    auto_images = glob.glob('images/automatic/*.jpg')\r\n    manual_images = glob.glob('images/manual/*.jpg')\r\n    all_images = auto_images + manual_images\r\n\r\n    return calibrate_on_images(all_images)\r\n\r\n\r\n# Run 2:  use only ten images for which corner points were found automatically\r\ndef phase_2():\r\n    auto_images = glob.glob('images/automatic/*.jpg')[:10]\r\n\r\n    return calibrate_on_images(auto_images)\r\n\r\n\r\n# Run 3: use only five out of the ten images in Run 2. In each run, you will calibrate the camera\r\ndef phase_3():\r\n    auto_images = glob.glob('images/automatic/*.jpg')[:5]\r\n\r\n    return calibrate_on_images(auto_images)\r\n\r\n\r\n# Execute all runs in order and return list of params to main\r\ndef execute_offline_phase():\r\n    phase_1_results = phase_1()\r\n    return phase_1_results\r\n\r\n\r\ndef set_config(c):\r\n    global criteria, num_cols, num_rows, objp\r\n    criteria = c['criteria']\r\n    num_cols = c['num_cols']\r\n    num_rows = c['num_rows']\r\n    objp = np.zeros((num_cols * num_rows, 3), np.float32)\r\n    objp[:, :2] = np.mgrid[0:num_cols, 0:num_rows].T.reshape(-1, 2)\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/camera_geometric_calibration/offline_phase.py b/camera_geometric_calibration/offline_phase.py
+--- a/camera_geometric_calibration/offline_phase.py	(revision 1944bf5ade67a2c1e538aff067272b9404097f7f)
++++ b/camera_geometric_calibration/offline_phase.py	(date 1676548897008)
+@@ -18,11 +18,11 @@
+ corner_points = []
+ 
+ 
+-def draw_chessboard_corners(corners, current_image):
++def draw_chessboard_corners(corners, current_image, time):
+     # Draw and display the corners
+     cv.drawChessboardCorners(current_image, (num_cols, num_rows), corners, True)
+     cv.imshow('current_image', current_image)
+-    cv.waitKey(5000)
++    cv.waitKey(time)
+ 
+ 
+ def click_event(event, x, y, flags, params):
+@@ -65,30 +65,35 @@
+     return np.float32(corners)
+ 
+ 
+-def determine_points_mannually(current_image, gray):
+-    cv.imshow('current_image', current_image)
+-    cv.setMouseCallback('current_image', click_event, current_image)
++def determine_points_mannually(gray):
++    cv.imshow('current_image', gray)
++    cv.setWindowTitle('current_image', "Choose points in Z pattern starting at the upper left")
++    cv.setMouseCallback('current_image', click_event, gray)
+     while 1:
+         cv.waitKey(0)
+         count_points = len(corner_points)
+         if count_points == 4:
+-            improved_four_corners = cv.cornerSubPix(gray, np.float32(corner_points), (10, 10), (-1, -1), criteria)
+-            return interpolate_four_corners(improved_four_corners)
++            return interpolate_four_corners(corner_points)
+         else:
+             print('Only ' + str(count_points) + ' added, please add ' + str(4 - count_points) + ' more')
+ 
+ 
+-def handle_image(current_image):
++def handle_image(img):
+     global corner_points
+-    gray = cv.cvtColor(current_image, cv.COLOR_BGR2GRAY)
++    gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
++    smoothed = cv.GaussianBlur(gray, (0, 0), 3)
++    improved_gray = cv.addWeighted(gray, 2, smoothed, -1, 0)  # params alpha/beta/gamma
+     # Find the chess board corners
+-    ret, corners = cv.findChessboardCorners(gray, (num_cols, num_rows), None)
++    ret, corners = cv.findChessboardCorners(improved_gray, (num_cols, num_rows), None)
++    time = 50
+     # If found, add object points, image points (after refining them)
+     if ret == False:
+-        corners = determine_points_mannually(current_image, gray)
+-    draw_chessboard_corners(corners, current_image)
++        corners = determine_points_mannually(improved_gray)
++        time = 2000
++    improved_corners = cv.cornerSubPix(gray, corners, (10, 10), (-1, -1), criteria)
++    draw_chessboard_corners(improved_corners, img, time)
+     objpoints.append(objp)
+-    imgpoints.append(corners)
++    imgpoints.append(improved_corners)
+     corner_points = []
+ 
+ 
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"5e0f08bd-db32-4723-bd75-82042f88900f\" name=\"Changes\" comment=\"\" />\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"FileTemplateManagerImpl\">\r\n    <option name=\"RECENT_TEMPLATES\">\r\n      <list>\r\n        <option value=\"Python Script\" />\r\n      </list>\r\n    </option>\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\"><![CDATA[{\r\n  \"keyToString\": {\r\n    \"last_opened_file_path\": \"C:/Users/fedor/Desktop/Computer Vision/computer_vision/camera_geometric_calibration/main.py\",\r\n    \"node.js.selected.package.tslint\": \"(autodetect)\"\r\n  }\r\n}]]></component>\r\n  <component name=\"RunManager\">\r\n    <configuration name=\"main\" type=\"PythonConfigurationType\" factoryName=\"Python\">\r\n      <module name=\"computer_vision\" />\r\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\r\n      <option name=\"PARENT_ENVS\" value=\"true\" />\r\n      <envs>\r\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\r\n      </envs>\r\n      <option name=\"SDK_HOME\" value=\"C:\\Users\\fedor\\anaconda3\\python.exe\" />\r\n      <option name=\"SDK_NAME\" value=\"Python 3.9\" />\r\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$/camera_geometric_calibration\" />\r\n      <option name=\"IS_MODULE_SDK\" value=\"false\" />\r\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\r\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\r\n      <EXTENSION ID=\"PythonCoverageRunConfigurationExtension\" runner=\"coverage.py\" />\r\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/camera_geometric_calibration/main.py\" />\r\n      <option name=\"PARAMETERS\" value=\"\" />\r\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\r\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\r\n      <option name=\"MODULE_MODE\" value=\"false\" />\r\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\r\n      <option name=\"INPUT_FILE\" value=\"\" />\r\n      <method v=\"2\" />\r\n    </configuration>\r\n  </component>\r\n  <component name=\"TaskManager\">\r\n    <servers />\r\n  </component>\r\n  <component name=\"XDebuggerManager\">\r\n    <breakpoint-manager>\r\n      <breakpoints>\r\n        <line-breakpoint enabled=\"true\" suspend=\"THREAD\" type=\"python-line\">\r\n          <url>file://$PROJECT_DIR$/camera_geometric_calibration/image_enhancement_test.py</url>\r\n          <line>8</line>\r\n          <option name=\"timeStamp\" value=\"7\" />\r\n        </line-breakpoint>\r\n      </breakpoints>\r\n    </breakpoint-manager>\r\n  </component>\r\n  <component name=\"com.intellij.coverage.CoverageDataManagerImpl\">\r\n    <SUITE FILE_PATH=\"coverage/computer_vision$online_phase.coverage\" NAME=\"online_phase Coverage Results\" MODIFIED=\"1676387986290\" SOURCE_PROVIDER=\"com.intellij.coverage.DefaultCoverageFileProvider\" RUNNER=\"coverage.py\" COVERAGE_BY_TEST_ENABLED=\"true\" COVERAGE_TRACING_ENABLED=\"false\" WORKING_DIRECTORY=\"$PROJECT_DIR$/camera_geometric_calibration\" />\r\n    <SUITE FILE_PATH=\"coverage/computer_vision$main.coverage\" NAME=\"main Coverage Results\" MODIFIED=\"1676466760404\" SOURCE_PROVIDER=\"com.intellij.coverage.DefaultCoverageFileProvider\" RUNNER=\"coverage.py\" COVERAGE_BY_TEST_ENABLED=\"true\" COVERAGE_TRACING_ENABLED=\"false\" WORKING_DIRECTORY=\"$PROJECT_DIR$/camera_geometric_calibration\" />\r\n    <SUITE FILE_PATH=\"coverage/computer_vision$image_enhancement_test.coverage\" NAME=\"image_enhancement_test Coverage Results\" MODIFIED=\"1676469866711\" SOURCE_PROVIDER=\"com.intellij.coverage.DefaultCoverageFileProvider\" RUNNER=\"coverage.py\" COVERAGE_BY_TEST_ENABLED=\"true\" COVERAGE_TRACING_ENABLED=\"false\" WORKING_DIRECTORY=\"$PROJECT_DIR$/camera_geometric_calibration\" />\r\n    <SUITE FILE_PATH=\"coverage/computer_vision$.coverage\" NAME=\" Coverage Results\" MODIFIED=\"1676469203670\" SOURCE_PROVIDER=\"com.intellij.coverage.DefaultCoverageFileProvider\" RUNNER=\"coverage.py\" COVERAGE_BY_TEST_ENABLED=\"true\" COVERAGE_TRACING_ENABLED=\"false\" WORKING_DIRECTORY=\"$PROJECT_DIR$/camera_geometric_calibration\" />\r\n    <SUITE FILE_PATH=\"coverage/computer_vision$offline_phase.coverage\" NAME=\"offline_phase Coverage Results\" MODIFIED=\"1676464790994\" SOURCE_PROVIDER=\"com.intellij.coverage.DefaultCoverageFileProvider\" RUNNER=\"coverage.py\" COVERAGE_BY_TEST_ENABLED=\"true\" COVERAGE_TRACING_ENABLED=\"false\" WORKING_DIRECTORY=\"$PROJECT_DIR$/camera_geometric_calibration\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 1944bf5ade67a2c1e538aff067272b9404097f7f)
++++ b/.idea/workspace.xml	(date 1676548787990)
+@@ -4,7 +4,11 @@
+     <option name="autoReloadType" value="SELECTIVE" />
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="5e0f08bd-db32-4723-bd75-82042f88900f" name="Changes" comment="" />
++    <list default="true" id="5e0f08bd-db32-4723-bd75-82042f88900f" name="Changes" comment="">
++      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/image_enhancement_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/camera_geometric_calibration/image_enhancement_test.py" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/offline_phase.py" beforeDir="false" afterPath="$PROJECT_DIR$/camera_geometric_calibration/offline_phase.py" afterDir="false" />
++    </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+@@ -19,11 +23,25 @@
+   </component>
+   <component name="Git.Settings">
+     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
++  </component>
++  <component name="MarkdownSettingsMigration">
++    <option name="stateVersion" value="1" />
++  </component>
++  <component name="ProjectId" id="2LokqYNCHDCcCF1qH5mhXnFxNZC" />
++  <component name="ProjectViewState">
++    <option name="hideEmptyMiddlePackages" value="true" />
++    <option name="showLibraryContents" value="true" />
+   </component>
+   <component name="PropertiesComponent"><![CDATA[{
+   "keyToString": {
++    "RunOnceActivity.OpenProjectViewOnStart": "true",
++    "RunOnceActivity.ShowReadmeOnStart": "true",
++    "WebServerToolWindowFactoryState": "false",
+     "last_opened_file_path": "C:/Users/fedor/Desktop/Computer Vision/computer_vision/camera_geometric_calibration/main.py",
+-    "node.js.selected.package.tslint": "(autodetect)"
++    "node.js.detected.package.eslint": "true",
++    "node.js.selected.package.eslint": "(autodetect)",
++    "node.js.selected.package.tslint": "(autodetect)",
++    "vue.rearranger.settings.migration": "true"
+   }
+ }]]></component>
+   <component name="RunManager">
+@@ -51,25 +69,37 @@
+       <method v="2" />
+     </configuration>
+   </component>
++  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+   <component name="TaskManager">
++    <task active="true" id="Default" summary="Default task">
++      <changelist id="5e0f08bd-db32-4723-bd75-82042f88900f" name="Changes" comment="" />
++      <created>1676545016013</created>
++      <option name="number" value="Default" />
++      <option name="presentableId" value="Default" />
++      <updated>1676545016013</updated>
++      <workItem from="1676545017226" duration="2252000" />
++    </task>
+     <servers />
+   </component>
++  <component name="TypeScriptGeneratedFilesManager">
++    <option name="version" value="3" />
++  </component>
+   <component name="XDebuggerManager">
+     <breakpoint-manager>
+       <breakpoints>
+         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+-          <url>file://$PROJECT_DIR$/camera_geometric_calibration/image_enhancement_test.py</url>
+-          <line>8</line>
+-          <option name="timeStamp" value="7" />
++          <url>file://$PROJECT_DIR$/camera_geometric_calibration/offline_phase.py</url>
++          <line>102</line>
++          <option name="timeStamp" value="1" />
+         </line-breakpoint>
+       </breakpoints>
+     </breakpoint-manager>
+   </component>
+   <component name="com.intellij.coverage.CoverageDataManagerImpl">
+     <SUITE FILE_PATH="coverage/computer_vision$online_phase.coverage" NAME="online_phase Coverage Results" MODIFIED="1676387986290" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
+-    <SUITE FILE_PATH="coverage/computer_vision$main.coverage" NAME="main Coverage Results" MODIFIED="1676466760404" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
+-    <SUITE FILE_PATH="coverage/computer_vision$image_enhancement_test.coverage" NAME="image_enhancement_test Coverage Results" MODIFIED="1676469866711" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
++    <SUITE FILE_PATH="coverage/computer_vision$main.coverage" NAME="main Coverage Results" MODIFIED="1676548786966" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
++    <SUITE FILE_PATH="coverage/computer_vision$image_enhancement_test.coverage" NAME="image_enhancement_test Coverage Results" MODIFIED="1676547921218" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
+     <SUITE FILE_PATH="coverage/computer_vision$.coverage" NAME=" Coverage Results" MODIFIED="1676469203670" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
+-    <SUITE FILE_PATH="coverage/computer_vision$offline_phase.coverage" NAME="offline_phase Coverage Results" MODIFIED="1676464790994" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
++    <SUITE FILE_PATH="coverage/computer_vision$offline_phase.coverage" NAME="offline_phase Coverage Results" MODIFIED="1676548468411" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
+   </component>
+ </project>
+\ No newline at end of file
