@@ -24,8 +24,6 @@ class Calibration:
         self.load_config()
         self.set_offline_phase_config()
 
-        pass
-
     def set_offline_phase_config(self):
         objp = np.zeros((self.config['width'] * self.config['height'], 3), np.float32)
         objp[:, :2] = np.mgrid[0:self.config['width'], 0:self.config['height']].T.reshape(-1, 2)
