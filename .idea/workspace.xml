@@ -4,14 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5e0f08bd-db32-4723-bd75-82042f88900f" name="Changes" comment="fixed error">
+    <list default="true" id="5e0f08bd-db32-4723-bd75-82042f88900f" name="Changes" comment="moved files">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/image_enhancement_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/camera_geometric_calibration/image_enhancement_test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/offline_phase.py" beforeDir="false" afterPath="$PROJECT_DIR$/camera_geometric_calibration/offline_phase.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/result_phase_1.png" beforeDir="false" afterPath="$PROJECT_DIR$/camera_geometric_calibration/result_phase_1.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/result_phase_2.png" beforeDir="false" afterPath="$PROJECT_DIR$/camera_geometric_calibration/result_phase_2.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/result_phase_3.png" beforeDir="false" afterPath="$PROJECT_DIR$/camera_geometric_calibration/result_phase_3.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/camera_geometric_calibration/test_image.jpg" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,6 +44,11 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\fedor\Desktop\Computer Vision\computer_vision\camera_geometric_calibration\result_images" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="main" type="PythonConfigurationType" factoryName="Python">
       <module name="computer_vision" />
@@ -83,6 +83,8 @@
       <option name="presentableId" value="Default" />
       <updated>1676545016013</updated>
       <workItem from="1676545017226" duration="10351000" />
+      <workItem from="1676557894441" duration="649000" />
+      <workItem from="1676630758682" duration="1457000" />
     </task>
     <task id="LOCAL-00001" summary="renamed gray to improved_gray">
       <created>1676549336574</created>
@@ -112,7 +114,14 @@
       <option name="project" value="LOCAL" />
       <updated>1676552834270</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="moved files">
+      <created>1676558029837</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1676558029837</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -123,7 +132,8 @@
     <MESSAGE value="general improvements" />
     <MESSAGE value="new images" />
     <MESSAGE value="fixed error" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixed error" />
+    <MESSAGE value="moved files" />
+    <option name="LAST_COMMIT_MESSAGE" value="moved files" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -138,7 +148,7 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/computer_vision$online_phase.coverage" NAME="online_phase Coverage Results" MODIFIED="1676387986290" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
-    <SUITE FILE_PATH="coverage/computer_vision$main.coverage" NAME="main Coverage Results" MODIFIED="1676554602811" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
+    <SUITE FILE_PATH="coverage/computer_vision$main.coverage" NAME="main Coverage Results" MODIFIED="1676630763148" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
     <SUITE FILE_PATH="coverage/computer_vision$image_enhancement_test.coverage" NAME="image_enhancement_test Coverage Results" MODIFIED="1676555100732" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
     <SUITE FILE_PATH="coverage/computer_vision$.coverage" NAME=" Coverage Results" MODIFIED="1676469203670" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
     <SUITE FILE_PATH="coverage/computer_vision$offline_phase.coverage" NAME="offline_phase Coverage Results" MODIFIED="1676548468411" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />

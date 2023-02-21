@@ -10,7 +10,6 @@ for img_path in manual_images:
     img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 
     smoothed = cv.GaussianBlur(img, (0, 0), 3)
-
     improved = cv.addWeighted(img, 2, smoothed, -1, 0) #params alpha/beta/gamma
 
     ret1, ogcorners = cv.findChessboardCorners(img, (9, 6), None)
