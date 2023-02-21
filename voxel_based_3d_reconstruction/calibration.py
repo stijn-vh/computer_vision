@@ -82,7 +82,12 @@ class Calibration:
 
             print(np.array(self.cameras[cam_name]['obj_points']).shape)
             print(np.array(self.cameras[cam_name]['img_points']).shape)
-
+            
+            # TODO:
+            # First use findChessBoardCorners on frame of checkerboard.avi, 
+            # maybe optimize frame beforehand
+            # use same frame for all cams?
+            # use imgPoints from this call togheter with int_mtx/dist to solvePnP
             rvec, tvec = cv.solvePnP(
                 self.cameras[cam_name]['obj_points'], 
                 self.cameras[cam_name]['img_points'], 
