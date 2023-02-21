@@ -13,6 +13,13 @@ class Calibration:
         'amount_of_frames_to_read': 5
     }
 
+    cameras = {
+        'cam1': {}, 
+        'cam2': {}, 
+        'cam3': {}, 
+        'cam4': {}
+    }
+
     def __init__(self) -> None:
         self.load_config()
         self.set_offline_phase_config()
@@ -31,40 +38,66 @@ class Calibration:
             'objp': objp
         })
 
-    def handle_frame_from_video(self, video, totalFrames, i):
-        randomFrameNumber = random.randint(0, totalFrames)
-        video.set(cv.CAP_PROP_POS_FRAMES, randomFrameNumber)
-        s, frame = video.read()
+    def handle_frame_from_video(self, video, totalFrames):
+        while(True):
+            randomFrameNumber = random.randint(0, totalFrames)
+            video.set(cv.CAP_PROP_POS_FRAMES, randomFrameNumber)
+            s, frame = video.read()
 
-        if s:
-            succ = OfflinePhase.handle_image(frame, canDeterminePointsManually = False)
+            if s:
+                succeeded = OfflinePhase.handle_image(frame, canDeterminePointsManually = False)
 
-            if succ == False:
-                i = i - 1
-        
-        return i
+                if succeeded:
+                    break
 
-    def load_frames_from_videos(self):
-        folders = ['cam1', 'cam2', 'cam3', 'cam4']
-
-        for f in folders:
-            video = cv.VideoCapture(os.path.dirname(__file__) + '\data\data\\' + f + '\intrinsics.avi')
+    def obtain_intrinsics_from_cameras(self):
+        for cam_name in self.cameras:
+            video = cv.VideoCapture(os.path.dirname(__file__) + '\data\data\\' + cam_name + '\intrinsics.avi')
 
             totalFrames = video.get(cv.CAP_PROP_FRAME_COUNT)
 
             for i in range(self.config['amount_of_frames_to_read']):
-                i = self.handle_frame_from_video(video, totalFrames, i)
+                self.handle_frame_from_video(video, totalFrames)
+
+            w = int(video.get(cv.CAP_PROP_FRAME_WIDTH))
+            h = int(video.get(cv.CAP_PROP_FRAME_HEIGHT))
+
+            ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(
+                OfflinePhase.objpoints, 
+                OfflinePhase.imgpoints, 
+                [w, h][::-1], None, None)
+
+            self.cameras[cam_name]['img_points'] = OfflinePhase.imgpoints
+            self.cameras[cam_name]['obj_points'] = OfflinePhase.objpoints
+            self.cameras[cam_name]['intrinsic_mtx'] = mtx
+            self.cameras[cam_name]['intrinsic_dist'] = dist
+
+            OfflinePhase.imgpoints = []
+            OfflinePhase.objpoints = []
+
+        return self.cameras
+
+    def obtain_extrinsics_from_cameras(self):
+        for cam_name in self.cameras:
+
+            print(np.array(self.cameras[cam_name]['obj_points']).shape)
+            print(np.array(self.cameras[cam_name]['img_points']).shape)
+
+            rvec, tvec = cv.solvePnP(
+                self.cameras[cam_name]['obj_points'], 
+                self.cameras[cam_name]['img_points'], 
+                self.cameras[cam_name]['intrinsic_mtx'], 
+                self.cameras[cam_name]['intrinsic_dist'], 
+                useExtrinsicGuess = False
+            )
+
+            self.cameras[cam_name]['extrinsic_rvec'] = rvec
+            self.cameras[cam_name]['extrinsic_tvec'] = tvec
         
-        print(OfflinePhase.objpoints)
-        print(OfflinePhase.imgpoints)
-
-        return 
-
-    def obtain_intrinsics_from_camera(self):
         return
 
-    def calculate_extrinsics(self):
-        return
+
+
 
     def write_to_config(self, text):
         return

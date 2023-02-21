@@ -105,7 +105,7 @@ def handle_image(img, time = 50, canDeterminePointsManually = True):
 
     if ret == False:
         if canDeterminePointsManually == False:
-            return
+            return False
 
         corners = determine_points_mannually(improved_gray)
         time = 2000
@@ -116,6 +116,8 @@ def handle_image(img, time = 50, canDeterminePointsManually = True):
     objpoints.append(objp)
     imgpoints.append(improved_corners)
     corner_points = []
+
+    return True
 
 # Loop through all provided image paths and determine their cornerpoints, 
 # then based on all the cornerpoints, calibrate the camera
