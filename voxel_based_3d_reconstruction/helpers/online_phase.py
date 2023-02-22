@@ -74,7 +74,7 @@ def handle_image(img, estimated_camera_params):
     if ret == True:
         img = project_points(img, gray, corners, axis, cube, estimated_camera_params)
         show_image(img)
-        cv.waitKey(1)
+        cv.waitKey(1000)
 
 # Start webcam, try to draw cube and axes on the 3D world origin on each frame
 def draw_on_webcam(estimated_camera_params):
@@ -93,8 +93,10 @@ def draw_on_webcam(estimated_camera_params):
     return
 
 # Try to draw cube and axes on test image
-def draw_on_image(estimated_camera_params):
-    test_image = cv.imread(glob.glob('images/test_image.jpg')[0])
+def draw_on_image(estimated_camera_params, test_image = None):
+    if test_image is None:
+        test_image = cv.imread(glob.glob('images/test_image.jpg')[0])
+
     handle_image(test_image, estimated_camera_params)
 
     cv.waitKey(5000)
