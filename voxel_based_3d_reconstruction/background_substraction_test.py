@@ -22,7 +22,7 @@ if __name__ == '__main__':
                            [10, 1, 10],
                            [10, 2, 22]])
     num_contours = [1, 2, 2, 1]
-    show_video = True
+    show_video = False
     S.background_subtraction(thresholds, num_contours, cam_means, cam_std_devs, show_video)
 
 

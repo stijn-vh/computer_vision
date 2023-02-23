@@ -5,54 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5e0f08bd-db32-4723-bd75-82042f88900f" name="Changes" comment="moved files">
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/LICENSE" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/assignment.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/config.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/engine/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/engine/base/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/engine/base/program.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/engine/base/shader.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/engine/buffer/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/engine/buffer/blurbuffer.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/engine/buffer/depthbuffer.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/engine/buffer/framebuffer.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/engine/buffer/hdrbuffer.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/engine/buffer/texture.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/engine/camera.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/engine/config.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/engine/effect/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/engine/effect/bloom.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/engine/effect/shadow.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/engine/renderable/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/engine/renderable/mesh.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/engine/renderable/model.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/engine/renderable/quad.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/executable.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/requirements.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/resources/models/camera.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/resources/models/cube.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/resources/models/square.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/resources/shaders/blur.fs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/resources/shaders/blur.vs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/resources/shaders/frag.fs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/resources/shaders/hdr.fs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/resources/shaders/hdr.vs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/resources/shaders/shadow_depth.fs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/resources/shaders/shadow_depth.vs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/resources/shaders/vert.vs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/resources/textures/depth.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/resources/textures/depth_grid.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/resources/textures/diffuse.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/resources/textures/diffuse_grid.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/resources/textures/normal.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/resources/textures/normal_grid.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/resources/textures/specular.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/resources/textures/specular_grid.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/ss/ss.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/voxel_based_3d_reconstruction/background_substraction.py" beforeDir="false" afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/background_substraction.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/voxel_based_3d_reconstruction/background_substraction_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/background_substraction_test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/voxel_based_3d_reconstruction/voxel_reconstruction.py" beforeDir="false" afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/voxel_reconstruction.py" afterDir="false" />
     </list>
@@ -180,7 +133,7 @@
       <workItem from="1677007393735" duration="10183000" />
       <workItem from="1677061356541" duration="1765000" />
       <workItem from="1677063583572" duration="13279000" />
-      <workItem from="1677146614428" duration="11256000" />
+      <workItem from="1677146614428" duration="13133000" />
     </task>
     <task id="LOCAL-00001" summary="renamed gray to improved_gray">
       <created>1676549336574</created>
@@ -240,6 +193,11 @@
           <line>51</line>
           <option name="timeStamp" value="2" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/voxel_based_3d_reconstruction/background_substraction.py</url>
+          <line>122</line>
+          <option name="timeStamp" value="16" />
+        </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
         <breakpoint type="python-exception">
@@ -252,8 +210,8 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/computer_vision$online_phase.coverage" NAME="online_phase Coverage Results" MODIFIED="1676387986290" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
-    <SUITE FILE_PATH="coverage/computer_vision$vox_recon_test.coverage" NAME="vox_recon_test Coverage Results" MODIFIED="1677153150628" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/voxel_based_3d_reconstruction" />
     <SUITE FILE_PATH="coverage/computer_vision$background_substraction_test.coverage" NAME="background_substraction_test Coverage Results" MODIFIED="1677159160875" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/voxel_based_3d_reconstruction" />
+    <SUITE FILE_PATH="coverage/computer_vision$vox_recon_test.coverage" NAME="vox_recon_test Coverage Results" MODIFIED="1677160006814" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/voxel_based_3d_reconstruction" />
     <SUITE FILE_PATH="coverage/computer_vision$main.coverage" NAME="main Coverage Results" MODIFIED="1677012011063" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
     <SUITE FILE_PATH="coverage/computer_vision$image_enhancement_test.coverage" NAME="image_enhancement_test Coverage Results" MODIFIED="1676555100732" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
     <SUITE FILE_PATH="coverage/computer_vision$voxel_reconstruction.coverage" NAME="voxel_reconstruction Coverage Results" MODIFIED="1677006475485" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/voxel_based_3d_reconstruction" />
