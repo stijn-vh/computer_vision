@@ -53,6 +53,18 @@ class Calibration:
                 if succeeded:
                     break
 
+    def calibrate_camera(self, video, cam_name):
+        w = int(video.get(cv.CAP_PROP_FRAME_WIDTH))
+        h = int(video.get(cv.CAP_PROP_FRAME_HEIGHT))
+
+        ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(
+            OfflinePhase.objpoints, 
+            OfflinePhase.imgpoints, 
+            [w, h][::-1], None, None)
+
+        self.cameras[cam_name]['intrinsic_mtx'] = mtx
+        self.cameras[cam_name]['intrinsic_dist'] = dist
+
     def obtain_intrinsics_from_cameras(self):
         for cam_name in self.cameras:
             video = cv.VideoCapture(os.path.dirname(__file__) + '\data\\' + cam_name + '\intrinsics.avi')
@@ -62,21 +74,25 @@ class Calibration:
             for i in range(self.config['amount_of_frames_to_read']):
                 self.handle_frame_from_video(video, totalFrames)
 
-            w = int(video.get(cv.CAP_PROP_FRAME_WIDTH))
-            h = int(video.get(cv.CAP_PROP_FRAME_HEIGHT))
-
-            ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(
-                OfflinePhase.objpoints, 
-                OfflinePhase.imgpoints, 
-                [w, h][::-1], None, None)
-
-            self.cameras[cam_name]['intrinsic_mtx'] = mtx
-            self.cameras[cam_name]['intrinsic_dist'] = dist
+            self.calibrate_camera(video, cam_name)
 
             OfflinePhase.imgpoints = []
             OfflinePhase.objpoints = []
 
         return self.cameras
+    
+    def calculate_extrinsics(self, cam_name):
+        r, rvec, tvec = cv.solvePnP(
+            OfflinePhase.objpoints[0], 
+            OfflinePhase.imgpoints[0], 
+            self.cameras[cam_name]['intrinsic_mtx'], 
+            self.cameras[cam_name]['intrinsic_dist'], 
+            useExtrinsicGuess = False
+        )
+
+        self.cameras[cam_name]['extrinsic_rvec'] = rvec
+        self.cameras[cam_name]['extrinsic_tvec'] = tvec
+        self.cameras[cam_name]['R'] = cv.Rodrigues(rvec)
 
     def obtain_extrinsics_from_cameras(self):
         for cam_name in self.cameras:
@@ -87,33 +103,15 @@ class Calibration:
             if s:
                 OfflinePhase.handle_image(frame, time = 5000)
 
-            r, rvec, tvec = cv.solvePnP(
-                OfflinePhase.objpoints[0], 
-                OfflinePhase.imgpoints[0], 
-                self.cameras[cam_name]['intrinsic_mtx'], 
-                self.cameras[cam_name]['intrinsic_dist'], 
-                useExtrinsicGuess = False
-            )
-
-            self.cameras[cam_name]['extrinsic_rvec'] = rvec
-            self.cameras[cam_name]['extrinsic_tvec'] = tvec
-
-            OfflinePhase.imgpoints = []
-            OfflinePhase.objpoints = []
-
-            self.cameras[cam_name]['R'] = cv.Rodrigues(rvec)
+            self.calculate_extrinsics(cam_name)
 
             OnlinePhase.draw_on_image({
                 'mtx': self.cameras[cam_name]['intrinsic_mtx'],
                 'dist': self.cameras[cam_name]['intrinsic_dist']
-            }, frame)
-        
+            }, frame, OfflinePhase.imgpoints[0])
 
-        with open('cameras.pickle', 'wb') as handle:
-            pickle.dump(self.cameras, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
-    def draw_world_axes_and_cube():
-        OnlinePhase.draw_on_image()
+            OfflinePhase.imgpoints = []
+            OfflinePhase.objpoints = []
 
     def write_to_config(self, text):
         return

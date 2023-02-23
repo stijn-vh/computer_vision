@@ -27,9 +27,9 @@ def draw_axes_on_image(img, imgpts):
     imgpy = get_point_tuple(imgpts[2])
     imgpz = get_point_tuple(imgpts[3])
 
-    img = cv.line(img, origin, imgpx, (255, 0, 0), 5)
-    img = cv.line(img, origin, imgpy, (0, 255, 0), 5)
-    img = cv.line(img, origin, imgpz, (0, 0, 255), 5)
+    img = cv.line(img, origin, imgpx, (255, 0, 0), 2)
+    img = cv.line(img, origin, imgpy, (0, 255, 0), 2)
+    img = cv.line(img, origin, imgpz, (0, 0, 255), 2)
 
     return img
 
@@ -37,12 +37,12 @@ def draw_axes_on_image(img, imgpts):
 # Draw contours and lines of a cube on image based on provided image points
 def draw_cube_on_image(img, imgpts):
     imgpts = np.array(list(map(get_point_tuple, imgpts)))
-    img = cv.drawContours(img, [imgpts[:4]], -1, (120, 120, 0), 3)
+    img = cv.drawContours(img, [imgpts[:4]], -1, (120, 120, 0), 1)
 
     for i, j in zip(range(4), range(4, 8)):
-        img = cv.line(img, tuple(imgpts[i]), tuple(imgpts[j]), (120, 120, 0), 3)
+        img = cv.line(img, tuple(imgpts[i]), tuple(imgpts[j]), (120, 120, 0), 1)
 
-    img = cv.drawContours(img, [imgpts[4:]], -1, (120, 120, 0), 3)
+    img = cv.drawContours(img, [imgpts[4:]], -1, (120, 120, 0), 1)
     return img
 
 # Improve found corners, find correct rotation and translation vectors,
@@ -60,7 +60,7 @@ def project_points(img, gray, corners, axis, cube, estimated_camera_params):
     return img
 
 # Find corners of image, project points from 3D to image plane and draw axes/cube
-def handle_image(img, estimated_camera_params):
+def handle_image(img, estimated_camera_params, corners = None):
     axsize = 6
     cubesize = 4
 
@@ -69,7 +69,11 @@ def handle_image(img, estimated_camera_params):
                        [cubesize, 0, -cubesize], [cubesize, cubesize, -cubesize], [0, cubesize, -cubesize]])
 
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-    ret, corners = cv.findChessboardCorners(gray, (num_cols, num_rows), None)
+
+    if corners is None:
+        ret, corners = cv.findChessboardCorners(gray, (num_cols, num_rows), None)
+    else:
+        ret = True
 
     if ret == True:
         img = project_points(img, gray, corners, axis, cube, estimated_camera_params)
@@ -93,11 +97,14 @@ def draw_on_webcam(estimated_camera_params):
     return
 
 # Try to draw cube and axes on test image
-def draw_on_image(estimated_camera_params, test_image = None):
+def draw_on_image(estimated_camera_params, test_image = None, corners = None):
     if test_image is None:
         test_image = cv.imread(glob.glob('images/test_image.jpg')[0])
 
-    handle_image(test_image, estimated_camera_params)
+    if corners is None:
+        handle_image(test_image, estimated_camera_params)
+    else:
+        handle_image(test_image, estimated_camera_params, corners = corners)
 
     cv.waitKey(5000)
 

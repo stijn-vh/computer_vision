@@ -24,7 +24,7 @@ def show_image(img, title='Current Image'):
 
 # Draw and show chessboardcorners based on found corners in image
 def draw_chessboard_corners(corners, current_image, time):
-    cv.drawChessboardCorners(current_image, (num_cols, num_rows), corners, True)
+    #cv.drawChessboardCorners(current_image, (num_cols, num_rows), corners, True)
     show_image(current_image)
     cv.waitKey(time)
 
