@@ -7,7 +7,7 @@ import glob
 # Workflow online:
 # • Read an image/camera frame
 # • Draw a box on a detected chessboard in the right perspective
-
+name = ''
 # Create window with provided image
 def show_image(img):
     cv.namedWindow(image_name, cv.WINDOW_KEEPRATIO)
@@ -78,6 +78,8 @@ def handle_image(img, estimated_camera_params, corners = None):
     if ret == True:
         img = project_points(img, gray, corners, axis, cube, estimated_camera_params)
         show_image(img)
+
+        cv.imwrite(name + '.png', img)
         cv.waitKey(1000)
 
 # Start webcam, try to draw cube and axes on the 3D world origin on each frame

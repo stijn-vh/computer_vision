@@ -14,6 +14,7 @@ import glob
 objpoints = []  # 3d point in real world space
 imgpoints = []  # 2d points in image plane.
 
+cam_name = ''
 
 # Create window with provided image
 def show_image(img, title='Current Image'):
@@ -109,7 +110,7 @@ def handle_image(img, time = 50, canDeterminePointsManually = True):
 
         corners = determine_points_mannually(improved_gray)
         time = 2000
-
+    
     improved_corners = cv.cornerSubPix(improved_gray, corners, (3, 3), (-1, -1), criteria)
     draw_chessboard_corners(improved_corners, img, time)
 

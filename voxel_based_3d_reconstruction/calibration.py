@@ -12,7 +12,7 @@ class Calibration:
         'width': 0,
         'height': 0,
         'size': 0,
-        'amount_of_frames_to_read': 5
+        'amount_of_frames_to_read': 25
     }
 
     cameras = {
@@ -27,7 +27,7 @@ class Calibration:
         self.set_offline_phase_config()
 
     def set_offline_phase_config(self):
-        objp = np.zeros((self.config['width'] * self.config['height'], 3), np.float32)
+        objp = self.config['size'] * np.zeros((self.config['width'] * self.config['height'], 3), np.float32)
         objp[:, :2] = np.mgrid[0:self.config['width'], 0:self.config['height']].T.reshape(-1, 2)
 
         c = {
@@ -41,21 +41,49 @@ class Calibration:
         OfflinePhase.set_config(c)
         OnlinePhase.set_config(c)
 
-    def handle_frame_from_video(self, video, totalFrames):
+    def handle_frame_from_video(self, video, totalFrames, cam_name = None):
+        r_numbers = []
         while(True):
             randomFrameNumber = random.randint(0, totalFrames)
             video.set(cv.CAP_PROP_POS_FRAMES, randomFrameNumber)
+            s, frame = video.read()
+            if s and randomFrameNumber not in r_numbers:
+                r_numbers.append(randomFrameNumber)
+                succeeded = OfflinePhase.handle_image(frame, 1, canDeterminePointsManually = False)
+
+                if succeeded:
+                    break
+
+    def loop_through_video_frames(self, video, cam_name):
+        f_count = 0
+
+        while(True):
             s, frame = video.read()
 
             if s:
                 succeeded = OfflinePhase.handle_image(frame, 200, canDeterminePointsManually = False)
 
                 if succeeded:
-                    break
+                    print(cam_name, ', frame: ', f_count)
+                    return frame
+
+            if f_count == video.get(cv.CAP_PROP_FRAME_COUNT):
+                print('no auto-frame found for ', cam_name)
+                randomFrameNumber = random.randint(0, video.get(cv.CAP_PROP_FRAME_COUNT))
+                video.set(cv.CAP_PROP_POS_FRAMES, randomFrameNumber)
+                s, frame = video.read()
+                succeeded = OfflinePhase.handle_image(frame, 200, canDeterminePointsManually = True)
+                return frame
+
+            f_count = f_count + 1
 
     def calibrate_camera(self, video, cam_name):
         w = int(video.get(cv.CAP_PROP_FRAME_WIDTH))
         h = int(video.get(cv.CAP_PROP_FRAME_HEIGHT))
+
+        if cam_name is 'cam4':
+            for i in range(len(OfflinePhase.imgpoints)):
+                OfflinePhase.imgpoints[i] = OfflinePhase.imgpoints[i][::-1]
 
         ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(
             OfflinePhase.objpoints, 
@@ -67,6 +95,8 @@ class Calibration:
 
     def obtain_intrinsics_from_cameras(self):
         for cam_name in self.cameras:
+            OfflinePhase.cam_name = cam_name
+
             video = cv.VideoCapture(os.path.dirname(__file__) + '\data\\' + cam_name + '\intrinsics.avi')
 
             totalFrames = video.get(cv.CAP_PROP_FRAME_COUNT)
@@ -104,6 +134,8 @@ class Calibration:
                 OfflinePhase.handle_image(frame, time = 5000)
 
             self.calculate_extrinsics(cam_name)
+
+            OnlinePhase.name = cam_name
 
             OnlinePhase.draw_on_image({
                 'mtx': self.cameras[cam_name]['intrinsic_mtx'],
