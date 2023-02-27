@@ -1,6 +1,7 @@
 import glm
 import random
 import numpy as np
+import pickle
 
 block_size = 1.0
 
@@ -9,6 +10,14 @@ rotation_matrices = []  # needs to be filled
 translation_vectors = []  # needs to be filled
 voxels = [[1, 2, 3], [2, 2, 3], [3, 2, 3], [4, 2, 3]]  # Need te be filled from voxel reconstruction
 
+
+def load_parameters_from_pickle(path):
+    with open(path, 'rb') as f:
+        camera_params = pickle.load(f)
+
+        for camera in camera_params:
+            rotation_matrices.append(camera_params[camera]['R'])
+            rotation_matrices.append(camera_params[camera]['extrinsic_tvec'])
 
 def generate_grid(width, depth):
     # Generates the floor grid locations
