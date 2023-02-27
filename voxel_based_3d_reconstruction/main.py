@@ -35,5 +35,5 @@ if __name__ == '__main__':
     VR = VoxelReconstruction('cameras.pickle')
     lookup_table = VR.create_lookup_table()
     pickle_object('lookup_table')
-    
+
     VR.run_voxel_reconstruction(masks)

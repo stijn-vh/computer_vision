@@ -34,10 +34,13 @@ class VoxelReconstruction:
         all_voxels = [[x,y,z] for x in range(128) for y in range(128) for z in range(64)]
         for cam in range(4):
             for vox in all_voxels:
-                [ix, iy] = cv.projectPoints(np.float32(vox), self.rotation_vectors[cam],
+                idx = cv.projectPoints(np.float64([vox]), self.rotation_vectors[cam],
                                             self.translation_vectors[cam],
                                             self.intrinsics[cam], distCoeffs=self.dist_mtx[cam])
-                lookup_table[cam][ix][iy].append(vox)
+                ix = idx[0][0][0][0].astype(int)
+                iy = idx[0][0][0][1].astype(int)
+                if -486 < ix and ix < 486 and -644< iy and iy < 644:
+                    lookup_table[cam][ix][iy].append(vox)
         return lookup_table
 
     def return_visible_voxels(self, mask, cam_lookup_table):
