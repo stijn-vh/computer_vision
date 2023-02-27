@@ -57,7 +57,12 @@ class VoxelReconstruction:
             cam_vis_vox = [self.return_visible_voxels(masks[i][frame], lookup_table[i]) for i in range(4)]
             all_vis_vox = np.logical_and(np.logical_and(np.logical_and(cam_vis_vox[0], cam_vis_vox[1]), cam_vis_vox[2]),
                                          cam_vis_vox[3])
+<<<<<<< Updated upstream
             
             Assignment.voxels[frame] = all_vis_vox
             Executable.main()
     
+=======
+            # TODO visualize all_vis_vox for this frame
+            
+>>>>>>> Stashed changes

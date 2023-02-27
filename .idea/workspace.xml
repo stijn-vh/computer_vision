@@ -5,7 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5e0f08bd-db32-4723-bd75-82042f88900f" name="Changes" comment="moved files">
+      <change afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/automatic_background_substraction.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/assignment.py" beforeDir="false" afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/assignment.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/voxel_based_3d_reconstruction/background_substraction_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/background_substraction_test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/voxel_based_3d_reconstruction/voxel_reconstruction.py" beforeDir="false" afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/voxel_reconstruction.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -65,7 +68,7 @@
       <recent name="C:\Users\fedor\Desktop\Computer Vision\computer_vision\camera_geometric_calibration\result_images" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.camera_calibration_main">
     <configuration name="camera_calibration_main" type="PythonConfigurationType" factoryName="Python">
       <module name="computer_vision" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -134,7 +137,7 @@
       <workItem from="1677063583572" duration="13279000" />
       <workItem from="1677146614428" duration="13337000" />
       <workItem from="1677241887288" duration="6216000" />
-      <workItem from="1677494745364" duration="2971000" />
+      <workItem from="1677494745364" duration="4981000" />
     </task>
     <task id="LOCAL-00001" summary="renamed gray to improved_gray">
       <created>1676549336574</created>

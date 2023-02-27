@@ -31,17 +31,17 @@ def generate_grid(width, depth):
 
 def set_voxel_positions(width, height, depth):
     # TODO: You need to calculate proper voxel arrays instead of random ones.
-    # return voxels
+    return voxels
 
-    # Generates random voxel locations
-    # You can set the voxel locations using list of lists. [[x1, y2, z1], [x2, y2, z2], ..., [xn, yn, zn]].
-    data = []
-    for x in range(width):
-        for y in range(height):
-            for z in range(depth):
-                if random.randint(0, 1000) < 5:
-                    data.append([x * block_size - width / 2, y * block_size, z * block_size - depth / 2])
-    return data
+    # # Generates random voxel locations
+    # # You can set the voxel locations using list of lists. [[x1, y2, z1], [x2, y2, z2], ..., [xn, yn, zn]].
+    # data = []
+    # for x in range(width):
+    #     for y in range(height):
+    #         for z in range(depth):
+    #             if random.randint(0, 1000) < 5:
+    #                 data.append([x * block_size - width / 2, y * block_size, z * block_size - depth / 2])
+    # return data
 
 
 """
@@ -54,14 +54,14 @@ def set_voxel_positions(width, height, depth):
 
 
 def get_cam_positions():
-    # camera_coords = []
-    # for i in range(4):
-    #     camera_coords.append(- rotation_matrices[i].T @ translation_vectors[i])
-    # return camera_coords
-    return [[-64 * block_size, 64 * block_size, 63 * block_size],
-            [63 * block_size, 64 * block_size, 63 * block_size],
-            [63 * block_size, 64 * block_size, -64 * block_size],
-            [-64 * block_size, 64 * block_size, -64 * block_size]]
+    camera_coords = []
+    for i in range(4):
+        camera_coords.append(- rotation_matrices[i].T @ translation_vectors[i])
+    return camera_coords
+    # return [[-64 * block_size, 64 * block_size, 63 * block_size],
+    #         [63 * block_size, 64 * block_size, 63 * block_size],
+    #         [63 * block_size, 64 * block_size, -64 * block_size],
+    #         [-64 * block_size, 64 * block_size, -64 * block_size]]
 
 
 def get_cam_rotation_matrices():
