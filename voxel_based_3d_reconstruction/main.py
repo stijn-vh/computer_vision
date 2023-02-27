@@ -9,7 +9,7 @@ def pickle_object(name, object):
         pickle.dump(object, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 def load_pickle_object(name):
-    with open(name, 'rb') as handle:
+    with open(name + '.pickle', 'rb') as handle:
         return pickle.load(handle)
     
 def determine_camera_params():
@@ -35,5 +35,6 @@ if __name__ == '__main__':
     VR = VoxelReconstruction('cameras.pickle')
     lookup_table = VR.create_lookup_table()
     pickle_object('lookup_table')
+    VR.lookup_table = lookup_table
 
     VR.run_voxel_reconstruction(masks)
