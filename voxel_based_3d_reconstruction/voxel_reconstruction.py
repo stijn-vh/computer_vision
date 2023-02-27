@@ -10,6 +10,7 @@ class VoxelReconstruction:
     rotation_vectors = []
     translation_vectors = []
     intrinsics = []
+    dist_mtx = []
 
     def __init__(self, path) -> None:
         with open(path, 'rb') as f:
@@ -19,6 +20,7 @@ class VoxelReconstruction:
                 self.rotation_vectors.append(camera_params[camera]['extrinsic_rvec'])
                 self.translation_vectors.append(camera_params[camera]['extrinsic_tvec'])
                 self.intrinsics.append(camera_params[camera]['intrinsic_mtx'])
+                self.dist_mtx.append(camera_params[camera]['intrinsic_dist'])
         
         Assignment.load_parameters_from_pickle(path)
 
@@ -33,7 +35,7 @@ class VoxelReconstruction:
             for vox in all_voxels:
                 [ix, iy] = cv.projectPoints(vox, self.rotation_vectors[cam],
                                             self.translation_vectors[cam],
-                                            self.intrinsics[cam])
+                                            self.intrinsics[cam], distCoeffs=self.dist_mtx[cam])
                 lookup_table[cam][ix][iy].append(vox)
         return lookup_table
 

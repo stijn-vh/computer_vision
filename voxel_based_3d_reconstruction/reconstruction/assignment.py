@@ -7,6 +7,7 @@ block_size = 1.0
 
 # TODO create method which reads in these values and assigns them from task 1 and task 3.
 rotation_matrices = []  # needs to be filled
+dist_matrices = []
 translation_vectors = []  # needs to be filled
 voxels = []  # Need te be filled from voxel reconstruction
 
@@ -17,7 +18,8 @@ def load_parameters_from_pickle(path):
 
         for camera in camera_params:
             rotation_matrices.append(camera_params[camera]['R'])
-            rotation_matrices.append(camera_params[camera]['extrinsic_tvec'])
+            translation_vectors.append(camera_params[camera]['extrinsic_tvec'])
+            
 
 def generate_grid(width, depth):
     # Generates the floor grid locations
