@@ -1,6 +1,6 @@
 from calibration import Calibration
-from voxel_reconstruction import VoxelReconstruction
-from background_substraction import BackgroundSubstraction
+from background_substraction import VoxelReconstruction
+from voxel_reconstruction import BackgroundSubstraction
 
 if __name__ == '__main__':
     cali = Calibration()
