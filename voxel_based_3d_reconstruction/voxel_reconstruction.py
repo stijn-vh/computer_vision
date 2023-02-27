@@ -11,6 +11,7 @@ class VoxelReconstruction:
     translation_vectors = []
     intrinsics = []
     dist_mtx = []
+    lookup_table = []
 
     def __init__(self, path) -> None:
         with open(path, 'rb') as f:
@@ -33,7 +34,7 @@ class VoxelReconstruction:
         all_voxels = [[x,y,z] for x in range(128) for y in range(128) for z in range(64)]
         for cam in range(4):
             for vox in all_voxels:
-                [ix, iy] = cv.projectPoints(vox, self.rotation_vectors[cam],
+                [ix, iy] = cv.projectPoints(np.float32(vox), self.rotation_vectors[cam],
                                             self.translation_vectors[cam],
                                             self.intrinsics[cam], distCoeffs=self.dist_mtx[cam])
                 lookup_table[cam][ix][iy].append(vox)
@@ -53,8 +54,6 @@ class VoxelReconstruction:
         # masks shape: (4, 428, 486, 644)
         # for every camera, for every frame in camera, a mask with white pixels in foreground and black pixels in background
         # Lookup table will contain for every camera, for every pixel value, a list of voxel coords which are projected to that pixel value
-
-        lookup_table = self.create_lookup_table()
 
         for frame in range(len(masks[0])):
             cam_vis_vox = [self.return_visible_voxels(masks[i][frame], lookup_table[i]) for i in range(4)]
