@@ -1,6 +1,8 @@
 import numpy as np
 import cv2 as cv
-
+import pickle
+import reconstruction.assignment as Assignment
+import reconstruction.executable as Executable
 
 class VoxelReconstruction:
     # TODO method which reads in these values
@@ -8,8 +10,16 @@ class VoxelReconstruction:
     translation_vectors = []
     intrinsics = []
 
-    def __init__(self, ) -> None:
-        pass
+    def __init__(self, path) -> None:
+        with open(path, 'rb') as f:
+            camera_params = pickle.load(f)
+
+            for camera in camera_params:
+                self.rotation_vectors.append(camera_params[camera]['extrinsic_rvec'])
+                self.translation_vectors.append(camera_params[camera]['extrinsic_tvec'])
+                self.intrinsics.append(camera_params[camera]['intrinsic_mtx'])
+        
+        Assignment.load_parameters_from_pickle(path)
 
     def create_lookup_table(self):
         # The lookup_table shape is (4,486,644) for indexing the cameras and the pixels of each camera.
@@ -48,4 +58,7 @@ class VoxelReconstruction:
             cam_vis_vox = [self.return_visible_voxels(masks[i][frame], lookup_table[i]) for i in range(4)]
             all_vis_vox = np.logical_and(np.logical_and(np.logical_and(cam_vis_vox[0], cam_vis_vox[1]), cam_vis_vox[2]),
                                          cam_vis_vox[3])
-            # TODO visualize all_vis_vox for this frame
+            
+            Assignment.voxels[frame] = all_vis_vox
+            Executable.main()
+    
