@@ -1,6 +1,5 @@
-from calibration import Calibration
 from background_substraction import BackgroundSubstraction
-from voxel_reconstruction import VoxelReconstruction
+from voxel_based_3d_reconstruction.voxel_reconstruction import VoxelReconstruction
 import numpy as np
 
 if __name__ == '__main__':   
