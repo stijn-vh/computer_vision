@@ -5,22 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5e0f08bd-db32-4723-bd75-82042f88900f" name="Changes" comment="moved files">
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2_16_2023_1_01_PM_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2_16_2023_1_01_PM__Changes_.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2_16_2023_1_07_PM_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2_16_2023_1_07_PM__Changes_.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2_16_2023_2_56_PM_[Changes]/result_phase_1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2_16_2023_2_56_PM_[Changes]/result_phase_2.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2_16_2023_2_56_PM_[Changes]/result_phase_3.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2_16_2023_2_56_PM_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2_16_2023_2_56_PM__Changes_.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2_16_2023_3_05_PM_[Changes]/result_phase_1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2_16_2023_3_05_PM_[Changes]/result_phase_2.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2_16_2023_3_05_PM_[Changes]/result_phase_3.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2_16_2023_3_05_PM_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2_16_2023_3_05_PM__Changes_.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/assignment.py" beforeDir="false" afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master/assignment.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/voxel_based_3d_reconstruction/voxel_reconstruction.py" beforeDir="false" afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/voxel_reconstruction.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -149,7 +134,7 @@
       <workItem from="1677063583572" duration="13279000" />
       <workItem from="1677146614428" duration="13337000" />
       <workItem from="1677241887288" duration="6216000" />
-      <workItem from="1677494745364" duration="2206000" />
+      <workItem from="1677494745364" duration="2971000" />
     </task>
     <task id="LOCAL-00001" summary="renamed gray to improved_gray">
       <created>1676549336574</created>
@@ -208,11 +193,6 @@
           <url>file://$PROJECT_DIR$/camera_geometric_calibration/online_phase.py</url>
           <line>51</line>
           <option name="timeStamp" value="2" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/voxel_based_3d_reconstruction/background_substraction.py</url>
-          <line>122</line>
-          <option name="timeStamp" value="16" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

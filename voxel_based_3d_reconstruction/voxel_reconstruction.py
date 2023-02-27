@@ -28,13 +28,12 @@ class VoxelReconstruction:
 
     def return_visible_voxels(self, mask, cam_lookup_table):
         # mask has shape (486,644) corresponding to the pixels in a single frame
-        # Possibly vectorize this and/or decrease time complexity by comparing the current mask with the previous mask.
-        # Maybe this could be done so that only the changed pixels (XOR?) add or remove voxels from a stored list of voxels.
         vis_vox = []
-        for ix in range(len(mask)):
-            for iy in range(len(mask[0])):
-                if mask[ix][iy] > 0:
-                    vis_vox.append(cam_lookup_table[ix][iy])
+        nonzeros = np.nonzero(mask)
+        for ix in nonzeros[0]:
+            for iy in nonzeros[1]:
+                for vox in cam_lookup_table[ix][iy]:
+                    vis_vox.append(vox)
         return vis_vox
 
     def run_voxel_reconstruction(self, masks):
