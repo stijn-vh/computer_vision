@@ -5,10 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5e0f08bd-db32-4723-bd75-82042f88900f" name="Changes" comment="moved files">
-      <change beforePath="$PROJECT_DIR$/.idea/computer_vision.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/computer_vision.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/voxel_based_3d_reconstruction/assignment.py" beforeDir="false" afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/assignment.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/voxel_based_3d_reconstruction/background_substraction.py" beforeDir="false" afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/background_substraction.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/voxel_based_3d_reconstruction/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/voxel_based_3d_reconstruction/executable.py" beforeDir="false" afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/executable.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/voxel_based_3d_reconstruction/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/voxel_based_3d_reconstruction/voxel_reconstruction.py" beforeDir="false" afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/voxel_reconstruction.py" afterDir="false" />
     </list>
@@ -194,7 +193,7 @@
       <workItem from="1677241887288" duration="6216000" />
       <workItem from="1677494745364" duration="5457000" />
       <workItem from="1677506251427" duration="1513000" />
-      <workItem from="1677575316209" duration="4461000" />
+      <workItem from="1677575316209" duration="9480000" />
     </task>
     <task id="LOCAL-00001" summary="renamed gray to improved_gray">
       <created>1676549336574</created>
@@ -277,7 +276,7 @@
     <SUITE FILE_PATH="coverage/computer_vision$camera_calibration_main.coverage" NAME="camera_calibration_main Coverage Results" MODIFIED="1677506269662" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
     <SUITE FILE_PATH="coverage/computer_vision$voxel_reconstruction_test.coverage" NAME="voxel_reconstruction_test Coverage Results" MODIFIED="1677006706814" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/voxel_based_3d_reconstruction" />
     <SUITE FILE_PATH="coverage/computer_vision$assignment.coverage" NAME="assignment Coverage Results" MODIFIED="1677495604026" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/voxel_based_3d_reconstruction/Computer-Vision-3D-Reconstruction-master" />
-    <SUITE FILE_PATH="coverage/computer_vision$recon_main.coverage" NAME="recon_main Coverage Results" MODIFIED="1677579182756" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/voxel_based_3d_reconstruction" />
+    <SUITE FILE_PATH="coverage/computer_vision$recon_main.coverage" NAME="recon_main Coverage Results" MODIFIED="1677583734462" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/voxel_based_3d_reconstruction" />
     <SUITE FILE_PATH="coverage/computer_vision$executable.coverage" NAME="executable Coverage Results" MODIFIED="1677500060413" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/voxel_based_3d_reconstruction/reconstruction" />
     <SUITE FILE_PATH="coverage/computer_vision$offline_phase.coverage" NAME="offline_phase Coverage Results" MODIFIED="1676548468411" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
   </component>

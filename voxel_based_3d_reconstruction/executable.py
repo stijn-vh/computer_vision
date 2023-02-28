@@ -117,7 +117,7 @@ def main():
     depth = load_texture_2d('resources/textures/depth.jpg')
     depth_grid = load_texture_2d('resources/textures/depth_grid.jpg')
 
-    grid_positions = generate_grid(config['world_width'], config['world_width'])
+    grid_positions = generate_grid(config['world_width'], config['world_depth'])
     square.set_multiple_positions(grid_positions)
 
     cam_positions = get_cam_positions()
@@ -179,7 +179,7 @@ def key_callback(window, key, scancode, action, mods):
         glfw.set_window_should_close(window, glfw.TRUE)
     if key == glfw.KEY_G and action == glfw.PRESS:
         global cube
-        positions = set_voxel_positions(config['world_width'], config['world_height'], config['world_width'])
+        positions = set_voxel_positions(config['world_width'], config['world_height'], config['world_depth'])
         cube.set_multiple_positions(positions)
 
 
