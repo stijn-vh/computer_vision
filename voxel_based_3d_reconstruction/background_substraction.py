@@ -67,7 +67,7 @@ class BackgroundSubstraction:
         return np.sum(np.logical_xor(mask, groundtruth))  # The lower the score the better
 
     def gridsearch(self, cam_means, cam_std_devs):
-        folders = ['cam1', 'cam2', 'cam3', 'cam4']
+        cam_folders = ['cam1', 'cam2', 'cam3', 'cam4']
         thresholds = []
         for i_ in np.arange(1, 15):
             for j_ in np.arange(1, 15):
@@ -76,7 +76,7 @@ class BackgroundSubstraction:
         num_contours = np.arange(1, 5)
         best_num_contours = np.repeat(-1, 4)
         best_thresholds = np.tile([-1, -1, -1], (4, 1))
-        for i, f in enumerate(folders):
+        for i, f in enumerate(cam_folders):
             best_score = float('inf')
             for j in range(len(num_contours)):
                 for k in range(len(thresholds)):

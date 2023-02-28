@@ -55,7 +55,6 @@ def get_cam_positions():
 def get_cam_rotation_matrices():
     # TODO: You need to input the estimated camera rotation matrices (4x4) of the 4 cameras in the world coordinates.
     cam_rotations = []
-
     for cam in range(4):
         glm_mat = glm.mat4([[rotation_matrices[cam][0][0], rotation_matrices[cam][0][2], rotation_matrices[cam][0][1],
                              translation_vectors[cam][0]],
