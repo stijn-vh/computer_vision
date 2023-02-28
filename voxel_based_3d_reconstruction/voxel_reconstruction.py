@@ -69,17 +69,16 @@ class VoxelReconstruction:
             cam = 0
             cam_img_idx = cv.projectPoints(np.float64([x, y, z]), self.rotation_vectors[cam],
                                            self.translation_vectors[cam],
-                                           self.intrinsics[cam], distCoeffs=self.dist_mtx[cam]) #distCoeffs=self.dist_mtx[cam]
+                                           self.intrinsics[cam], distCoeffs=np.array([])) #distCoeffs=self.dist_mtx[cam]
             ix = cam_img_idx[0][0][0][0].astype(int)
             iy = cam_img_idx[0][0][0][1].astype(int)
             if -644 < ix < 644 and -486 < iy < 486:
-                if masks[cam][frame][iy][ix] > 0:
-                    self.all_vis_voxels.append([x, y, z])
+                #if masks[cam][frame][iy][ix] > 0:
+                self.all_vis_voxels.append([x, y, z])
                     #num_seen +=1
             # if num_seen ==4:
             #     self.all_vis_voxels.append([x,y,z])
             #     print([x,y,z])
-        print("all vis voxels:", self.all_vis_voxels)
         Assignment.voxels = self.all_vis_voxels
         Executable.main()
 
