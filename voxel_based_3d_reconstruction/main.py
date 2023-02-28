@@ -17,6 +17,8 @@ def determine_camera_params():
     intrinsics = cali.obtain_intrinsics_from_cameras()
     cali.obtain_extrinsics_from_cameras()
 
+    pickle_object('camera', cali.cameras)
+
 def determine_new_masks():
     S = BackgroundSubstraction()
     cam_means, cam_std_devs = S.create_background_model()
@@ -29,12 +31,15 @@ def determine_new_masks():
 
     return S.background_subtraction(thresholds, num_contours, cam_means, cam_std_devs, show_video)
 
-if __name__ == '__main__':   
-    masks = load_pickle_object('masks')
-    
-    VR = VoxelReconstruction('cameras.pickle')
-    lookup_table = VR.create_lookup_table()
-    pickle_object('lookup_table', lookup_table)
-    VR.lookup_table = lookup_table
+if __name__ == '__main__':
+    #determine_camera_params()
 
-    VR.run_voxel_reconstruction(masks)
+    VR = VoxelReconstruction('camera.pickle')
+    #lookup_table = VR.create_lookup_table()
+    #pickle_object('lookup_table', lookup_table)
+
+    masks = load_pickle_object('masks')
+    lookup_table = load_pickle_object('lookup_table')
+
+    VR.lookup_table = lookup_table
+    VR.te(masks)
