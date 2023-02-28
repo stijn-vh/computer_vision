@@ -59,7 +59,7 @@ class VoxelReconstruction:
         # Lookup table will contain for every camera, for every pixel value, a list of voxel coords which are projected to that pixel value
 
         for frame in range(len(masks[0])):
-            cam_vis_vox = [self.return_visible_voxels(masks[i][frame], lookup_table[i]) for i in range(4)]
+            cam_vis_vox = [self.return_visible_voxels(masks[i][frame], self.lookup_table[i]) for i in range(4)]
             all_vis_vox = np.logical_and(np.logical_and(np.logical_and(cam_vis_vox[0], cam_vis_vox[1]), cam_vis_vox[2]),
                                          cam_vis_vox[3])
             
