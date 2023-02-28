@@ -6,7 +6,6 @@ import assignment as Assignment
 
 
 class VoxelReconstruction:
-
     rotation_vectors = []
     translation_vectors = []
     intrinsics = []
@@ -56,6 +55,36 @@ class VoxelReconstruction:
                     vis_vox.append(vox)
         return vis_vox
 
+    def test_voxel_reconstruction(self, masks):
+        # cv.imshow("mask1", masks[0][0])
+        # cv.imshow("mask2", masks[1][0])
+        # cv.imshow("mask3", masks[2][0])
+        # cv.imshow("mask4", masks[3][0])
+        # cv.waitKey(100000)
+
+        frame = 0
+        for [x, y, z] in self.all_voxels:
+            num_seen = 0
+            #for cam in range(4):
+            cam = 0
+            cam_img_idx = cv.projectPoints(np.float64([x, y, z]), self.rotation_vectors[cam],
+                                           self.translation_vectors[cam],
+                                           self.intrinsics[cam], distCoeffs=self.dist_mtx[cam]) #distCoeffs=self.dist_mtx[cam]
+            ix = cam_img_idx[0][0][0][0].astype(int)
+            iy = cam_img_idx[0][0][0][1].astype(int)
+            if -644 < ix < 644 and -486 < iy < 486:
+                if masks[cam][frame][iy][ix] > 0:
+                    self.all_vis_voxels.append([x, y, z])
+                    #num_seen +=1
+            # if num_seen ==4:
+            #     self.all_vis_voxels.append([x,y,z])
+            #     print([x,y,z])
+        print("all vis voxels:", self.all_vis_voxels)
+        Assignment.voxels = self.all_vis_voxels
+        Executable.main()
+
+
+
     def run_voxel_reconstruction(self, masks):
         # masks shape: (4, 428, 486, 644)
         # for every camera, for every frame in camera, a mask with white pixels in foreground and black pixels in background
@@ -75,7 +104,7 @@ class VoxelReconstruction:
                         for [x, y, z] in self.lookup_table[cam][ix][iy]:
                             cam_vis_vox_indices[128 * 64 * x + 64 * y + z] = True
                     self.vis_vox_indices = np.logical_and(self.vis_vox_indices, cam_vis_vox_indices)
-                    #self.vis_vox_indices = cam_vis_vox_indices
+                #self.vis_vox_indices = cam_vis_vox_indices
                 self.all_vis_voxels = self.all_voxels[self.vis_vox_indices]
             else:
                 for cam in range(4):
@@ -93,6 +122,6 @@ class VoxelReconstruction:
                         iy = added_pixels[0][i]
                         for [x, y, z] in self.lookup_table[cam][ix][iy]:
                             new_vis_vox_indices[128 * 64 * x + 64 * y + z] += 1
-                self.all_vis_voxels = np.append(self.all_vis_voxels, self.all_voxels[new_vis_vox_indices == 4],0)
+                self.all_vis_voxels = np.append(self.all_vis_voxels, self.all_voxels[new_vis_vox_indices == 4], 0)
             Assignment.voxels = self.all_vis_voxels
             Executable.main()
