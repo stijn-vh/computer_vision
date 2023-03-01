@@ -36,6 +36,6 @@ if __name__ == '__main__':
     masks = load_pickle_object('masks')
     lookup_table = load_pickle_object('lookup_table')
 
-    VR.lookup_table = lookup_table
-    #VR.test_voxel_reconstruction(masks)
-    VR.run_voxel_reconstruction(masks)
+    #VR.lookup_table = lookup_table
+    VR.test_voxel_reconstruction(masks)
+    #VR.run_voxel_reconstruction(masks)
