@@ -30,12 +30,12 @@ def determine_new_masks():
     return S.background_subtraction(thresholds, num_contours, cam_means, cam_std_devs, show_video)
 
 if __name__ == '__main__':
-    VR = VoxelReconstruction('cameras.pickle')
-    lookup_table = VR.create_lookup_table()
-    pickle_object('lookup_table500', lookup_table)
+    VR = VoxelReconstruction('camera.pickle')
+    #lookup_table = VR.create_lookup_table()
+    #pickle_object('lookup_table300', lookup_table)
     masks = load_pickle_object('masks')
-    lookup_table = load_pickle_object('lookup_table500')
+    lookup_table = load_pickle_object('lookup_table300')
 
     VR.lookup_table = lookup_table
     #VR.test_voxel_reconstruction(masks)
-    #VR.run_voxel_reconstruction(masks)
+    VR.run_voxel_reconstruction(masks)
