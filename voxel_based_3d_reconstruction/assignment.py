@@ -31,8 +31,7 @@ def generate_grid(width, depth):
 
 
 def set_voxel_positions(width, height, depth):
-    # TODO: You need to calculate proper voxel arrays instead of random ones.
-    return voxels
+    return block_size * voxels
 
 
 """
@@ -48,7 +47,8 @@ def get_cam_positions():
     camera_coords = []
     for i in range(4):
         [x, y, z] = - rotation_matrices[i].T @ translation_vectors[i]
-        camera_coords.append([x,y,z])  # check if this is the correct transformation in camera coords
+        camera_coords.append([x, -z, y])  # check if this is the correct transformation in camera coords
+    print(camera_coords)
     return camera_coords
 
 
@@ -63,7 +63,7 @@ def get_cam_rotation_matrices():
                             [rotation_matrices[cam][2][0], rotation_matrices[cam][2][2], rotation_matrices[cam][2][1],
                              translation_vectors[cam][2]],
                             [0, 0, 0, 1]])
-        
+
         glm_mat = glm.rotate(glm_mat, glm.radians(90), (0, 1, 1))
         cam_rotations.append(glm_mat)
     return cam_rotations

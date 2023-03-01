@@ -7,16 +7,13 @@ from engine.config import config
 
 
 class VoxelReconstruction:
-    stepsize = 10
     rotation_vectors = []
     translation_vectors = []
     intrinsics = []
     dist_mtx = []
     lookup_table = []
-    all_voxels = np.array(
-        [[x, y, z] for x in range(-int(config['world_width'] / 2), int(config['world_width'] / 2)) for y in
-         range(-int(config["world_height"]/2), int(config["world_height"]/2)) for z in range(-int(config['world_depth'] / 2), int(config['world_depth'] / 2))])
-    vis_vox_indices = np.ones(config['world_width'] * config['world_depth'] * config['world_width'])
+    # change to 3D array
+    # vis_vox_indices = np.ones(config['world_width'] * config['world_depth'] * config['world_width'])
     all_vis_voxels = []
     prev_masks = None
 
@@ -26,12 +23,25 @@ class VoxelReconstruction:
             camera_params = pickle.load(f)
 
             for camera in camera_params:
-                self.rotation_vectors.append(np.array([camera_params[camera]['extrinsic_rvec'][0],camera_params[camera]['extrinsic_rvec'][1],camera_params[camera]['extrinsic_rvec'][2] ]))
-                self.translation_vectors.append(np.array([camera_params[camera]['extrinsic_tvec'][0],camera_params[camera]['extrinsic_tvec'][1],camera_params[camera]['extrinsic_tvec'][2] ]))
+                self.rotation_vectors.append(np.array(
+                    [camera_params[camera]['extrinsic_rvec'][0], camera_params[camera]['extrinsic_rvec'][1],
+                     camera_params[camera]['extrinsic_rvec'][2]]))
+                self.translation_vectors.append(np.array(
+                    [camera_params[camera]['extrinsic_tvec'][0], camera_params[camera]['extrinsic_tvec'][1],
+                     camera_params[camera]['extrinsic_tvec'][2]]))
                 self.intrinsics.append(camera_params[camera]['intrinsic_mtx'])
                 self.dist_mtx.append(camera_params[camera]['intrinsic_dist'])
 
         Assignment.load_parameters_from_pickle(path)
+        cam_coords = Assignment.get_cam_positions()
+        [max_x, max_y, max_z] = np.max(cam_coords, axis=0).astype(int)
+        [min_x, min_y, min_z] = np.min(cam_coords, axis =0).astype(int)
+        self.all_voxels = np.array([[x, y, z] for x in range(-max_x//2, max_x//2) for y in range(-max_y, max_y) for z in range(min_z//2, max_z//2)])
+
+        #Previous initialisation
+        #    all_voxels = np.array(
+        # [[x, y, z] for x in range(-int(config['world_width'] / 2), int(config['world_width'] / 2)) for y in
+        # range(0, int(config["world_height"])) for z in range(-int(config['world_depth'] / 2), int(config['world_depth']/ 2))])
 
     def create_lookup_table(self):
         # The lookup_table shape is (4,644,486) for indexing the cameras and the pixels of each camera.
@@ -60,20 +70,20 @@ class VoxelReconstruction:
 
     def test_voxel_reconstruction(self, masks):
         frame = 0
-        num_cams = 1
+        num_cams = 4
         for [x, y, z] in self.all_voxels:
             num_seen = 0
-            #for cam in range(num_cams):
-            cam = 2
-            cam_img_idx = cv.projectPoints(np.float64([x, y, z]), self.rotation_vectors[cam],
-                                           self.translation_vectors[cam],
-                                           self.intrinsics[cam],
-                                           np.array([])) #np.array([])  # distCoeffs=self.dist_mtx[cam] #np.array([])
-            iy = cam_img_idx[0][0][0][0].astype(int)
-            ix = cam_img_idx[0][0][0][1].astype(int)
-            if -644 < ix < 644 and -486 < iy < 486:
-                if masks[cam][frame][iy][ix] > 0:
-                    num_seen += 1
+            for cam in range(num_cams):
+                cam_img_idx = cv.projectPoints(np.float64([x, z, -y]), self.rotation_vectors[cam],
+                                               self.translation_vectors[cam],
+                                               self.intrinsics[cam],
+                                               np.array(
+                                                   []))  # np.array([])  # distCoeffs=self.dist_mtx[cam] #np.array([])
+                ix = cam_img_idx[0][0][0][0].astype(int)
+                iy = cam_img_idx[0][0][0][1].astype(int)
+                if -644 < ix < 644 and -486 < iy < 486:
+                    if masks[cam][frame][iy][ix] == 255:
+                        num_seen += 1
             if num_seen == num_cams:
                 self.all_vis_voxels.append([x, y, z])
         print("all vis voxels:", self.all_vis_voxels)
