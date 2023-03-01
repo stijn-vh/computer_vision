@@ -15,7 +15,7 @@ class VoxelReconstruction:
     lookup_table = []
     all_voxels = np.array(
         [[x, y, z] for x in range(-int(config['world_width'] / 2), int(config['world_width'] / 2)) for y in
-         range(0, config["world_height"]) for z in range(-int(config['world_depth'] / 2), int(config['world_depth'] / 2))])
+         range(-int(config["world_height"]/2), int(config["world_height"]/2)) for z in range(-int(config['world_depth'] / 2), int(config['world_depth'] / 2))])
     vis_vox_indices = np.ones(config['world_width'] * config['world_depth'] * config['world_width'])
     all_vis_voxels = []
     prev_masks = None
@@ -26,8 +26,8 @@ class VoxelReconstruction:
             camera_params = pickle.load(f)
 
             for camera in camera_params:
-                self.rotation_vectors.append(camera_params[camera]['extrinsic_rvec'])
-                self.translation_vectors.append(camera_params[camera]['extrinsic_tvec'])
+                self.rotation_vectors.append(np.array([camera_params[camera]['extrinsic_rvec'][0],camera_params[camera]['extrinsic_rvec'][1],camera_params[camera]['extrinsic_rvec'][2] ]))
+                self.translation_vectors.append(np.array([camera_params[camera]['extrinsic_tvec'][0],camera_params[camera]['extrinsic_tvec'][1],camera_params[camera]['extrinsic_tvec'][2] ]))
                 self.intrinsics.append(camera_params[camera]['intrinsic_mtx'])
                 self.dist_mtx.append(camera_params[camera]['intrinsic_dist'])
 
@@ -59,12 +59,6 @@ class VoxelReconstruction:
         return vis_vox
 
     def test_voxel_reconstruction(self, masks):
-        # cv.imshow("mask1", masks[0][0])
-        # cv.imshow("mask2", masks[1][0])
-        # cv.imshow("mask3", masks[2][0])
-        # cv.imshow("mask4", masks[3][0])
-        # cv.waitKey(100000)
-
         frame = 0
         num_cams = 1
         for [x, y, z] in self.all_voxels:
@@ -75,8 +69,8 @@ class VoxelReconstruction:
                                            self.translation_vectors[cam],
                                            self.intrinsics[cam],
                                            np.array([])) #np.array([])  # distCoeffs=self.dist_mtx[cam] #np.array([])
-            ix = cam_img_idx[0][0][0][0].astype(int)
-            iy = cam_img_idx[0][0][0][1].astype(int)
+            iy = cam_img_idx[0][0][0][0].astype(int)
+            ix = cam_img_idx[0][0][0][1].astype(int)
             if -644 < ix < 644 and -486 < iy < 486:
                 if masks[cam][frame][iy][ix] > 0:
                     num_seen += 1
