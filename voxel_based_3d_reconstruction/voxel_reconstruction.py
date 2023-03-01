@@ -15,7 +15,7 @@ class VoxelReconstruction:
     lookup_table = []
     all_voxels = np.array(
         [[x, y, z] for x in range(-int(config['world_width'] / 2), int(config['world_width'] / 2)) for y in
-         range(config["world_height"]) for z in range(-int(config['world_depth'] / 2), int(config['world_depth'] / 2))])
+         range(0, config["world_height"]) for z in range(-int(config['world_depth'] / 2), int(config['world_depth'] / 2))])
     vis_vox_indices = np.ones(config['world_width'] * config['world_depth'] * config['world_width'])
     all_vis_voxels = []
     prev_masks = None
@@ -66,19 +66,20 @@ class VoxelReconstruction:
         # cv.waitKey(100000)
 
         frame = 0
-        num_cams = 4
+        num_cams = 1
         for [x, y, z] in self.all_voxels:
             num_seen = 0
-            for cam in range(num_cams):
-                cam_img_idx = cv.projectPoints(np.float64([x, y, z]), self.rotation_vectors[cam],
-                                               self.translation_vectors[cam],
-                                               self.intrinsics[cam],
-                                               np.array([]))  # distCoeffs=self.dist_mtx[cam] #np.array([])
-                ix = cam_img_idx[0][0][0][0].astype(int)
-                iy = cam_img_idx[0][0][0][1].astype(int)
-                if -644 < ix < 644 and -486 < iy < 486:
-                    if masks[cam][frame][iy][ix] > 0:
-                        num_seen += 1
+            #for cam in range(num_cams):
+            cam = 2
+            cam_img_idx = cv.projectPoints(np.float64([x, y, z]), self.rotation_vectors[cam],
+                                           self.translation_vectors[cam],
+                                           self.intrinsics[cam],
+                                           np.array([])) #np.array([])  # distCoeffs=self.dist_mtx[cam] #np.array([])
+            ix = cam_img_idx[0][0][0][0].astype(int)
+            iy = cam_img_idx[0][0][0][1].astype(int)
+            if -644 < ix < 644 and -486 < iy < 486:
+                if masks[cam][frame][iy][ix] > 0:
+                    num_seen += 1
             if num_seen == num_cams:
                 self.all_vis_voxels.append([x, y, z])
         print("all vis voxels:", self.all_vis_voxels)

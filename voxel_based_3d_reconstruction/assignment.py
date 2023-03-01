@@ -48,7 +48,7 @@ def get_cam_positions():
     camera_coords = []
     for i in range(4):
         [x, y, z] = - rotation_matrices[i].T @ translation_vectors[i]
-        camera_coords.append([x, -z, y])  # check if this is the correct transformation in camera coords
+        camera_coords.append([x,y,z])  # check if this is the correct transformation in camera coords
     return camera_coords
 
 
