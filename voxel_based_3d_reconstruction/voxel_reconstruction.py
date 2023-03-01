@@ -81,8 +81,6 @@ class VoxelReconstruction:
         Assignment.voxels = self.all_vis_voxels
         Executable.main()
 
-
-
     def run_voxel_reconstruction(self, masks):
         # masks shape: (4, 428, 486, 644)
         # for every camera, for every frame in camera, a mask with white pixels in foreground and black pixels in background

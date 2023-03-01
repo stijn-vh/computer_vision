@@ -63,6 +63,7 @@ def get_cam_rotation_matrices():
                             [rotation_matrices[cam][2][0], rotation_matrices[cam][2][2], rotation_matrices[cam][2][1],
                              translation_vectors[cam][2]],
                             [0, 0, 0, 1]])
+        
         glm_mat = glm.rotate(glm_mat, glm.radians(90), (0, 1, 1))
         cam_rotations.append(glm_mat)
     return cam_rotations
