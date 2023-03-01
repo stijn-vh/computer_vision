@@ -34,8 +34,8 @@ if __name__ == '__main__':
     #lookup_table = VR.create_lookup_table()
     #pickle_object('lookup_table300', lookup_table)
     masks = load_pickle_object('masks')
-    lookup_table = load_pickle_object('lookup_table300')
+    #lookup_table = load_pickle_object('lookup_table300')
 
-    VR.lookup_table = lookup_table
-    #VR.test_voxel_reconstruction(masks)
-    VR.run_voxel_reconstruction(masks)
+    #VR.lookup_table = lookup_table
+    VR.test_voxel_reconstruction(masks)
+    #VR.run_voxel_reconstruction(masks)

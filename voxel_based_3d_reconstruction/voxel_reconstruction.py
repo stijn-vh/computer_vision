@@ -5,14 +5,18 @@ import executable as Executable
 import assignment as Assignment
 from engine.config import config
 
+
 class VoxelReconstruction:
+    stepsize = 10
     rotation_vectors = []
     translation_vectors = []
     intrinsics = []
     dist_mtx = []
     lookup_table = []
-    all_voxels = np.array([[x, y, z] for x in range(config['world_width']) for y in range(config['world_depth']) for z in range(config['world_depth'])])
-    vis_vox_indices = np.ones(config['world_width']*config['world_depth']*config['world_width'])
+    all_voxels = np.array(
+        [[x, y, z] for x in range(-int(config['world_width'] / 2), int(config['world_width'] / 2)) for y in
+         range(config["world_height"]) for z in range(-int(config['world_depth'] / 2), int(config['world_depth'] / 2))])
+    vis_vox_indices = np.ones(config['world_width'] * config['world_depth'] * config['world_width'])
     all_vis_voxels = []
     prev_masks = None
 
@@ -33,9 +37,8 @@ class VoxelReconstruction:
         # The lookup_table shape is (4,644,486) for indexing the cameras and the pixels of each camera.
         # Each pixels stores a variable sized list of multiple [x,y,z] coordinates.
         lookup_table = [[[[] for _ in range(486)] for _ in range(644)] for _ in range(4)]
-        all_voxels = [[x, y, z] for x in range(config['world_width']) for y in range(config['world_depth']) for z in range(config['world_height'])]
         for cam in range(4):
-            for vox in all_voxels:
+            for vox in self.all_voxels:
                 idx = cv.projectPoints(np.float64([vox]), self.rotation_vectors[cam],
                                        self.translation_vectors[cam],
                                        self.intrinsics[cam], distCoeffs=self.dist_mtx[cam])
@@ -63,25 +66,24 @@ class VoxelReconstruction:
         # cv.waitKey(100000)
 
         frame = 0
-        num_cams =4
+        num_cams = 4
         for [x, y, z] in self.all_voxels:
             num_seen = 0
             for cam in range(num_cams):
                 cam_img_idx = cv.projectPoints(np.float64([x, y, z]), self.rotation_vectors[cam],
                                                self.translation_vectors[cam],
-                                               self.intrinsics[cam], np.array([])) #distCoeffs=self.dist_mtx[cam]
+                                               self.intrinsics[cam],
+                                               np.array([]))  # distCoeffs=self.dist_mtx[cam] #np.array([])
                 ix = cam_img_idx[0][0][0][0].astype(int)
                 iy = cam_img_idx[0][0][0][1].astype(int)
                 if -644 < ix < 644 and -486 < iy < 486:
                     if masks[cam][frame][iy][ix] > 0:
-                        num_seen +=1
-            if num_seen > num_cams:
-                self.all_vis_voxels.append([x,y,z])
-        #print("all vis voxels:", self.all_vis_voxels)
+                        num_seen += 1
+            if num_seen == num_cams:
+                self.all_vis_voxels.append([x, y, z])
+        print("all vis voxels:", self.all_vis_voxels)
         Assignment.voxels = self.all_vis_voxels
         Executable.main()
-
-
 
     def run_voxel_reconstruction(self, masks):
         # masks shape: (4, 428, 486, 644)
@@ -89,7 +91,7 @@ class VoxelReconstruction:
         # 486 y pixels and 644 x pixels
         # Lookup table will contain for every camera, for every pixel value, a list of voxel coords which are projected to that pixel value
 
-        num_frames =1
+        num_frames = 1
         num_cameras = 4
 
         # for frame in range(len(masks[0])):
@@ -97,18 +99,21 @@ class VoxelReconstruction:
             # For the first run
             if frame == 0:
                 for cam in range(num_cameras):
-                    cam_vis_vox_indices = np.zeros(config['world_width']*config['world_depth']*config['world_width']).astype(bool)
+                    cam_vis_vox_indices = np.zeros(
+                        config['world_width'] * config['world_depth'] * config['world_width']).astype(bool)
                     cam_indices = np.nonzero(masks[cam][frame])
                     for i in range(len(cam_indices[0])):
                         ix = cam_indices[1][i]
                         iy = cam_indices[0][i]
                         for [x, y, z] in self.lookup_table[cam][ix][iy]:
-                            cam_vis_vox_indices[config['world_depth'] * config['world_height'] * x + config['world_height'] * y + z] = True
+                            cam_vis_vox_indices[config['world_depth'] * config['world_height'] * x + config[
+                                'world_height'] * y + z] = True
                     self.vis_vox_indices = np.logical_and(self.vis_vox_indices, cam_vis_vox_indices)
                 self.all_vis_voxels = self.all_voxels[self.vis_vox_indices]
             else:
                 for cam in range(num_cameras):
-                    new_vis_vox_indices = np.zeros(config['world_width']*config['world_depth']*config['world_width'])
+                    new_vis_vox_indices = np.zeros(
+                        config['world_width'] * config['world_depth'] * config['world_width'])
                     xor = np.logical_xor(masks[cam][frame - 1], masks[cam][frame])
                     removed_pixels = np.nonzero(np.logical_and(xor, masks[cam][frame - 1]))
                     added_pixels = np.nonzero(np.logical_and(xor, masks[cam][frame]))
@@ -116,12 +121,14 @@ class VoxelReconstruction:
                         ix = removed_pixels[1][i]
                         iy = removed_pixels[0][i]
                         for [x, y, z] in self.lookup_table[cam][ix][iy]:
-                            self.vis_vox_indices[config['world_depth'] * config['world_height'] * x + config['world_height'] * y + z] = False
+                            self.vis_vox_indices[config['world_depth'] * config['world_height'] * x + config[
+                                'world_height'] * y + z] = False
                     for i in range(len(added_pixels[0])):
                         ix = added_pixels[1][i]
                         iy = added_pixels[0][i]
                         for [x, y, z] in self.lookup_table[cam][ix][iy]:
-                            new_vis_vox_indices[config['world_depth'] * config['world_height'] * x + config['world_height'] * y + z] += 1
+                            new_vis_vox_indices[config['world_depth'] * config['world_height'] * x + config[
+                                'world_height'] * y + z] += 1
                 self.all_vis_voxels = np.append(self.all_vis_voxels, self.all_voxels[new_vis_vox_indices == 4], 0)
             Assignment.voxels = self.all_vis_voxels
             Executable.main()
