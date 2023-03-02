@@ -31,7 +31,7 @@ def generate_grid(width, depth):
 
 
 def set_voxel_positions(width, height, depth):
-    return block_size * voxels
+    return voxels
 
 
 """

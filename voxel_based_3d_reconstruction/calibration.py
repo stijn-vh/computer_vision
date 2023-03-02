@@ -7,6 +7,7 @@ import helpers.offline_phase as OfflinePhase
 import helpers.online_phase as OnlinePhase
 from bs4 import BeautifulSoup
 
+
 class Calibration:
     config = {
         'width': 0,
@@ -16,9 +17,9 @@ class Calibration:
     }
 
     cameras = {
-        'cam1': {}, 
-        'cam2': {}, 
-        'cam3': {}, 
+        'cam1': {},
+        'cam2': {},
+        'cam3': {},
         'cam4': {}
     }
 
@@ -27,8 +28,11 @@ class Calibration:
         self.set_offline_phase_config()
 
     def set_offline_phase_config(self):
+        #Chessboard coordinates are x and z
         objp = np.zeros((self.config['width'] * self.config['height'], 3), np.float32)
-        objp[:, :2] = self.config['size']*np.mgrid[0:self.config['width'], 0:self.config['height']].T.reshape(-1, 2)
+        grid = self.config['size'] * np.mgrid[0:self.config['width'], 0:self.config['height']].T.reshape(-1, 2)
+        objp[:, 0] = grid[:, 0]
+        objp[:, 2] = grid[:, 1]
 
         c = {
             'criteria': (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001),
@@ -41,15 +45,15 @@ class Calibration:
         OfflinePhase.set_config(c)
         OnlinePhase.set_config(c)
 
-    def handle_frame_from_video(self, video, totalFrames, cam_name = None):
+    def handle_frame_from_video(self, video, totalFrames, cam_name=None):
         r_numbers = []
-        while(True):
+        while (True):
             randomFrameNumber = random.randint(0, totalFrames)
             video.set(cv.CAP_PROP_POS_FRAMES, randomFrameNumber)
             s, frame = video.read()
             if s and randomFrameNumber not in r_numbers:
                 r_numbers.append(randomFrameNumber)
-                succeeded = OfflinePhase.handle_image(frame, 1, canDeterminePointsManually = False)
+                succeeded = OfflinePhase.handle_image(frame, 1, canDeterminePointsManually=False)
 
                 if succeeded:
                     break
@@ -57,11 +61,11 @@ class Calibration:
     def loop_through_video_frames(self, video, cam_name):
         f_count = 0
 
-        while(True):
+        while (True):
             s, frame = video.read()
 
             if s:
-                succeeded = OfflinePhase.handle_image(frame, 200, canDeterminePointsManually = False)
+                succeeded = OfflinePhase.handle_image(frame, 200, canDeterminePointsManually=False)
 
                 if succeeded:
                     print(cam_name, ', frame: ', f_count)
@@ -72,7 +76,7 @@ class Calibration:
                 randomFrameNumber = random.randint(0, video.get(cv.CAP_PROP_FRAME_COUNT))
                 video.set(cv.CAP_PROP_POS_FRAMES, randomFrameNumber)
                 s, frame = video.read()
-                succeeded = OfflinePhase.handle_image(frame, 200, canDeterminePointsManually = True)
+                succeeded = OfflinePhase.handle_image(frame, 200, canDeterminePointsManually=True)
                 return frame
 
             f_count = f_count + 1
@@ -86,8 +90,8 @@ class Calibration:
                 OfflinePhase.imgpoints[i] = OfflinePhase.imgpoints[i][::-1]
 
         ret, mtx, dist, rvecs, tvecs = cv.calibrateCamera(
-            OfflinePhase.objpoints, 
-            OfflinePhase.imgpoints, 
+            OfflinePhase.objpoints,
+            OfflinePhase.imgpoints,
             [w, h][::-1], None, None)
 
         self.cameras[cam_name]['intrinsic_mtx'] = mtx
@@ -110,14 +114,14 @@ class Calibration:
             OfflinePhase.objpoints = []
 
         return self.cameras
-    
+
     def calculate_extrinsics(self, cam_name):
         r, rvec, tvec = cv.solvePnP(
-            OfflinePhase.objpoints[0], 
-            OfflinePhase.imgpoints[0], 
-            self.cameras[cam_name]['intrinsic_mtx'], 
-            self.cameras[cam_name]['intrinsic_dist'], 
-            useExtrinsicGuess = False
+            OfflinePhase.objpoints[0],
+            OfflinePhase.imgpoints[0],
+            self.cameras[cam_name]['intrinsic_mtx'],
+            self.cameras[cam_name]['intrinsic_dist'],
+            useExtrinsicGuess=False
         )
 
         self.cameras[cam_name]['extrinsic_rvec'] = rvec
@@ -131,7 +135,7 @@ class Calibration:
             s, frame = video.read()
 
             if s:
-                OfflinePhase.handle_image(frame, time = 5000)
+                OfflinePhase.handle_image(frame, time=5000)
 
             self.calculate_extrinsics(cam_name)
 
