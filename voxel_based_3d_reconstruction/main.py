@@ -32,7 +32,7 @@ def determine_new_masks():
 
 if __name__ == '__main__':
     determine_camera_params()
-    VR = VoxelReconstruction('camera.pickle')
+    VR = VoxelReconstruction('scaled_camera.pickle')
     lookup_table = VR.create_lookup_table()
     pickle_object('lookup_table', lookup_table)
     masks = load_pickle_object('masks')
