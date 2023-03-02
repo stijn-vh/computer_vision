@@ -30,7 +30,7 @@ class Calibration:
     def set_offline_phase_config(self):
         #Chessboard coordinates are x and z
         objp = np.zeros((self.config['width'] * self.config['height'], 3), np.float32)
-        objp[:,:2] = self.config['size'] * np.mgrid[0:self.config['width'], 0:self.config['height']].T.reshape(-1, 2)
+        objp[:,:2] = self.config['size']/10 * np.mgrid[0:self.config['width'], 0:self.config['height']].T.reshape(-1, 2)
 
 
         c = {
