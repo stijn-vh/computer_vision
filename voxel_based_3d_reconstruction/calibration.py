@@ -32,7 +32,6 @@ class Calibration:
         objp = np.zeros((self.config['width'] * self.config['height'], 3), np.float32)
         objp[:,:2] = self.config['size']/10 * np.mgrid[0:self.config['width'], 0:self.config['height']].T.reshape(-1, 2)
 
-
         c = {
             'criteria': (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001),
             'image_name': 'current_frame',
