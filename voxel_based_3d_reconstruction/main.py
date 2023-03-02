@@ -33,11 +33,14 @@ def determine_new_masks():
 if __name__ == '__main__':
     determine_camera_params()
     VR = VoxelReconstruction('scaled_camera.pickle')
+    print('create lookup')
     lookup_table = VR.create_lookup_table()
     pickle_object('lookup_table', lookup_table)
+    print('done lookup')
     masks = load_pickle_object('masks')
     lookup_table = load_pickle_object('lookup_table')
 
     VR.lookup_table = lookup_table
+    print('start reconstruction')
     VR.test_voxel_reconstruction(masks)
     #VR.run_voxel_reconstruction(masks)

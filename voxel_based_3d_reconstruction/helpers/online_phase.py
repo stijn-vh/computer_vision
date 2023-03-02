@@ -61,8 +61,8 @@ def project_points(img, gray, corners, axis, cube, estimated_camera_params):
 
 # Find corners of image, project points from 3D to image plane and draw axes/cube
 def handle_image(img, estimated_camera_params, corners = None):
-    axsize = 6
-    cubesize = 4
+    axsize = 60
+    cubesize = 40
 
     axis = np.float32([[0, 0, 0], [axsize, 0, 0], [0, axsize, 0], [0, 0, -axsize]])
     cube = np.float32([[0, 0, 0], [cubesize, 0, 0], [cubesize, cubesize, 0], [0, cubesize, 0], [0, 0, -cubesize],
