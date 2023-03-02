@@ -116,8 +116,6 @@ class Calibration:
 
     def calculate_extrinsics(self, cam_name):
         objp = OfflinePhase.objpoints[0]
-        #objp[:, 2] = objp[:, 1]
-        #objp[:,1] = np.zeros(self.config['width']*self.config['height'])
 
         r, rvec, tvec = cv.solvePnP(
             objp,
