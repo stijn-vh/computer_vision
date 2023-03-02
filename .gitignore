@@ -1,3 +1,5 @@
 
 voxel_based_3d_reconstruction/masks.pickle
 voxel_based_3d_reconstruction/lookup_table300.pickle
+voxel_based_3d_reconstruction/lookup_table.pickle
+voxel_based_3d_reconstruction/lookup_table_quick.pickle
