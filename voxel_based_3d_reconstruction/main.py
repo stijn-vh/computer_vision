@@ -38,7 +38,7 @@ if __name__ == '__main__':
     pickle_object('lookup_table', lookup_table)
     print('done lookup')
     masks = load_pickle_object('masks')
-    lookup_table = load_pickle_object('lookup_table')
+    #lookup_table = load_pickle_object('lookup_table')
 
     VR.lookup_table = lookup_table
     print('start reconstruction')
