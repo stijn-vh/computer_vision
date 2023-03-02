@@ -36,7 +36,7 @@ class VoxelReconstruction:
         cam_coords = Assignment.get_cam_positions()
         [max_x, max_y, max_z] = np.max(cam_coords, axis=0).astype(int)
         [min_x, min_y, min_z] = np.min(cam_coords, axis =0).astype(int)
-        self.all_voxels = np.array([[x, y, z] for x in range(-max_x//2, max_x//2) for y in range(-max_y, max_y) for z in range(min_z//2, max_z//2)])
+        self.all_voxels = np.array([[x, y, z] for x in range(-max_x//2, max_x//2,20) for y in range(-max_y, max_y,20) for z in range(min_z//2, max_z//2, 20)])
 
         #Previous initialisation
         #    all_voxels = np.array(
@@ -48,14 +48,14 @@ class VoxelReconstruction:
         # Each pixels stores a variable sized list of multiple [x,y,z] coordinates.
         lookup_table = [[[[] for _ in range(486)] for _ in range(644)] for _ in range(4)]
         for cam in range(4):
-            for vox in self.all_voxels:
-                idx = cv.projectPoints(np.float64([vox]), self.rotation_vectors[cam],
+            for [x,y,z] in self.all_voxels:
+                idx = cv.projectPoints(np.float64([x,z,-y]), self.rotation_vectors[cam],
                                        self.translation_vectors[cam],
-                                       self.intrinsics[cam], distCoeffs=self.dist_mtx[cam])
+                                       self.intrinsics[cam], np.array([]))
                 ix = idx[0][0][0][0].astype(int)
                 iy = idx[0][0][0][1].astype(int)
                 if -644 < ix < 644 and -486 < iy < 486:
-                    lookup_table[cam][ix][iy].append(vox)
+                    lookup_table[cam][ix][iy].append([x,y,z])
         return lookup_table
 
     def return_visible_voxels(self, mask, cam_lookup_table):
@@ -74,7 +74,7 @@ class VoxelReconstruction:
         for [x, y, z] in self.all_voxels:
             num_seen = 0
             for cam in range(num_cams):
-                cam_img_idx = cv.projectPoints(np.float64([x, z, -y]), self.rotation_vectors[cam],
+                cam_img_idx = cv.projectPoints(np.float64([x, y, z]), self.rotation_vectors[cam],
                                                self.translation_vectors[cam],
                                                self.intrinsics[cam],
                                                np.array(
