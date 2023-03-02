@@ -30,9 +30,8 @@ class Calibration:
     def set_offline_phase_config(self):
         #Chessboard coordinates are x and z
         objp = np.zeros((self.config['width'] * self.config['height'], 3), np.float32)
-        grid = self.config['size'] * np.mgrid[0:self.config['width'], 0:self.config['height']].T.reshape(-1, 2)
-        objp[:, 0] = grid[:, 0]
-        objp[:, 2] = grid[:, 1]
+        objp[:,:2] = self.config['size'] * np.mgrid[0:self.config['width'], 0:self.config['height']].T.reshape(-1, 2)
+
 
         c = {
             'criteria': (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001),
@@ -116,8 +115,12 @@ class Calibration:
         return self.cameras
 
     def calculate_extrinsics(self, cam_name):
+        objp = OfflinePhase.objpoints[0]
+        objp[:, 2] = objp[:, 1]
+        objp[:,1] = np.zeros(self.config['width']*self.config['height'])
+
         r, rvec, tvec = cv.solvePnP(
-            OfflinePhase.objpoints[0],
+            objp,
             OfflinePhase.imgpoints[0],
             self.cameras[cam_name]['intrinsic_mtx'],
             self.cameras[cam_name]['intrinsic_dist'],
@@ -133,6 +136,7 @@ class Calibration:
             video = cv.VideoCapture(os.path.dirname(__file__) + '\data\\' + cam_name + '\checkerboard.avi')
 
             s, frame = video.read()
+
 
             if s:
                 OfflinePhase.handle_image(frame, time=5000)
