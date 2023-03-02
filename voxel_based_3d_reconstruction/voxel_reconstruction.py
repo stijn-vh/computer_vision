@@ -36,6 +36,7 @@ class VoxelReconstruction:
         cam_coords = Assignment.get_cam_positions()
         [max_x, max_y, max_z] = np.max(cam_coords, axis=0).astype(int)
         [min_x, min_y, min_z] = np.min(cam_coords, axis =0).astype(int)
+        
         self.all_voxels = np.array([[x, y, z] for x in range(-max_x//2, max_x//2) for y in range(0, 3*max_y) for z in range(min_z//2, max_z//2)])
 
         #Previous initialisation
@@ -49,6 +50,7 @@ class VoxelReconstruction:
         lookup_table = [[[[] for _ in range(486)] for _ in range(644)] for _ in range(4)]
         for cam in range(4):
             for [x,y,z] in self.all_voxels:
+
                 idx = cv.projectPoints(np.float64([x,z,-y]), self.rotation_vectors[cam],
                                        self.translation_vectors[cam],
                                        self.intrinsics[cam], np.array([]))

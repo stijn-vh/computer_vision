@@ -3,6 +3,7 @@ from voxel_reconstruction import VoxelReconstruction
 import numpy as np
 import pickle
 from calibration import Calibration
+import cv2 as cv
 
 def pickle_object(name, object):
     with open(name + '.pickle', 'wb') as handle:
@@ -30,7 +31,17 @@ def determine_new_masks():
 
     return S.background_subtraction(thresholds, num_contours, cam_means, cam_std_devs, show_video)
 
-if __name__ == '__main__':
+
+def show_four_images(images):
+    concat_row_1 = np.concatenate((images[0], images[1]), axis=0)
+    concat_row_2 = np.concatenate((images[2], images[3]), axis=0)
+    all_images = np.concatenate((concat_row_1, concat_row_2), axis=1)
+
+    cv.imshow('all_images', all_images)
+
+    cv.waitKey(0)
+
+if __name__ == '__main__':  
     determine_camera_params()
     VR = VoxelReconstruction('scaled_camera.pickle')
     print('create lookup')
