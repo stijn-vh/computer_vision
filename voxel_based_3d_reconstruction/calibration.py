@@ -13,7 +13,7 @@ class Calibration:
         'width': 0,
         'height': 0,
         'size': 0,
-        'amount_of_frames_to_read': 13
+        'amount_of_frames_to_read': 25
     }
 
     cameras = {
