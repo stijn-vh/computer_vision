@@ -13,7 +13,7 @@ class Calibration:
         'width': 0,
         'height': 0,
         'size': 0,
-        'amount_of_frames_to_read': 25
+        'amount_of_frames_to_read': 13
     }
 
     cameras = {
@@ -116,8 +116,8 @@ class Calibration:
 
     def calculate_extrinsics(self, cam_name):
         objp = OfflinePhase.objpoints[0]
-        objp[:, 2] = objp[:, 1]
-        objp[:,1] = np.zeros(self.config['width']*self.config['height'])
+        #objp[:, 2] = objp[:, 1]
+        #objp[:,1] = np.zeros(self.config['width']*self.config['height'])
 
         r, rvec, tvec = cv.solvePnP(
             objp,
