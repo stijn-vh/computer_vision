@@ -3,6 +3,7 @@ import cv2 as cv
 import pickle
 import executable as Executable
 import assignment as Assignment
+import surface_mesh as Mesh
 from engine.config import config
 
 
@@ -12,7 +13,7 @@ class VoxelReconstruction:
     intrinsics = []
     dist_mtx = []
     lookup_table = []
-    stepsize = 4
+    stepsize = 2
 
     def __init__(self, path) -> None:
 
@@ -102,7 +103,7 @@ class VoxelReconstruction:
         # 486 y pixels and 644 x pixels
         # Lookup table will contain for every camera, for every pixel value, a list of voxel coords which are projected to that pixel value
 
-        num_frames = 10
+        num_frames = 2
         num_cameras = 4
 
         # for frame in range(len(masks[0])):
@@ -147,3 +148,7 @@ class VoxelReconstruction:
                 print("removed:", num_removed, "added:", num_added)
             Assignment.voxels = self.all_vis_voxels
             Executable.main()
+
+
+
+
