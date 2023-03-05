@@ -19,7 +19,6 @@ class VoxelReconstruction:
 
         with open(path, 'rb') as f:
             camera_params = pickle.load(f)
-
             for camera in camera_params:
                 self.rotation_vectors.append(np.array(
                     [camera_params[camera]['extrinsic_rvec'][0], camera_params[camera]['extrinsic_rvec'][1],
@@ -53,16 +52,47 @@ class VoxelReconstruction:
         # The lookup_table shape is (4,644,486) for indexing the cameras and the pixels of each camera.
         # Each pixels stores a variable sized list of multiple [x,y,z] coordinates.
         lookup_table = [[[[] for _ in range(486)] for _ in range(644)] for _ in range(4)]
+        lookup_table_2 = [[[[] for _ in range(486)] for _ in range(644)] for _ in range(4)]
         for cam in range(4):
-            for [x, y, z] in self.all_voxels:
-                idx = cv.projectPoints(np.float64([x, z, -y]), self.rotation_vectors[cam],
-                                       self.translation_vectors[cam],
-                                       self.intrinsics[cam], distCoeffs=self.dist_mtx[cam])
-                ix = idx[0][0][0][0].astype(int)
-                iy = idx[0][0][0][1].astype(int)
-                if -644 < ix < 644 and -486 < iy < 486:
-                    lookup_table[cam][ix][iy].append([x, y, z])
-        return lookup_table
+            self.all_voxels = self.all_voxels
+            float_all_voxels = np.float64([
+                    self.all_voxels[:, 0], 
+                    self.all_voxels[:, 2],
+                    -self.all_voxels[:, 1]
+            ])
+
+            idx = cv.projectPoints(
+                float_all_voxels, 
+                self.rotation_vectors[cam],
+                self.translation_vectors[cam],
+                self.intrinsics[cam], 
+                distCoeffs=self.dist_mtx[cam]
+            )
+            ix = idx[0][:, 0][:, 0]
+            iy = idx[0][:, 0][:, 1]
+
+            iiy = np.asarray(abs(iy) < 486).nonzero()
+            iix = np.asarray(abs(ix) < 644).nonzero()
+
+            indices = np.intersect1d(iix, iiy)
+
+            ix = np.take(ix, indices).astype(int)
+            iy = np.take(iy, indices).astype(int)
+            voxels = np.take(self.all_voxels, indices, 0)
+        
+            for index in range(len(voxels)):
+                lookup_table_2[cam][ix[index]][iy[index]].append(voxels[index])
+
+            # for [x,y,z] in self.all_voxels:
+            #     test = np.float64([x,z,-y])
+            #     idx = cv.projectPoints(test, self.rotation_vectors[cam],
+            #                            self.translation_vectors[cam],
+            #                            self.intrinsics[cam], distCoeffs=self.dist_mtx[cam])
+            #     ix = idx[0][0][0][0].astype(int)
+            #     iy = idx[0][0][0][1].astype(int)
+            #     if -644 < ix < 644 and -486 < iy < 486:
+            #         lookup_table[cam][ix][iy].append([x,y,z])
+        return lookup_table_2
 
     def return_visible_voxels(self, mask, cam_lookup_table):
         # mask has shape (486,644) corresponding to the pixels in a single frame
