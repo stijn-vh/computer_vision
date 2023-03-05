@@ -68,22 +68,23 @@ class BackgroundSubstraction:
         xor = np.logical_xor(mask, groundtruth)
         in_gt_not_in_mask = np.logical_and(xor, groundtruth)
         in_mask_not_in_gt = np.logical_and(xor, mask)
-        return 4*np.sum(in_gt_not_in_mask) + np.sum(in_mask_not_in_gt)  # The lower the score the better
+        return 1.5*np.sum(in_gt_not_in_mask) + np.sum(in_mask_not_in_gt)  # The lower the score the better
 
     def gridsearch(self, cam_means, cam_std_devs):
         cam_folders = ['cam1', 'cam2', 'cam3', 'cam4']
         thresholds = []
-        for i_ in np.arange(1, 15):
-            for j_ in np.arange(1, 15):
-                for k_ in 2 * np.arange(1, 15):
+        for i_ in np.arange(1, 12):
+            for j_ in np.arange(1, 8):
+                for k_ in 2 * np.arange(3, 15):
                     thresholds.append([i_, j_, k_])
-        num_contours = np.arange(1, 5)
+        num_contours = np.arange(1, 3)
         best_num_contours = np.repeat(-1, 4)
         best_thresholds = np.tile([-1, -1, -1], (4, 1))
         for i, f in enumerate(cam_folders):
             best_score = float('inf')
             for j in range(len(num_contours)):
                 for k in range(len(thresholds)):
+                    print("trying thresh", thresholds[k])
                     mask = self.compute_mask(thresholds[k], num_contours[j], '\data\\' + f + '\\video.avi',
                                              cam_means[i],
                                              cam_std_devs[i])

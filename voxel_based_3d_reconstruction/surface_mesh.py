@@ -5,10 +5,7 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from skimage import measure
 from skimage.draw import ellipsoid
 
-"""
-Code from
-https://scikit-image.org/docs/stable/auto_examples/edges/plot_marching_cubes.html
-"""
+
 
 def compute_volume(all_vis_voxels, xb, yb, zb, stepsize):
     volume = np.zeros((2*xb,2*yb,2*zb)).astype(bool)
@@ -20,6 +17,10 @@ def compute_volume(all_vis_voxels, xb, yb, zb, stepsize):
         #front: volume[x+xb][-z+zb][y]
     return volume
 
+"""
+Code from
+https://scikit-image.org/docs/stable/auto_examples/edges/plot_marching_cubes.html
+"""
 def print_mesh_of_volume(volume):
     # Use marching cubes to obtain the surface mesh of these ellipsoids
     verts, faces, normals, values = measure.marching_cubes(volume, 0)

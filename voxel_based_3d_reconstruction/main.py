@@ -1,4 +1,5 @@
 from background_substraction import BackgroundSubstraction
+from automatic_background_substraction import AutoBackgroundSubstraction
 from voxel_reconstruction import VoxelReconstruction
 
 import numpy as np
@@ -21,16 +22,32 @@ def determine_camera_params():
     cali.obtain_extrinsics_from_cameras()
     pickle_object("scaled_camera", cali.cameras)
 
-def determine_new_masks():
-    S = BackgroundSubstraction()
-    cam_means, cam_std_devs = S.create_background_model()
-    thresholds = np.array([[10, 2, 18],
-                           [10, 2, 14],
-                           [10, 1, 10],
-                           [10, 2, 22]])
-    num_contours = [1, 2, 2, 1]
-    show_video = False
-    return S.background_subtraction(thresholds, num_contours, cam_means, cam_std_devs, show_video)
+def determine_new_masks(auto = False, show_video = True):
+    if auto:
+        AS = AutoBackgroundSubstraction()
+        masks = AS.background_subtraction(show_video)
+    else:
+        S = BackgroundSubstraction()
+        cam_means, cam_std_devs = S.create_background_model()
+        thresholds = np.array([[10, 2, 18],
+                               [10, 2, 14],
+                               [10, 1, 10],
+                               [10, 2, 22]])
+        num_contours = [1, 2, 2, 1]
+        # #Penalizing 2x more if pixel not in groundtruth but is in mask. fixed numcontours to equal 1
+        # thresholds = np.array([[10, 1, 14],
+        #                        [10, 2, 14],
+        #                        [10, 1, 10],
+        #                        [10, 2, 8]])
+        # num_contours = [1, 2, 2, 1]
+        #Penalizing 3x more if pixel not in groundtruth but is in mask. fixed numcontours to equal 1
+        # thresholds = np.array([[2, 6, 12],
+        #                        [2, 6, 14],
+        #                        [4, 6, 20],
+        #                        [1, 7, 14]])
+        # num_contours = [1, 2, 1, 2]
+        masks = S.background_subtraction(thresholds, num_contours, cam_means, cam_std_devs, show_video)
+    return masks
 
 
 def determine_new_thresholds():
@@ -50,7 +67,9 @@ def show_four_images(images):
 
 if __name__ == '__main__':
     #determine_new_thresholds()
+    #masks = determine_new_masks(auto=False, show_video=True)
     #determine_camera_params()
+
     VR = VoxelReconstruction('scaled_camera.pickle')
 
     # print('create lookup')
@@ -62,8 +81,13 @@ if __name__ == '__main__':
     print('start reconstruction')
     VR.lookup_table = lookup_table #load_pickle_object('lookup_table_quick')
     masks = load_pickle_object('masks')
+    print('start reconstruction')
     VR.run_voxel_reconstruction(masks)
     print('done reconstruction')
+
+    print("start pickle")
+    pickle_object('lookup_table', lookup_table)
+    print("done pickle")
 
     # vis_vox = load_pickle_object('all_vis_voxels_frame_0')
     # volume = Mesh.compute_volume(vis_vox,VR.xb,VR.yb,VR.zb,VR.stepsize)
