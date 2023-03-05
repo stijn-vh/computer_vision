@@ -42,7 +42,7 @@ def show_four_images(images):
     cv.waitKey(0)
 
 if __name__ == '__main__':  
-    determine_camera_params()
+    #determine_camera_params()
     VR = VoxelReconstruction('scaled_camera.pickle')
 
     print('create lookup')
