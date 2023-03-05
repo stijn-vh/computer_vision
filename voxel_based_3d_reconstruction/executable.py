@@ -139,6 +139,7 @@ def main():
         glClearColor(0.1, 0.2, 0.8, 1)
 
         square.draw_multiple(depth_program)
+
         cube.draw_multiple(depth_program)
         for cam in cam_shapes:
             cam.draw_multiple(depth_program)
@@ -159,7 +160,6 @@ def main():
 
         glfw.poll_events()
         glfw.swap_buffers(window)
-
     glfw.terminate()
 
 

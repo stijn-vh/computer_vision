@@ -55,7 +55,8 @@ class BackgroundSubstraction:
                             contours[:num_contour], -1, 255,
                             thickness=cv.FILLED)
         return mask
-    #Helper function for gridsearch
+
+    # Helper function for gridsearch
     def evaluate_mask(self, mask, i):
         if i == 0:
             thresh = 247
@@ -64,14 +65,17 @@ class BackgroundSubstraction:
         path = os.path.dirname(__file__) + "\\cam" + str(i + 1) + "_groundtruth.png"
         groundtruth = cv.imread(path)
         groundtruth = (255 * (cv.cvtColor(groundtruth, cv.COLOR_BGR2GRAY) >= thresh)).astype(np.uint8)
-        return np.sum(np.logical_xor(mask, groundtruth))  # The lower the score the better
+        xor = np.logical_xor(mask, groundtruth)
+        in_gt_not_in_mask = np.logical_and(xor, groundtruth)
+        in_mask_not_in_gt = np.logical_and(xor, mask)
+        return 4*np.sum(in_gt_not_in_mask) + np.sum(in_mask_not_in_gt)  # The lower the score the better
 
     def gridsearch(self, cam_means, cam_std_devs):
         cam_folders = ['cam1', 'cam2', 'cam3', 'cam4']
         thresholds = []
         for i_ in np.arange(1, 15):
             for j_ in np.arange(1, 15):
-                for k_ in 2*np.arange(1, 15):
+                for k_ in 2 * np.arange(1, 15):
                     thresholds.append([i_, j_, k_])
         num_contours = np.arange(1, 5)
         best_num_contours = np.repeat(-1, 4)
@@ -88,10 +92,9 @@ class BackgroundSubstraction:
                         best_score = score
                         best_num_contours[i] = num_contours[j]
                         best_thresholds[i] = thresholds[k]
-        print(best_thresholds)
-        print(best_num_contours)
+        return best_thresholds, best_num_contours
 
-    #Used in the actual background substraction
+    # Used in the actual background substraction
     def compute_masks(self, thresholds, num_contour, pathname, cam_mean, cam_std_dev, show_video):
         video = cv.VideoCapture(os.path.dirname(__file__) + pathname)
         masks = []

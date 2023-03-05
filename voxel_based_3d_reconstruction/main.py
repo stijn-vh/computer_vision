@@ -4,6 +4,7 @@ import numpy as np
 import pickle
 from calibration import Calibration
 import cv2 as cv
+import surface_mesh as Mesh
 
 def pickle_object(name, object):
     with open(name + '.pickle', 'wb') as handle:
@@ -23,14 +24,19 @@ def determine_new_masks():
     S = BackgroundSubstraction()
     cam_means, cam_std_devs = S.create_background_model()
     thresholds = np.array([[10, 2, 18],
-                           [10, 2, 14], #very short flicker
+                           [10, 2, 14],
                            [10, 1, 10],
                            [10, 2, 22]])
     num_contours = [1, 2, 2, 1]
     show_video = False
-
     return S.background_subtraction(thresholds, num_contours, cam_means, cam_std_devs, show_video)
 
+
+def determine_new_thresholds():
+    S = BackgroundSubstraction()
+    cam_means, cam_std_devs = S.create_background_model()
+    thresh, num_contours = S.gridsearch(cam_means, cam_std_devs)
+    print("thresholds = ", thresh, "Num_contours =", num_contours)
 
 def show_four_images(images):
     concat_row_1 = np.concatenate((images[0], images[1]), axis=0)
@@ -41,19 +47,22 @@ def show_four_images(images):
 
     cv.waitKey(0)
 
-if __name__ == '__main__':  
+if __name__ == '__main__':
+    #determine_new_thresholds()
     #determine_camera_params()
     VR = VoxelReconstruction('scaled_camera.pickle')
 
-    print('create lookup')
-    lookup_table = VR.create_lookup_table()
-    pickle_object('lookup_table', lookup_table)
-    print('done lookup')
+    # print('create lookup')
+    # lookup_table = VR.create_lookup_table()
+    # pickle_object('lookup_table_quick', lookup_table)
+    # print('done lookup')
 
-    masks = load_pickle_object('masks')
-    lookup_table = load_pickle_object('lookup_table_quick')
-
-    #VR.lookup_table = lookup_table
     print('start reconstruction')
-    #VR.test_voxel_reconstruction(masks)
-    #VR.run_voxel_reconstruction(masks)
+    VR.lookup_table = load_pickle_object('lookup_table_quick')
+    masks = load_pickle_object('masks')
+    VR.run_voxel_reconstruction(masks)
+    print('done reconstruction')
+
+    # vis_vox = load_pickle_object('all_vis_voxels_frame_0')
+    # volume = Mesh.compute_volume(vis_vox,VR.xb,VR.yb,VR.zb,VR.stepsize)
+    # Mesh.print_mesh_of_volume(volume)
