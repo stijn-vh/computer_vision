@@ -71,16 +71,21 @@ if __name__ == '__main__':
 
     VR = VoxelReconstruction('scaled_camera.pickle')
 
-    # print('create lookup')
-    # lookup_table = VR.create_lookup_table()
-    # pickle_object('lookup_table', lookup_table)
-    # print('done lookup')
+    print('create lookup')
+    lookup_table = VR.create_lookup_table()
+    VR.lookup_table = lookup_table
+    print('done lookup')
 
-    # VR.lookup_table = load_pickle_object('lookup_table_quick')
-    # masks = load_pickle_object('masks')
-    # print('start reconstruction')
-    # VR.run_voxel_reconstruction(masks)
-    # print('done reconstruction')
+    #VR.lookup_table = load_pickle_object('lookup_table_quick')
+
+    masks = load_pickle_object('masks')
+    print('start reconstruction')
+    VR.run_voxel_reconstruction(masks)
+    print('done reconstruction')
+
+    print("start pickle")
+    pickle_object('lookup_table', lookup_table)
+    print("done pickle")
 
     # vis_vox = load_pickle_object('all_vis_voxels_frame_0')
     # volume = Mesh.compute_volume(vis_vox,VR.xb,VR.yb,VR.zb,VR.stepsize)

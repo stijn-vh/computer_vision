@@ -13,7 +13,7 @@ class VoxelReconstruction:
     intrinsics = []
     dist_mtx = []
     lookup_table = []
-    stepsize = 2
+    stepsize = 1
 
     def __init__(self, path) -> None:
 
@@ -51,9 +51,9 @@ class VoxelReconstruction:
     def create_lookup_table(self):
         # The lookup_table shape is (4,644,486) for indexing the cameras and the pixels of each camera.
         # Each pixels stores a variable sized list of multiple [x,y,z] coordinates.
-        lookup_table = [[[[] for _ in range(486)] for _ in range(644)] for _ in range(4)]
         lookup_table_2 = [[[[] for _ in range(486)] for _ in range(644)] for _ in range(4)]
         for cam in range(4):
+            print("now at cam: ", cam)
             self.all_voxels = self.all_voxels
             float_all_voxels = np.float64([
                     self.all_voxels[:, 0], 
@@ -83,6 +83,7 @@ class VoxelReconstruction:
             for index in range(len(voxels)):
                 lookup_table_2[cam][ix[index]][iy[index]].append(voxels[index])
 
+            #  lookup_table = [[[[] for _ in range(486)] for _ in range(644)] for _ in range(4)]
             # for [x,y,z] in self.all_voxels:
             #     test = np.float64([x,z,-y])
             #     idx = cv.projectPoints(test, self.rotation_vectors[cam],
@@ -103,28 +104,6 @@ class VoxelReconstruction:
                 for vox in cam_lookup_table[ix][iy]:
                     vis_vox.append(vox)
         return vis_vox
-
-    def test_voxel_reconstruction(self, masks):
-        frame = 0
-        num_cams = 4
-        for [x, y, z] in self.all_voxels:
-            num_seen = 0
-            for cam in range(num_cams):
-                cam_img_idx = cv.projectPoints(np.float64([x, z, -y]), self.rotation_vectors[cam],
-                                               self.translation_vectors[cam],
-                                               self.intrinsics[cam],
-                                               distCoeffs=self.dist_mtx[
-                                                   cam])  # np.array([])  # distCoeffs=self.dist_mtx[cam] #np.array([])
-                ix = cam_img_idx[0][0][0][0].astype(int)
-                iy = cam_img_idx[0][0][0][1].astype(int)
-                if -644 < ix < 644 and -486 < iy < 486:
-                    if masks[cam][frame][iy][ix] == 255:
-                        num_seen += 1
-            if num_seen == num_cams:
-                self.all_vis_voxels.append([x, y, z])
-        print("all vis voxels:", self.all_vis_voxels)
-        Assignment.voxels = self.all_vis_voxels
-        Executable.main()
 
     def pixels_to_xyz_indices(self, pixels, cam):
         xyz_indices =[]
