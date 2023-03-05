@@ -3,7 +3,7 @@ import cv2 as cv
 import pickle
 import executable as Executable
 import assignment as Assignment
-import surface_mesh as Mesh
+#import surface_mesh as Mesh
 from engine.config import config
 
 
@@ -53,8 +53,8 @@ class VoxelReconstruction:
         # The lookup_table shape is (4,644,486) for indexing the cameras and the pixels of each camera.
         # Each pixels stores a variable sized list of multiple [x,y,z] coordinates.
         lookup_table = [[[[] for _ in range(486)] for _ in range(644)] for _ in range(4)]
-        lookup_table_2 = [[[[] for _ in range(486)] for _ in range(644)] for _ in range(4)]
         for cam in range(4):
+            print('cam: ', cam)
             self.all_voxels = self.all_voxels
             float_all_voxels = np.float64([
                     self.all_voxels[:, 0], 
@@ -80,10 +80,10 @@ class VoxelReconstruction:
             ix = np.take(ix, indices).astype(int)
             iy = np.take(iy, indices).astype(int)
             voxels = np.take(self.all_voxels, indices, 0)
-        
+            print('append voxels')
             for index in range(len(voxels)):
-                lookup_table_2[cam][ix[index]][iy[index]].append(voxels[index])
-
+                lookup_table[cam][ix[index]][iy[index]].append(voxels[index])
+            print('voxels appended')
             # for [x,y,z] in self.all_voxels:
             #     test = np.float64([x,z,-y])
             #     idx = cv.projectPoints(test, self.rotation_vectors[cam],
@@ -93,7 +93,7 @@ class VoxelReconstruction:
             #     iy = idx[0][0][0][1].astype(int)
             #     if -644 < ix < 644 and -486 < iy < 486:
             #         lookup_table[cam][ix][iy].append([x,y,z])
-        return lookup_table_2
+        return lookup_table
 
     def return_visible_voxels(self, mask, cam_lookup_table):
         # mask has shape (486,644) corresponding to the pixels in a single frame
@@ -133,7 +133,8 @@ class VoxelReconstruction:
         # 486 y pixels and 644 x pixels
         # Lookup table will contain for every camera, for every pixel value, a list of voxel coords which are projected to that pixel value
 
-        num_frames = 2
+        num_frames = len(masks[0])
+        print('num_frames: ', num_frames)
         num_cameras = 4
 
         # for frame in range(len(masks[0])):
@@ -176,8 +177,9 @@ class VoxelReconstruction:
                 self.vis_vox_indices = np.logical_or(self.vis_vox_indices, (new_vis_vox_indices == 4))
                 self.all_vis_voxels = self.all_voxels[self.vis_vox_indices]
                 print("removed:", num_removed, "added:", num_added)
-            Assignment.voxels = self.all_vis_voxels
-            Executable.main()
+            Assignment.voxels_per_frame.append(self.all_vis_voxels)
+        
+        Executable.main()
 
 
 

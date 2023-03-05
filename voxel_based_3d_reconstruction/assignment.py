@@ -8,8 +8,8 @@ block_size = 1
 # TODO create method which reads in these values and assigns them from task 1 and task 3.
 rotation_matrices = []  # needs to be filled
 translation_vectors = []  # needs to be filled
-voxels = []  # Need te be filled from voxel reconstruction
-
+voxels_per_frame = []  # Need te be filled from voxel reconstruction
+frame = 0
 
 def load_parameters_from_pickle(path):
     with open(path, 'rb') as f:
@@ -29,9 +29,17 @@ def generate_grid(width, depth):
             data.append([x * block_size - width / 2, -block_size, z * block_size - depth / 2])
     return data
 
-
 def set_voxel_positions(width, height, depth):
-    return voxels
+    global frame
+    
+    voxels_to_return = voxels_per_frame[frame]
+
+    if frame == len(voxels_per_frame) - 1:
+        frame = 0
+    else:
+        frame += 1
+
+    return voxels_to_return
 
 
 """

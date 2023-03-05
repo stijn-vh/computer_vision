@@ -1,5 +1,6 @@
 from background_substraction import BackgroundSubstraction
 from voxel_reconstruction import VoxelReconstruction
+
 import numpy as np
 import pickle
 from calibration import Calibration
@@ -53,12 +54,13 @@ if __name__ == '__main__':
     VR = VoxelReconstruction('scaled_camera.pickle')
 
     # print('create lookup')
-    # lookup_table = VR.create_lookup_table()
-    # pickle_object('lookup_table_quick', lookup_table)
-    # print('done lookup')
+    lookup_table = VR.create_lookup_table()
+    print('pickle lookup')
+    #pickle_object('lookup_table_quick', lookup_table)
+    print('done lookup')
 
     print('start reconstruction')
-    VR.lookup_table = load_pickle_object('lookup_table_quick')
+    VR.lookup_table = lookup_table #load_pickle_object('lookup_table_quick')
     masks = load_pickle_object('masks')
     VR.run_voxel_reconstruction(masks)
     print('done reconstruction')
