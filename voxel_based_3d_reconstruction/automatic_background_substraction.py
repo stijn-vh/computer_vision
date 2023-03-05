@@ -1,8 +1,11 @@
 import numpy as np
 import cv2 as cv
 import os
+
+
 class AutoBackgroundSubstraction:
     backSubs = [cv.createBackgroundSubtractorMOG2() for i in range(4)]
+
     def __init__(self) -> None:
         pass
 
@@ -22,9 +25,6 @@ class AutoBackgroundSubstraction:
                 if ret:
                     self.backSubs[cam].apply(frame)
 
-
-
-    #Used in the actual background substraction
     def compute_masks(self, pathnames, show_video):
         masks = np.zeros((4, 428, 486, 644))
         for cam in range(4):
@@ -33,16 +33,16 @@ class AutoBackgroundSubstraction:
             ret, frame = self.read_video(video)
             mask = self.backSubs[cam].apply(frame, 0)
             masks[cam][frame_num] = mask
-            frame_num +=1
+            frame_num += 1
             while ret:
                 ret, frame = self.read_video(video)
                 if ret:
-                    self.backSubs[cam].apply(frame, 0)
+                    self.backSubs[cam].apply(frame,0)
                     masks[cam][frame_num] = mask
                     frame_num += 1
-
-
-
+                    if show_video:
+                        cv.imshow("video", mask)
+                        cv.waitKey(1)
         return masks
 
     def background_subtraction(self, show_video):
