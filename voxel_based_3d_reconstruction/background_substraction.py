@@ -100,6 +100,7 @@ class BackgroundSubstraction:
         video = cv.VideoCapture(os.path.dirname(__file__) + pathname)
         masks = []
         ret = True
+        first_frame = True
         while ret:
             ret, frame = self.read_video(video)
             if ret:
@@ -114,8 +115,10 @@ class BackgroundSubstraction:
                                 thickness=cv.FILLED)
                 masks.append(mask)
                 if show_video:
-                    cv.imshow("video", mask)
-                    cv.waitKey(1)
+                    if first_frame:
+                        cv.imshow("video", mask)
+                        cv.waitKey(10000)
+                        first_frame = False
         return masks
 
     def background_subtraction(self, thresholds, num_contours, cam_means, cam_std_devs, show_video):

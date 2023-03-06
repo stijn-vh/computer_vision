@@ -177,7 +177,7 @@ def resize_callback(window, w, h):
 def key_callback(window, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, glfw.TRUE)
-    if key == glfw.KEY_G and action == glfw.PRESS:
+    if key == glfw.KEY_G:
         global cube
         positions = set_voxel_positions(config['world_width'], config['world_height'], config['world_depth'])
         cube.set_multiple_positions(positions)

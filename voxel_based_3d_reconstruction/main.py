@@ -66,29 +66,31 @@ def show_four_images(images):
     cv.waitKey(0)
 
 if __name__ == '__main__':
-    #determine_new_thresholds()
-    #masks = determine_new_masks(auto=False, show_video=True)
     #determine_camera_params()
+    #determine_new_thresholds()
+
+    print("creating masks")
+    masks = determine_new_masks(auto=False, show_video=True)
+    # pickle_object("masks", masks)
+    #masks = load_pickle_object("masks")
+    print("done with masks")
 
     VR = VoxelReconstruction('scaled_camera.pickle')
 
-    # print('create lookup')
+    print('create lookup')
     lookup_table = VR.create_lookup_table()
-    print('pickle lookup')
-    #pickle_object('lookup_table_quick', lookup_table)
+    # print("start pickle")
+    # pickle_object('lookup_table', lookup_table)
+    # print("done pickle")
     print('done lookup')
 
     print('start reconstruction')
-    VR.lookup_table = lookup_table #load_pickle_object('lookup_table_quick')
-    masks = load_pickle_object('masks')
+    VR.lookup_table = lookup_table
     print('start reconstruction')
     VR.run_voxel_reconstruction(masks)
     print('done reconstruction')
 
-    print("start pickle")
-    pickle_object('lookup_table', lookup_table)
-    print("done pickle")
-
     # vis_vox = load_pickle_object('all_vis_voxels_frame_0')
     # volume = Mesh.compute_volume(vis_vox,VR.xb,VR.yb,VR.zb,VR.stepsize)
+    # print(VR.xb,VR.yb,VR.zb)
     # Mesh.print_mesh_of_volume(volume)

@@ -39,9 +39,9 @@ def print_mesh_of_volume(volume):
     ax.set_ylabel("y-axis")
     ax.set_zlabel("z-axis")
 
-    ax.set_xlim(70, 120)
-    ax.set_ylim(70, 120)
-    ax.set_zlim(0, 50)
+    ax.set_xlim(2*70, 2*120)
+    ax.set_ylim(2*70, 2*120)
+    ax.set_zlim(0, 2*50)
 
     plt.tight_layout()
     plt.show()
