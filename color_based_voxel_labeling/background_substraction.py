@@ -5,8 +5,20 @@ import sklearn as sk
 
 
 class BackgroundSubstraction:
+    cam_means = []
+    thresholds = []
+    cam_std_devs = []
+    num_contours = []
+
     def __init__(self) -> None:
-        pass
+        self.thresholds = np.array([
+            [10, 2, 18],
+            [10, 2, 14],
+            [7, 1, 14],
+            [7, 2, 20]]
+        )
+        
+        self.num_contours = [4, 5, 5, 6]
 
     def read_video(self, video):
         ret, frame = video.read()
@@ -32,13 +44,11 @@ class BackgroundSubstraction:
 
     def create_background_model(self):
         folders = ['cam1', 'cam2', 'cam3', 'cam4']
-        cam_means = []
-        cam_std_devs = []
+
         for f in folders:
             means, std_devs = self.compute_background_values('\data\\' + f + '\\background.avi')
-            cam_means.append(means)
-            cam_std_devs.append(std_devs)
-        return cam_means, cam_std_devs
+            self.cam_means.append(means)
+            self.cam_std_devs.append(std_devs)
 
     # helper func for gridsearch
     def compute_mask(self, thresholds, num_contour, pathname, cam_mean, cam_std_dev):
@@ -95,6 +105,25 @@ class BackgroundSubstraction:
                         best_thresholds[i] = thresholds[k]
         return best_thresholds, best_num_contours
 
+    def compute_mask_in_frame(self, frame, cam_number):
+        mask = np.float32(255 * (np.sum(np.abs(
+            frame - self.cam_means[cam_number]) > 
+            self.thresholds[cam_number] * (self.cam_std_devs[cam_number] + 0.1), 2) == 3)
+        )
+
+        mask = mask.astype(np.uint8)
+
+        contours, hierarchy = cv.findContours(mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+        (height, width) = mask.shape
+        mask = np.zeros((height, width), np.uint8)
+        contours = sorted(contours, key=cv.contourArea, reverse=True)
+
+        cv.drawContours(mask,
+                        contours[:self.num_contours[cam_number]], -1, 255,
+                        thickness=cv.FILLED)
+
+        return mask
+    
     # Used in the actual background substraction
     def compute_masks(self, thresholds, num_contour, pathname, cam_mean, cam_std_dev, show_video, cam):
         video = cv.VideoCapture(os.path.dirname(__file__) + pathname)
@@ -121,6 +150,8 @@ class BackgroundSubstraction:
         return masks, frames
 
     def background_subtraction(self, thresholds, num_contours, cam_means, cam_std_devs, show_video):
+
+        self.compute_mask_in_frame()
         folders = ['cam1', 'cam2', 'cam3', 'cam4']
         camera_masks = []
         camera_frames = []

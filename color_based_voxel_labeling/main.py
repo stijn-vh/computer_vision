@@ -9,6 +9,11 @@ from calibration import Calibration
 import cv2 as cv
 import json
 
+import assignment as Assignment
+import executable as Executable
+
+import os
+
 class NumpyEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, np.ndarray):
@@ -84,32 +89,66 @@ def show_four_images(images):
 
     cv.waitKey(0)
 
+# def handle_frame(frame, cam):
+    
+
+#     # Loop door alle frames
+#         # Per camera:
+#             # 1. Determine mask
+#             # 2. Determine Hue, Saturation, Value
+#         # 3. Voxel Reconstruct Frame
+#         # 4. Offline cluster: find 4 cluster in voxels (in frame where vo) -> sla op
+#         # 5. Clustering
+#         # 6. Colour models
+
+def handle_videos():
+    videos = []
+    amount_of_frames = range(20)
+    cam_numbers = range(4)
+
+    BS = BackgroundSubstraction()
+    BS.create_background_model()
+
+    VR = VoxelReconstruction('scaled_camera.pickle')
+
+    # print('start creation')
+    # lookup_table = VR.create_lookup_table()
+    # print('end, start json')
+    VR.lookup_table = load_from_json('json_lookup')
+    print('done json')
+
+    for i in cam_numbers:
+        videos.append(cv.VideoCapture(os.path.dirname(__file__) + "\\data\\cam" + str(i + 1) + "\\video.avi"))
+
+    prev_cameras_masks = []
+
+    for frame_number in amount_of_frames:
+        cameras_masks = []
+        cameras_frames = []
+
+        for i in cam_numbers:
+            ret, frame = BS.read_video(videos[i])
+
+            cameras_frames.append(frame)
+            cameras_masks.append(BS.compute_mask_in_frame(frame, i))
+
+        if frame_number == 0:
+            voxels = VR.reconstruct_voxels(cameras_masks, None, frame_number)     
+        else:
+            voxels = VR.reconstruct_voxels(cameras_masks, prev_cameras_masks, frame_number)
+        
+        Assignment.voxels_per_frame.append(voxels)
+
+        prev_cameras_masks = cameras_masks
+    
+    Executable.main()
+
+
+        
 if __name__ == '__main__':
     #determine_camera_params()
     #determine_new_thresholds()
-    print("creating masks")
-    masks, frames = determine_new_masks(show_video=False)
-    print('determined masks')
-    save_to_json('masks', masks)
-    save_to_json('frames', frames)
-    print('saved masks')
-    masks = np.array(load_from_json('masks'))
-    print('loaded masks')
-    VR = VoxelReconstruction('scaled_camera.pickle')
-    #
-    print('create lookup')
-    lookup_table = VR.create_lookup_table()
-    print('created')
-    save_to_json('lookup_table', lookup_table)
-    print('saved lookup')
-    lookup_table = load_from_json('lookup_table')
-    print('loaded lookup')
-    # print('start reconstruction')
-    VR.lookup_table = lookup_table
-    print('start reconstruction')
-    #VR.run_voxel_reconstruction(masks)
-    print('done reconstruction')
 
-    c = Clustering()
-    c.cluster(VR.all_vis_voxels)
+
+    handle_videos()
 
