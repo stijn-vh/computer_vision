@@ -1,6 +1,7 @@
 from background_substraction import BackgroundSubstraction
 from automatic_background_substraction import AutoBackgroundSubstraction
 from voxel_reconstruction import VoxelReconstruction
+from clustering import Clustering
 
 import numpy as np
 import pickle
@@ -17,6 +18,7 @@ def load_pickle_object(name):
     
 def determine_camera_params():
     cali = Calibration()
+    cali.cameras = load_pickle_object('scaled_camera')
     intrinsics = cali.obtain_intrinsics_from_cameras()
     cali.obtain_extrinsics_from_cameras()
     pickle_object("scaled_camera", cali.cameras)
@@ -74,23 +76,25 @@ if __name__ == '__main__':
     #determine_new_thresholds()
 
     print("creating masks")
-    masks = determine_new_masks(auto=False, show_video=True)
-    pickle_object("masks", masks)
-    #masks = load_pickle_object("masks")
-    print("done with masks")
-
-    # VR = VoxelReconstruction('scaled_camera.pickle')
+    #masks = determine_new_masks(auto=False, show_video=False)
+    #pickle_object("masks", masks)
+    masks = load_pickle_object("masks")
+    print('pickled mask')
+    VR = VoxelReconstruction('scaled_camera.pickle')
     #
-    # print('create lookup')
-    # lookup_table = VR.create_lookup_table()
-    # # print("start pickle")
-    # # pickle_object('lookup_table', lookup_table)
+    print('create lookup')
+    lookup_table = VR.create_lookup_table()
+    print("start pickle")
+    #pickle_object('lookup_table', lookup_table)
     # # print("done pickle")
-    # print('done lookup')
+    print('done lookup')
     #
     # print('start reconstruction')
-    # VR.lookup_table = lookup_table
-    # print('start reconstruction')
-    # VR.run_voxel_reconstruction(masks)
-    # print('done reconstruction')
+    VR.lookup_table = lookup_table
+    print('start reconstruction')
+    VR.run_voxel_reconstruction(masks)
+    print('done reconstruction')
+
+    c = Clustering()
+    c.cluster(VR.all_vis_voxels)
 

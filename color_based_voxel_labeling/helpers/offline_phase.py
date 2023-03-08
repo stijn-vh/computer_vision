@@ -98,13 +98,13 @@ def improve_image(img):
 # Try to find corners on image, 
 #   if corners not found, try to do it manually
 # then try to place corners more precise and show the result on the image
-def handle_image(img, time = 50, canDeterminePointsManually = True):
+def handle_image(img, time = 50, canDeterminePointsManually = True, shouldDetermineManually = False):
     global corner_points
 
     improved_gray = improve_image(img)
     ret, corners = cv.findChessboardCorners(improved_gray, (num_cols, num_rows), None)
 
-    if ret == False:
+    if ret == False or shouldDetermineManually == True:
         if canDeterminePointsManually == False:
             return False
 

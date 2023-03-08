@@ -97,6 +97,9 @@ class Calibration:
 
     def obtain_intrinsics_from_cameras(self):
         for cam_name in self.cameras:
+            if cam_name != 'cam1':
+                continue
+
             OfflinePhase.cam_name = cam_name
 
             video = cv.VideoCapture(os.path.dirname(__file__) + '\data\\' + cam_name + '\intrinsics.avi')
@@ -130,13 +133,16 @@ class Calibration:
 
     def obtain_extrinsics_from_cameras(self):
         for cam_name in self.cameras:
+            if cam_name != 'cam1':
+                continue
+            
             video = cv.VideoCapture(os.path.dirname(__file__) + '\data\\' + cam_name + '\checkerboard.avi')
 
             s, frame = video.read()
 
 
             if s:
-                OfflinePhase.handle_image(frame, time=5000)
+                OfflinePhase.handle_image(frame, time=5000, shouldDetermineManually = True)
 
             self.calculate_extrinsics(cam_name)
 

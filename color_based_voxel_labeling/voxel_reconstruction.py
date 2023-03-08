@@ -13,7 +13,7 @@ class VoxelReconstruction:
     intrinsics = []
     dist_mtx = []
     lookup_table = []
-    stepsize = 2
+    stepsize = 6
 
     def __init__(self, path) -> None:
 
@@ -34,12 +34,13 @@ class VoxelReconstruction:
     def initialise_all_voxels(self):
         cam_coords = Assignment.get_cam_positions()
         [max_x, max_y, max_z] = np.max(cam_coords, axis=0).astype(int)
-        self.xb = max_x // (2 * self.stepsize)
-        self.zb = max_z // (2 * self.stepsize)
-        self.yb = max_y // self.stepsize
+        self.xb = max_x
+        self.zb = max_z
+        self.yb = max_y
         self.all_voxels = self.stepsize * np.array(
             [[x, y, z] for x in range(-self.xb, self.xb) for y in range(0, 2 * self.yb) for z in
              range(-self.zb, self.zb)])
+        print('hoi')
 
     def compute_xyz_index(self, vox):
         # For a given voxel in all_voxels, compute the corresponding index of that voxel in all_voxels
@@ -125,7 +126,7 @@ class VoxelReconstruction:
         num_cameras = 4
 
         # for frame in range(len(masks[0])):
-        for frame in range(num_frames):
+        for frame in range(1):
             # For the first run
             if frame == 0:
                 for cam in range(num_cameras):
