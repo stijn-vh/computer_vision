@@ -34,13 +34,12 @@ class VoxelReconstruction:
     def initialise_all_voxels(self):
         cam_coords = Assignment.get_cam_positions()
         [max_x, max_y, max_z] = np.max(cam_coords, axis=0).astype(int)
-        self.xb = max_x
-        self.zb = max_z
-        self.yb = max_y
+        self.xb = max_x // self.stepsize
+        self.zb = max_z // self.stepsize
+        self.yb = max_y // self.stepsize
         self.all_voxels = self.stepsize * np.array(
             [[x, y, z] for x in range(-self.xb, self.xb) for y in range(0, 2 * self.yb) for z in
              range(-self.zb, self.zb)])
-        print('hoi')
 
     def compute_xyz_index(self, vox):
         # For a given voxel in all_voxels, compute the corresponding index of that voxel in all_voxels

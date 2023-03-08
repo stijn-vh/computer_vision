@@ -5,12 +5,30 @@ from clustering import Clustering
 
 import numpy as np
 import pickle
+import pandas as pd
 from calibration import Calibration
 import cv2 as cv
+import json
 
+class NumpyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return json.JSONEncoder.default(self, obj)
+
+def save_to_json(name, object):
+    with open(name + '.json', 'w') as handle:
+        json.dump(object, handle, cls=NumpyEncoder)
+
+def load_from_json(name):
+    with open(name + '.json') as handle:
+        data = json.load(handle)
+    
+    return data
+    
 def pickle_object(name, object):
     with open(name + '.pickle', 'wb') as handle:
-        pickle.dump(object, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        pd.to_pickle(name)
 
 def load_pickle_object(name):
     with open(name + '.pickle', 'rb') as handle:
@@ -74,25 +92,26 @@ def show_four_images(images):
 if __name__ == '__main__':
     #determine_camera_params()
     #determine_new_thresholds()
-
     print("creating masks")
-    #masks = determine_new_masks(auto=False, show_video=False)
-    #pickle_object("masks", masks)
-    masks = load_pickle_object("masks")
-    print('pickled mask')
+    masks = determine_new_masks(auto=False, show_video=False)
+    print('determined masks')
+    save_to_json('masks', masks.tolist())
+    print('saved masks')
+    masks = np.array(load_from_json('masks'))
+    print('loaded masks')
     VR = VoxelReconstruction('scaled_camera.pickle')
     #
     print('create lookup')
     lookup_table = VR.create_lookup_table()
-    print("start pickle")
-    #pickle_object('lookup_table', lookup_table)
-    # # print("done pickle")
-    print('done lookup')
-
+    print('created')
+    save_to_json('lookup_table', lookup_table)
+    print('saved lookup')
+    lookup_table = load_from_json('lookup_table')
+    print('loaded lookup')
     # print('start reconstruction')
     VR.lookup_table = lookup_table
     print('start reconstruction')
-    VR.run_voxel_reconstruction(masks)
+    #VR.run_voxel_reconstruction(masks)
     print('done reconstruction')
 
     c = Clustering()
