@@ -148,6 +148,5 @@ def handle_videos():
 if __name__ == '__main__':
     #determine_camera_params()
     #determine_new_thresholds()
-
     handle_videos()
 

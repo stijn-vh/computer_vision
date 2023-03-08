@@ -5,11 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5e0f08bd-db32-4723-bd75-82042f88900f" name="Changes" comment="moved files">
-      <change afterPath="$PROJECT_DIR$/color_based_voxel_labeling/color_models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/color_based_voxel_labeling/frames.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/color_based_voxel_labeling/lookup_table.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/color_based_voxel_labeling/automatic_background_substraction.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/color_based_voxel_labeling/background_substraction.py" beforeDir="false" afterPath="$PROJECT_DIR$/color_based_voxel_labeling/background_substraction.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/color_based_voxel_labeling/color_models.py" beforeDir="false" afterPath="$PROJECT_DIR$/color_based_voxel_labeling/color_models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/color_based_voxel_labeling/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/color_based_voxel_labeling/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/color_based_voxel_labeling/voxel_reconstruction.py" beforeDir="false" afterPath="$PROJECT_DIR$/color_based_voxel_labeling/voxel_reconstruction.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/voxel_based_3d_reconstruction/lookup_table.pickle" beforeDir="false" afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/lookup_table.pickle" afterDir="false" />
@@ -295,6 +294,11 @@
           <line>31</line>
           <option name="timeStamp" value="3" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/color_based_voxel_labeling/voxel_reconstruction.py</url>
+          <line>178</line>
+          <option name="timeStamp" value="8" />
+        </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
         <breakpoint type="python-exception">
@@ -308,7 +312,7 @@
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/computer_vision$online_phase.coverage" NAME="online_phase Coverage Results" MODIFIED="1676387986290" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
     <SUITE FILE_PATH="coverage/computer_vision$background_substraction_test.coverage" NAME="background_substraction_test Coverage Results" MODIFIED="1677159160875" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/voxel_based_3d_reconstruction" />
-    <SUITE FILE_PATH="coverage/computer_vision$color_main.coverage" NAME="color_main Coverage Results" MODIFIED="1678277043959" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/color_based_voxel_labeling" />
+    <SUITE FILE_PATH="coverage/computer_vision$color_main.coverage" NAME="color_main Coverage Results" MODIFIED="1678291370850" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/color_based_voxel_labeling" />
     <SUITE FILE_PATH="coverage/computer_vision$main.coverage" NAME="main Coverage Results" MODIFIED="1677499998973" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/voxel_based_3d_reconstruction" />
     <SUITE FILE_PATH="coverage/computer_vision$image_enhancement_test.coverage" NAME="image_enhancement_test Coverage Results" MODIFIED="1676555100732" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/camera_geometric_calibration" />
     <SUITE FILE_PATH="coverage/computer_vision$voxel_reconstruction.coverage" NAME="voxel_reconstruction Coverage Results" MODIFIED="1677845854715" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/voxel_based_3d_reconstruction" />

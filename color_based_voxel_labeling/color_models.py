@@ -4,8 +4,6 @@ import sklearn as sk
 
 
 class colour_models:
-    frame_num = 0 #current frame for which the voxel clusters are created
-    frames = []  # frames shape: (4, 100, 486, 644, 3). corresponding to cameras, frames, pixel coordinates(y,x), HSV
     rotation_vectors = []
     translation_vectors = []
     intrinsics = []
@@ -14,7 +12,7 @@ class colour_models:
 
 
     # single camera
-    def voxels_to_colors(self, voxel_clusters, cam):
+    def voxels_to_colors(self, voxel_clusters, frames, cam):
         # Every element in array is a list of [x,y,z] voxels corresponding to a persons upper body
         #for example: voxel_clusters = [[[1, 2, 3], [4, 5, 6]], [[7, 8, 9]], [[10, 11, 12]], [[13, 14, 15], [16, 17, 18]]]
         color_clusters = []
@@ -30,17 +28,17 @@ class colour_models:
             iy = idx[0][:, 0][:, 1]
             # This most likely doesnt work yet.
             # Want colours to
-            color_clusters.append(self.frames[cam][self.frame_num][iy][ix])
+            color_clusters.append(frames[cam][iy][ix])
         return color_clusters  # similar shape as voxel_clusters, where now a list of HSVs values is given for every voxel cluster
 
     # single camera
-    def create_offline_model(self, cam_voxel_clusters):
+    def create_offline_model(self, cam_voxel_clusters, frames):
         #cam_voxel_clusters contains for every camera a "voxel_clusters" which need to contain seperated clusters.
         # Furthermore, we require that the 4 clusters in each voxel_clusters are ordered the same for every camera,
         # so that all i-th clusters belong to the same person.
         offline_color_model = []
         for cam in range(4):
-            color_clusters = self.voxels_to_colors(cam_voxel_clusters[cam], cam)
+            color_clusters = self.voxels_to_colors(cam_voxel_clusters[cam], frames, cam)
             for cluster in range(4):
                 gmm = sk.mixture.GaussianMixture(n_components=1, random_state=0).fit(color_clusters[cluster])
                 offline_color_model.append(gmm)
@@ -54,13 +52,15 @@ class colour_models:
                 scores[model][cluster] = offline_color_model[model].score(color_clusters[cluster])
         return scores
 
-    def run_matching_for_frame(self, voxel_clusters, frame_num):
+    def run_matching_for_frame(self, voxel_clusters, frames):
         #Assumes that self.cam_offline_color_models has been created already
         #self.cam_offline_color_models: for every camera, contains a GMM for each of the 4 persons.
-        self.frame_num = frame_num
+
+        # voxel_clusters contains 4 clusters, one for each person in a specific frame
+        # frames shape: (4, 486, 644, 3) corresponding to cameras, pixel coordinates(y,x), HSV  in a specific frame
         total_scores = np.zeros((4, 4))
         for cam in range(4):
-            color_clusters = self.voxels_to_colors(voxel_clusters, cam)
+            color_clusters = self.voxels_to_colors(voxel_clusters, frames, cam)
             total_scores += self.color_model_scores(color_clusters, self.cam_offline_color_models[cam])
         return self.hungarian_matching(total_scores)
 

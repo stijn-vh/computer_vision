@@ -150,7 +150,7 @@ class VoxelReconstruction:
         return self.all_vis_voxels
 
     def run_voxel_reconstruction(self, masks):
-        # masks shape: (4, 428, 486, 644)
+        # masks shape: (4, 486, 644)
         # for every camera, for every frame in camera, a mask with white pixels in foreground and black pixels in background
         # 486 y pixels and 644 x pixels
         # Lookup table will contain for every camera, for every pixel value, a list of voxel coords which are projected to that pixel value
