@@ -1,5 +1,6 @@
 from background_substraction import BackgroundSubstraction
 from voxel_reconstruction import VoxelReconstruction
+from color_models import ColourModels
 from clustering import Clustering
 
 import numpy as np
@@ -11,6 +12,7 @@ import json
 
 import assignment as Assignment
 import executable as Executable
+
 
 import os
 
@@ -112,11 +114,15 @@ def show_four_images(images):
 
 def handle_videos():
     videos = []
-    amount_of_frames = range(200)
+    amount_of_frames = range(400)
     cam_numbers = range(4)
 
     BS = BackgroundSubstraction()
     BS.create_background_model()
+    # four_good_offline_voxel_clusters_per_camera = load_from_json()
+    # corresponding_frame_per_camera = load_from_json()
+    CM = ColourModels()
+    # CM.create_offline_model(four_good_offline_voxel_clusters_per_camera, corresponding_frame_per_camera)
 
     VR = VoxelReconstruction('scaled_camera.pickle')
 
@@ -147,11 +153,15 @@ def handle_videos():
             voxels = VR.reconstruct_voxels(cameras_masks, None, frame_number)
         else:
             voxels = VR.reconstruct_voxels(cameras_masks, prev_cameras_masks, frame_number)
+        prev_cameras_masks = cameras_masks
 
         Assignment.voxels_per_frame.append(voxels)
 
-        prev_cameras_masks = cameras_masks
-
+        #voxel_clusters = clustering(voxels)
+        #cluster_centres = ...
+        #matching = CM.matching_for_frame(voxel_clusters, cameras_frames)  # matching[i][j] = 1 if cluster j belongs to model i
+        #add cluster centres with their matching to a list
+    # call a plot function which plots the different cluster centres and colours them according to their matching
     Executable.main()
 
 
