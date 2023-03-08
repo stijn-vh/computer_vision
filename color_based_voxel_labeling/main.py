@@ -50,8 +50,8 @@ def determine_new_masks(show_video = True):
     # num_contours = [4, 5, 5, 4]
     thresholds = np.array([[10, 2, 18],
                            [10, 2, 14],
-                           [7, 1, 14],
-                           [7, 2, 20]])
+                           [10, 1, 14],
+                           [10, 2, 20]])
     num_contours = [4, 5, 5, 6]
     # #Penalizing 2x more if pixel not in groundtruth but is in mask. fixed numcontours to equal 1
     # thresholds = np.array([[10, 1, 14],
@@ -87,29 +87,36 @@ def show_four_images(images):
 if __name__ == '__main__':
     #determine_camera_params()
     #determine_new_thresholds()
-    print("creating masks")
-    masks, frames = determine_new_masks(show_video=False)
-    print('determined masks')
-    save_to_json('masks', masks)
-    save_to_json('frames', frames)
-    print('saved masks')
-    masks = np.array(load_from_json('masks'))
-    print('loaded masks')
+    # print("creating masks")
+    # masks, frames = determine_new_masks(show_video=True)
+    # print('determined masks')
+    # print("frame shape = ", np.array(frames).shape)
+    # save_to_json('masks', masks)
+    # save_to_json('frames', frames)
+    # print('saved masks')
+
+    # masks = np.array(load_from_json('masks'))
+    # print('loaded masks')
+
+    # frames = np.array(load_from_json('frames'))
+    # print('loaded frames')
+
     VR = VoxelReconstruction('scaled_camera.pickle')
     #
     print('create lookup')
     lookup_table = VR.create_lookup_table()
     print('created')
     save_to_json('lookup_table', lookup_table)
-    print('saved lookup')
-    lookup_table = load_from_json('lookup_table')
-    print('loaded lookup')
-    # print('start reconstruction')
-    VR.lookup_table = lookup_table
-    print('start reconstruction')
-    #VR.run_voxel_reconstruction(masks)
-    print('done reconstruction')
 
-    c = Clustering()
-    c.cluster(VR.all_vis_voxels)
+    # print('saved lookup')
+    # lookup_table = load_from_json('lookup_table')
+    # print('loaded lookup')
+    # # print('start reconstruction')
+    # VR.lookup_table = lookup_table
+    # print('start reconstruction')
+    # VR.run_voxel_reconstruction(masks)
+    # print('done reconstruction')
+
+    # c = Clustering()
+    # c.cluster(VR.all_vis_voxels)
 

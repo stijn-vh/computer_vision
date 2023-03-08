@@ -68,7 +68,7 @@ class BackgroundSubstraction:
         xor = np.logical_xor(mask, groundtruth)
         in_gt_not_in_mask = np.logical_and(xor, groundtruth)
         in_mask_not_in_gt = np.logical_and(xor, mask)
-        return 1.5*np.sum(in_gt_not_in_mask) + np.sum(in_mask_not_in_gt)  # The lower the score the better
+        return 1.5 * np.sum(in_gt_not_in_mask) + np.sum(in_mask_not_in_gt)  # The lower the score the better
 
     def gridsearch(self, cam_means, cam_std_devs):
         cam_folders = ['cam1', 'cam2', 'cam3', 'cam4']
@@ -96,12 +96,15 @@ class BackgroundSubstraction:
         return best_thresholds, best_num_contours
 
     # Used in the actual background substraction
-    def compute_masks(self, thresholds, num_contour, pathname, cam_mean, cam_std_dev, show_video, cam):
+    def compute_masks(self, thresholds, num_contour, pathname, cam_mean, cam_std_dev, show_video):
         video = cv.VideoCapture(os.path.dirname(__file__) + pathname)
         masks = []
         frames = []
         ret = True
-        while ret:
+        #needs to be made offline to handle frame by frame
+        max_num = 100
+        num = 0
+        while ret & (num < max_num):
             ret, frame = self.read_video(video)
             if ret:
                 mask = np.float32(255 * (np.sum(np.abs(frame - cam_mean) > thresholds * (cam_std_dev + 0.1), 2) == 3))
@@ -115,7 +118,8 @@ class BackgroundSubstraction:
                                 thickness=cv.FILLED)
                 masks.append(mask)
                 frames.append(frame)
-                if show_video & (cam == 3 | cam == 2):
+                num += 1
+                if show_video:
                     cv.imshow("video", mask)
                     cv.waitKey(1)
         return masks, frames
@@ -125,8 +129,9 @@ class BackgroundSubstraction:
         camera_masks = []
         camera_frames = []
         for i, f in enumerate(folders):
-            masks, frames = self.compute_masks(thresholds[i], num_contours[i], '\data\\' + f + '\\video.avi', cam_means[i],
-                                       cam_std_devs[i], show_video, i)
+            masks, frames = self.compute_masks(thresholds[i], num_contours[i], '\data\\' + f + '\\video.avi',
+                                               cam_means[i],
+                                               cam_std_devs[i], show_video)
             camera_masks.append(masks)
             camera_frames.append(frames)
         return camera_masks, camera_frames

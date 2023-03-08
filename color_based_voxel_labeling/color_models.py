@@ -4,16 +4,19 @@ import sklearn as sk
 
 
 class colour_models:
-    #Every element in array is a list of [x,y,z] voxels corresponding to a persons upper body
-    voxel_clusters = [[[1,2,3], [4,5,6]] , [[7,8,9]], [[10,11,12]], [[13,14,15],[16,17,18]]]
-    frames = [] # frames shape: (4, 428, 486, 644, 3). corresponding to cameras, frames, pixel coordinates(y,x), HSV
+    frame_num = 0 #current frame for which the voxel clusters are created
+    frames = []  # frames shape: (4, 100, 486, 644, 3). corresponding to cameras, frames, pixel coordinates(y,x), HSV
     rotation_vectors = []
     translation_vectors = []
     intrinsics = []
     dist_mtx = []
+    cam_offline_color_models = []
 
 
-    def voxels_to_colors(self, voxel_clusters, cam, frame_num):
+    # single camera
+    def voxels_to_colors(self, voxel_clusters, cam):
+        # Every element in array is a list of [x,y,z] voxels corresponding to a persons upper body
+        #for example: voxel_clusters = [[[1, 2, 3], [4, 5, 6]], [[7, 8, 9]], [[10, 11, 12]], [[13, 14, 15], [16, 17, 18]]]
         color_clusters = []
         for person in range(4):
             idx = cv.projectPoints(
@@ -25,14 +28,49 @@ class colour_models:
             )
             ix = idx[0][:, 0][:, 0]
             iy = idx[0][:, 0][:, 1]
-            #This most likely doesnt work yet.
-            #Want colours to
-            color_clusters.append(self.frames[cam][frame_num][iy][ix])
-        return color_clusters #similar shape as voxel_clusters, where now a list of HSVs values is given for every voxel cluster
+            # This most likely doesnt work yet.
+            # Want colours to
+            color_clusters.append(self.frames[cam][self.frame_num][iy][ix])
+        return color_clusters  # similar shape as voxel_clusters, where now a list of HSVs values is given for every voxel cluster
 
-    def create_offline_model(self, color_clusters):
-        offline_color_models = []
-        for cluster in range(4):
-            gmm = sk.mixture.GaussianMixture(n_components=1, random_state=0).fit(color_clusters[cluster])
-            offline_color_models.append(gmm)
+    # single camera
+    def create_offline_model(self, cam_voxel_clusters):
+        #cam_voxel_clusters contains for every camera a "voxel_clusters" which need to contain seperated clusters.
+        # Furthermore, we require that the 4 clusters in each voxel_clusters are ordered the same for every camera,
+        # so that all i-th clusters belong to the same person.
+        offline_color_model = []
+        for cam in range(4):
+            color_clusters = self.voxels_to_colors(cam_voxel_clusters[cam], cam)
+            for cluster in range(4):
+                gmm = sk.mixture.GaussianMixture(n_components=1, random_state=0).fit(color_clusters[cluster])
+                offline_color_model.append(gmm)
+            self.cam_offline_color_models.append(offline_color_model)
+
+    # single camera
+    def color_model_scores(self, color_clusters, offline_color_model):
+        scores = np.zeros((4, 4))
+        for model in range(4):
+            for cluster in range(4):
+                scores[model][cluster] = offline_color_model[model].score(color_clusters[cluster])
+        return scores
+
+    def run_matching_for_frame(self, voxel_clusters, frame_num):
+        #Assumes that self.cam_offline_color_models has been created already
+        #self.cam_offline_color_models: for every camera, contains a GMM for each of the 4 persons.
+        self.frame_num = frame_num
+        total_scores = np.zeros((4, 4))
+        for cam in range(4):
+            color_clusters = self.voxels_to_colors(voxel_clusters, cam)
+            total_scores += self.color_model_scores(color_clusters, self.cam_offline_color_models[cam])
+        return self.hungarian_matching(total_scores)
+
+
+
+    def hungarian_matching(self, scores):
+        #Use the Hungarian algorithm to find an optimal matching between the models (rows in scores) and the current clusters (columns in scores)
+        matching = np.zeros((4,4)) #matchin[i][j] = 1 if cluster j belongs to model i
+        return matching
+
+
+
 
