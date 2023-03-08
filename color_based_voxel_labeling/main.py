@@ -1,5 +1,4 @@
 from background_substraction import BackgroundSubstraction
-from automatic_background_substraction import AutoBackgroundSubstraction
 from voxel_reconstruction import VoxelReconstruction
 from clustering import Clustering
 
@@ -23,37 +22,33 @@ def determine_camera_params():
     cali.obtain_extrinsics_from_cameras()
     pickle_object("scaled_camera", cali.cameras)
 
-def determine_new_masks(auto = False, show_video = True):
-    if auto:
-        AS = AutoBackgroundSubstraction()
-        masks = AS.background_subtraction(show_video)
-    else:
-        S = BackgroundSubstraction()
-        cam_means, cam_std_devs = S.create_background_model()
-        # thresholds = np.array([[10, 2, 18],
-        #                        [10, 2, 14],
-        #                        [10, 1, 10], #glitchy for cam3
-        #                        [10, 2, 22]]) #flickkery for cam 4 with body parts half missing
-        # num_contours = [4, 5, 5, 4]
-        thresholds = np.array([[10, 2, 18],
-                               [10, 2, 14],
-                               [10, 1, 14],
-                               [10, 2, 14]])
-        num_contours = [4, 5, 5, 6]
-        # #Penalizing 2x more if pixel not in groundtruth but is in mask. fixed numcontours to equal 1
-        # thresholds = np.array([[10, 1, 14],
-        #                        [10, 2, 14],
-        #                        [10, 1, 10],
-        #                        [10, 2, 8]])
-        # num_contours = [1, 2, 2, 1]
-        #Penalizing 3x more if pixel not in groundtruth but is in mask. fixed numcontours to equal 1
-        # thresholds = np.array([[2, 6, 12],
-        #                        [2, 6, 14],
-        #                        [4, 6, 20],
-        #                        [1, 7, 14]])
-        # num_contours = [1, 2, 1, 2]
-        masks = S.background_subtraction(thresholds, num_contours, cam_means, cam_std_devs, show_video)
-    return masks
+def determine_new_masks(show_video = True):
+    S = BackgroundSubstraction()
+    cam_means, cam_std_devs = S.create_background_model()
+    # thresholds = np.array([[10, 2, 18],
+    #                        [10, 2, 14],
+    #                        [10, 1, 10], #glitchy for cam3
+    #                        [10, 2, 22]]) #flickkery for cam 4 with body parts half missing
+    # num_contours = [4, 5, 5, 4]
+    thresholds = np.array([[10, 2, 18],
+                           [10, 2, 14],
+                           [10, 1, 14],
+                           [10, 2, 20]])
+    num_contours = [4, 5, 5, 6]
+    # #Penalizing 2x more if pixel not in groundtruth but is in mask. fixed numcontours to equal 1
+    # thresholds = np.array([[10, 1, 14],
+    #                        [10, 2, 14],
+    #                        [10, 1, 10],
+    #                        [10, 2, 8]])
+    # num_contours = [1, 2, 2, 1]
+    #Penalizing 3x more if pixel not in groundtruth but is in mask. fixed numcontours to equal 1
+    # thresholds = np.array([[2, 6, 12],
+    #                        [2, 6, 14],
+    #                        [4, 6, 20],
+    #                        [1, 7, 14]])
+    # num_contours = [1, 2, 1, 2]
+    masks, frames = S.background_subtraction(thresholds, num_contours, cam_means, cam_std_devs, show_video)
+    return masks, frames
 
 
 def determine_new_thresholds():
@@ -76,25 +71,31 @@ if __name__ == '__main__':
     #determine_new_thresholds()
 
     print("creating masks")
-    #masks = determine_new_masks(auto=False, show_video=False)
-    #pickle_object("masks", masks)
-    masks = load_pickle_object("masks")
-    print('pickled mask')
-    VR = VoxelReconstruction('scaled_camera.pickle')
-    #
-    print('create lookup')
-    lookup_table = VR.create_lookup_table()
-    print("start pickle")
-    #pickle_object('lookup_table', lookup_table)
-    # # print("done pickle")
-    print('done lookup')
-    #
-    # print('start reconstruction')
-    VR.lookup_table = lookup_table
-    print('start reconstruction')
-    VR.run_voxel_reconstruction(masks)
-    print('done reconstruction')
+    masks, frames = determine_new_masks(show_video=True)
+    pickle_object("masks", masks)
+    pickle_object("frames", frames)
+    print("frames shape = ", frames.shape)
+    print("done with masks")
 
-    c = Clustering()
-    c.cluster(VR.all_vis_voxels)
+    # masks = load_pickle_object("masks")
+    # print('pickled mask')
+    # VR = VoxelReconstruction('scaled_camera.pickle')
+    #
+    #
+    # # VR = VoxelReconstruction('scaled_camera.pickle')
+    # print('create lookup')
+    # lookup_table = VR.create_lookup_table()
+    # print("start pickle")
+    # pickle_object('lookup_table', lookup_table)
+    # print("done pickle")
+    # print('done lookup')
+    #
+    # # print('start reconstruction')
+    # VR.lookup_table = lookup_table
+    # print('start reconstruction')
+    # VR.run_voxel_reconstruction(masks)
+    # print('done reconstruction')
+    #
+    # c = Clustering()
+    # c.cluster(VR.all_vis_voxels)
 
