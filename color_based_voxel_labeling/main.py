@@ -55,8 +55,8 @@ def determine_new_masks(show_video = True):
     # num_contours = [4, 5, 5, 4]
     thresholds = np.array([[10, 2, 18],
                            [10, 2, 14],
-                           [7, 1, 14],
-                           [7, 2, 20]])
+                           [10, 1, 14],
+                           [10, 2, 20]])
     num_contours = [4, 5, 5, 6]
     # #Penalizing 2x more if pixel not in groundtruth but is in mask. fixed numcontours to equal 1
     # thresholds = np.array([[10, 1, 14],
@@ -148,7 +148,6 @@ def handle_videos():
 if __name__ == '__main__':
     #determine_camera_params()
     #determine_new_thresholds()
-
 
     handle_videos()
 
