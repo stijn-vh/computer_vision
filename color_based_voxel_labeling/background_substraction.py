@@ -14,8 +14,8 @@ class BackgroundSubstraction:
         self.thresholds = np.array([
             [10, 2, 18],
             [10, 2, 14],
-            [7, 1, 14],
-            [7, 2, 20]]
+            [10, 1, 14],
+            [10, 2, 20]]
         )
         
         self.num_contours = [4, 5, 5, 6]
