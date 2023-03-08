@@ -13,7 +13,7 @@ class VoxelReconstruction:
     intrinsics = []
     dist_mtx = []
     lookup_table = []
-    stepsize = 6
+    stepsize = 4
 
 
     def __init__(self, path) -> None:
@@ -41,6 +41,8 @@ class VoxelReconstruction:
         self.all_voxels = self.stepsize * np.array(
             [[x, y, z] for x in range(-self.xb, self.xb) for y in range(0, 2 * self.yb) for z in
              range(-self.zb, self.zb)])
+        self.cams_vis_vox_indices = np.tile(np.zeros(len(self.all_voxels)), (4, 1))
+
 
     def compute_xyz_index(self, vox):
         # For a given voxel in all_voxels, compute the corresponding index of that voxel in all_voxels
@@ -82,16 +84,6 @@ class VoxelReconstruction:
             voxels = np.take(self.all_voxels, indices, 0)
             for index in range(len(voxels)):
                 lookup_table[cam][ix[index]][iy[index]].append(voxels[index])
-
-            # for [x,y,z] in self.all_voxels:
-            #     test = np.float64([x,z,-y])
-            #     idx = cv.projectPoints(test, self.rotation_vectors[cam],
-            #                            self.translation_vectors[cam],
-            #                            self.intrinsics[cam], distCoeffs=self.dist_mtx[cam])
-            #     ix = idx[0][0][0][0].astype(int)
-            #     iy = idx[0][0][0][1].astype(int)
-            #     if -644 < ix < 644 and -486 < iy < 486:
-            #         lookup_table[cam][ix][iy].append([x,y,z])
         return lookup_table
 
     def return_visible_voxels(self, mask, cam_lookup_table):
@@ -115,8 +107,6 @@ class VoxelReconstruction:
     
     def reconstruct_voxels(self, masks, prev_masks, frame_num):
         # masks shape: (4, 486, 644)
-
-        cam_vis_vox_indices = np.tile(np.zeros(len(self.all_voxels)), (4, 1))
         num_cameras = 4
 
         if frame_num == 0:
@@ -127,8 +117,8 @@ class VoxelReconstruction:
                     ix = cam_indices[1][i]
                     for vox in self.lookup_table[cam][ix][iy]:
                         xyz_index = self.compute_xyz_index(vox)
-                        cam_vis_vox_indices[cam][xyz_index] = 1
-            self.all_vis_voxels = self.all_voxels[np.sum(cam_vis_vox_indices, axis=0) == 4]
+                        self.cams_vis_vox_indices[cam][xyz_index] = 1
+            self.all_vis_voxels = self.all_voxels[np.sum(self.cams_vis_vox_indices, axis=0) == 4]
         else:
             for cam in range(num_cameras):
                 xor = np.logical_xor(prev_masks[cam], masks[cam])
@@ -136,60 +126,12 @@ class VoxelReconstruction:
                 added_pixels = np.nonzero(np.logical_and(xor, masks[cam]))
 
                 removed_xyz_indices = self.pixels_to_xyz_indices(removed_pixels, cam)
-                cam_vis_vox_indices[cam][removed_xyz_indices] = 0
+                self.cams_vis_vox_indices[cam][removed_xyz_indices] = 0
 
                 added_xyz_indices = self.pixels_to_xyz_indices(added_pixels, cam)
-                cam_vis_vox_indices[cam][added_xyz_indices] = 1
+                self.cams_vis_vox_indices[cam][added_xyz_indices] = 1
 
-            prevnum_visible = len(self.all_vis_voxels)
-            self.all_vis_voxels = self.all_voxels[np.sum(cam_vis_vox_indices, axis=0) == 4]
-            num_visible = len(self.all_vis_voxels)
-            num_removed = len(removed_xyz_indices)
-            print('frame ' + str(frame_num) + ", removed:", num_removed, "added", num_visible-prevnum_visible+num_removed)
-
+            self.all_vis_voxels = self.all_voxels[np.sum(self.cams_vis_vox_indices, axis=0) == 4]
+            print('frame ' + str(frame_num))
         return self.all_vis_voxels
 
-    def run_voxel_reconstruction(self, masks):
-        # masks shape: (4, 486, 644)
-        # for every camera, for every frame in camera, a mask with white pixels in foreground and black pixels in background
-        # 486 y pixels and 644 x pixels
-        # Lookup table will contain for every camera, for every pixel value, a list of voxel coords which are projected to that pixel value
-
-        #num_frames = len(masks[0])
-        num_frames =2
-        print('num_frames: ', num_frames)
-        cam_vis_vox_indices = np.tile(np.zeros(len(self.all_voxels)), (4, 1))
-        num_cameras = 4
-
-        # for frame in range(len(masks[0])):
-        for frame in range(1):
-            # For the first run
-            if frame == 0:
-                for cam in range(num_cameras):
-                    cam_indices = np.nonzero(masks[cam][frame])
-                    for i in range(len(cam_indices[0])):
-                        iy = cam_indices[0][i]
-                        ix = cam_indices[1][i]
-                        for vox in self.lookup_table[cam][ix][iy]:
-                            xyz_index = self.compute_xyz_index(vox)
-                            cam_vis_vox_indices[cam][xyz_index] = 1
-                self.all_vis_voxels = self.all_voxels[np.sum(cam_vis_vox_indices, axis=0) == 4]
-            else:
-                for cam in range(num_cameras):
-                    xor = np.logical_xor(masks[cam][frame - 1], masks[cam][frame])
-                    removed_pixels = np.nonzero(np.logical_and(xor, masks[cam][frame - 1]))
-                    added_pixels = np.nonzero(np.logical_and(xor, masks[cam][frame]))
-
-                    removed_xyz_indices = self.pixels_to_xyz_indices(removed_pixels, cam)
-                    cam_vis_vox_indices[cam][removed_xyz_indices] = 0
-
-                    added_xyz_indices = self.pixels_to_xyz_indices(added_pixels, cam)
-                    cam_vis_vox_indices[cam][added_xyz_indices] = 1
-
-                prevnum_visible = len(self.all_vis_voxels)
-                self.all_vis_voxels = self.all_voxels[np.sum(cam_vis_vox_indices, axis=0) == 4]
-                num_visible = len(self.all_vis_voxels)
-                num_removed = len(removed_xyz_indices)
-                print('frame ' + str(frame) + ", removed:", num_removed, "added", num_visible-prevnum_visible+num_removed)
-            Assignment.voxels_per_frame.append(self.all_vis_voxels)
-        Executable.main()

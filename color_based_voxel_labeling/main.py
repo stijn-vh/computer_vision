@@ -14,30 +14,36 @@ import executable as Executable
 
 import os
 
+
 class NumpyEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, np.ndarray):
             return obj.tolist()
         return json.JSONEncoder.default(self, obj)
 
+
 def save_to_json(name, object):
     with open(name + '.json', 'w') as handle:
         json.dump(object, handle, cls=NumpyEncoder)
 
+
 def load_from_json(name):
     with open(name + '.json') as handle:
         data = json.load(handle)
-    
+
     return data
-    
+
+
 def pickle_object(name, object):
     with open(name + '.pickle', 'wb') as handle:
         pd.to_pickle(name)
 
+
 def load_pickle_object(name):
     with open(name + '.pickle', 'rb') as handle:
         return pickle.load(handle)
-    
+
+
 def determine_camera_params():
     cali = Calibration()
     cali.cameras = load_pickle_object('scaled_camera')
@@ -45,7 +51,8 @@ def determine_camera_params():
     cali.obtain_extrinsics_from_cameras()
     pickle_object("scaled_camera", cali.cameras)
 
-def determine_new_masks(show_video = True):
+
+def determine_new_masks(show_video=True):
     S = BackgroundSubstraction()
     cam_means, cam_std_devs = S.create_background_model()
     # thresholds = np.array([[10, 2, 18],
@@ -64,7 +71,7 @@ def determine_new_masks(show_video = True):
     #                        [10, 1, 10],
     #                        [10, 2, 8]])
     # num_contours = [1, 2, 2, 1]
-    #Penalizing 3x more if pixel not in groundtruth but is in mask. fixed numcontours to equal 1
+    # Penalizing 3x more if pixel not in groundtruth but is in mask. fixed numcontours to equal 1
     # thresholds = np.array([[2, 6, 12],
     #                        [2, 6, 14],
     #                        [4, 6, 20],
@@ -80,6 +87,7 @@ def determine_new_thresholds():
     thresh, num_contours = S.gridsearch(cam_means, cam_std_devs)
     print("thresholds = ", thresh, "Num_contours =", num_contours)
 
+
 def show_four_images(images):
     concat_row_1 = np.concatenate((images[0], images[1]), axis=0)
     concat_row_2 = np.concatenate((images[2], images[3]), axis=0)
@@ -89,8 +97,9 @@ def show_four_images(images):
 
     cv.waitKey(0)
 
+
 # def handle_frame(frame, cam):
-    
+
 
 #     # Loop door alle frames
 #         # Per camera:
@@ -103,7 +112,7 @@ def show_four_images(images):
 
 def handle_videos():
     videos = []
-    amount_of_frames = range(20)
+    amount_of_frames = range(200)
     cam_numbers = range(4)
 
     BS = BackgroundSubstraction()
@@ -113,8 +122,10 @@ def handle_videos():
 
     # print('start creation')
     # lookup_table = VR.create_lookup_table()
-    # print('end, start json')
-    VR.lookup_table = load_from_json('json_lookup')
+    # save_to_json("lookup_table_4", lookup_table)
+    # print('end')
+    print('start json')
+    VR.lookup_table = load_from_json('lookup_table_4')
     print('done json')
 
     for i in cam_numbers:
@@ -133,58 +144,16 @@ def handle_videos():
             cameras_masks.append(BS.compute_mask_in_frame(frame, i))
 
         if frame_number == 0:
-            voxels = VR.reconstruct_voxels(cameras_masks, None, frame_number)     
+            voxels = VR.reconstruct_voxels(cameras_masks, None, frame_number)
         else:
             voxels = VR.reconstruct_voxels(cameras_masks, prev_cameras_masks, frame_number)
-        
+
         Assignment.voxels_per_frame.append(voxels)
 
         prev_cameras_masks = cameras_masks
-    
+
     Executable.main()
 
 
-        
 if __name__ == '__main__':
-    #determine_camera_params()
-    #determine_new_thresholds()
-<<<<<<< Updated upstream
     handle_videos()
-=======
-    # print("creating masks")
-    # masks, frames = determine_new_masks(show_video=True)
-    # print('determined masks')
-    # print("frame shape = ", np.array(frames).shape)
-    # save_to_json('masks', masks)
-    # save_to_json('frames', frames)
-    # print('saved masks')
-
-    # masks = np.array(load_from_json('masks'))
-    # print('loaded masks')
-
-    # frames = np.array(load_from_json('frames'))
-    # print('loaded frames')
-
-    # VR = VoxelReconstruction('scaled_camera.pickle')
-    # #
-    # print('create lookup')
-    # lookup_table = VR.create_lookup_table()
-    # print('created')
-    print("start load")
-    load_from_json('lookup_table')
-    print("end load")
-
-
-    # print('saved lookup')
-    # lookup_table = load_from_json('lookup_table')
-    # print('loaded lookup')
-    # # print('start reconstruction')
-    # VR.lookup_table = lookup_table
-    # print('start reconstruction')
-    # VR.run_voxel_reconstruction(masks)
-    # print('done reconstruction')
-
-    # c = Clustering()
-    # c.cluster(VR.all_vis_voxels)
->>>>>>> Stashed changes
-
