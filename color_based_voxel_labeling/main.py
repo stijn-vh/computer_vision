@@ -88,7 +88,7 @@ if __name__ == '__main__':
     #pickle_object('lookup_table', lookup_table)
     # # print("done pickle")
     print('done lookup')
-    #
+
     # print('start reconstruction')
     VR.lookup_table = lookup_table
     print('start reconstruction')
