@@ -115,7 +115,7 @@ class BackgroundSubstraction:
                                 thickness=cv.FILLED)
                 masks.append(mask)
                 frames.append(frame)
-                if show_video & (cam == 3):
+                if show_video & (cam == 3 | cam == 2):
                     cv.imshow("video", mask)
                     cv.waitKey(1)
         return masks, frames
