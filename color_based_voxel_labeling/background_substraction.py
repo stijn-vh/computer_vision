@@ -99,6 +99,7 @@ class BackgroundSubstraction:
     def compute_masks(self, thresholds, num_contour, pathname, cam_mean, cam_std_dev, show_video, cam):
         video = cv.VideoCapture(os.path.dirname(__file__) + pathname)
         masks = []
+        frames = []
         ret = True
         while ret:
             ret, frame = self.read_video(video)
@@ -113,16 +114,19 @@ class BackgroundSubstraction:
                                 contours[:num_contour], -1, 255,
                                 thickness=cv.FILLED)
                 masks.append(mask)
-                if show_video & (cam == 3):
+                frames.append(frame)
+                if show_video & (cam == 3 | cam == 2):
                     cv.imshow("video", mask)
                     cv.waitKey(1)
-        return masks
+        return masks, frames
 
     def background_subtraction(self, thresholds, num_contours, cam_means, cam_std_devs, show_video):
         folders = ['cam1', 'cam2', 'cam3', 'cam4']
         camera_masks = []
+        camera_frames = []
         for i, f in enumerate(folders):
-            masks = self.compute_masks(thresholds[i], num_contours[i], '\data\\' + f + '\\video.avi', cam_means[i],
+            masks, frames = self.compute_masks(thresholds[i], num_contours[i], '\data\\' + f + '\\video.avi', cam_means[i],
                                        cam_std_devs[i], show_video, i)
             camera_masks.append(masks)
-        return camera_masks
+            camera_frames.append(frames)
+        return camera_masks, camera_frames

@@ -13,7 +13,7 @@ class VoxelReconstruction:
     intrinsics = []
     dist_mtx = []
     lookup_table = []
-    stepsize = 6
+    stepsize = 2
 
     def __init__(self, path) -> None:
 
@@ -79,10 +79,9 @@ class VoxelReconstruction:
             ix = np.take(ix, indices).astype(int)
             iy = np.take(iy, indices).astype(int)
             voxels = np.take(self.all_voxels, indices, 0)
-            print('append voxels')
             for index in range(len(voxels)):
                 lookup_table[cam][ix[index]][iy[index]].append(voxels[index])
-            print('voxels appended')
+
             # for [x,y,z] in self.all_voxels:
             #     test = np.float64([x,z,-y])
             #     idx = cv.projectPoints(test, self.rotation_vectors[cam],
@@ -119,7 +118,8 @@ class VoxelReconstruction:
         # 486 y pixels and 644 x pixels
         # Lookup table will contain for every camera, for every pixel value, a list of voxel coords which are projected to that pixel value
 
-        num_frames = len(masks[0])
+        #num_frames = len(masks[0])
+        num_frames =2
         print('num_frames: ', num_frames)
         cam_vis_vox_indices = np.tile(np.zeros(len(self.all_voxels)), (4, 1))
         num_cameras = 4

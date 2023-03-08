@@ -6,3 +6,7 @@ voxel_based_3d_reconstruction/lookup_table_quick.pickle
 voxel_based_3d_reconstruction/lookup_table.pickle
 voxel_based_3d_reconstruction/lookup_table.pickle
 *.pickle
+voxel_based_3d_reconstruction/lookup_table.pickle
+voxel_based_3d_reconstruction/lookup_table.pickle
+*.pickle
+*.xml
