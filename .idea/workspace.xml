@@ -5,12 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5e0f08bd-db32-4723-bd75-82042f88900f" name="Changes" comment="moved files">
-      <change afterPath="$PROJECT_DIR$/color_based_voxel_labeling/frames.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/color_based_voxel_labeling/lookup_table.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/color_based_voxel_labeling/color_models.py" beforeDir="false" afterPath="$PROJECT_DIR$/color_based_voxel_labeling/color_models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/color_based_voxel_labeling/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/color_based_voxel_labeling/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/color_based_voxel_labeling/voxel_reconstruction.py" beforeDir="false" afterPath="$PROJECT_DIR$/color_based_voxel_labeling/voxel_reconstruction.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/voxel_based_3d_reconstruction/lookup_table.pickle" beforeDir="false" afterPath="$PROJECT_DIR$/voxel_based_3d_reconstruction/lookup_table.pickle" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

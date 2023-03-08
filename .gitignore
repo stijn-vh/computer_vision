@@ -12,3 +12,4 @@ voxel_based_3d_reconstruction/lookup_table.pickle
 *.xml
 *.json
 *.pickle
+*.pickle
