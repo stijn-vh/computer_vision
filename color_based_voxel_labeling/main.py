@@ -148,5 +148,43 @@ def handle_videos():
 if __name__ == '__main__':
     #determine_camera_params()
     #determine_new_thresholds()
+<<<<<<< Updated upstream
     handle_videos()
+=======
+    # print("creating masks")
+    # masks, frames = determine_new_masks(show_video=True)
+    # print('determined masks')
+    # print("frame shape = ", np.array(frames).shape)
+    # save_to_json('masks', masks)
+    # save_to_json('frames', frames)
+    # print('saved masks')
+
+    # masks = np.array(load_from_json('masks'))
+    # print('loaded masks')
+
+    # frames = np.array(load_from_json('frames'))
+    # print('loaded frames')
+
+    # VR = VoxelReconstruction('scaled_camera.pickle')
+    # #
+    # print('create lookup')
+    # lookup_table = VR.create_lookup_table()
+    # print('created')
+    print("start load")
+    load_from_json('lookup_table')
+    print("end load")
+
+
+    # print('saved lookup')
+    # lookup_table = load_from_json('lookup_table')
+    # print('loaded lookup')
+    # # print('start reconstruction')
+    # VR.lookup_table = lookup_table
+    # print('start reconstruction')
+    # VR.run_voxel_reconstruction(masks)
+    # print('done reconstruction')
+
+    # c = Clustering()
+    # c.cluster(VR.all_vis_voxels)
+>>>>>>> Stashed changes
 
