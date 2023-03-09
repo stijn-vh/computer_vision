@@ -25,7 +25,7 @@ class Clustering:
             voxels_with_label = np.take(voxels, label_idx, axis = 0)
 
             z_idx = np.where(np.logical_and(voxels_with_label[:, 1] > 100, voxels_with_label[:, 1] < 180))
-            voxel_clusters.append(np.take(voxels_with_label, z_idx, axis = 0))
+            voxel_clusters.append(np.squeeze(np.take(voxels_with_label, z_idx, axis = 0)))
 
 
         return voxel_clusters, centers, compactness

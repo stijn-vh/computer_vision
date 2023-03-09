@@ -21,12 +21,12 @@ class ColourModels:
 
     # single camera
     def voxels_to_colors(self, voxel_clusters, frame, cam):
-        #For projecting the voxels, we need to switch the x,y,z visualisation coordinates to normal coordinates (x, z, -y)
-        temp = np.copy(voxel_clusters[:,2])
-        voxel_clusters[:, 2] = -voxel_clusters[:, 1]
-        voxel_clusters[:, 1] = temp
         color_clusters = []
         for person in range(4):
+            # For projecting the voxels, we need to switch the x,y,z visualisation coordinates to normal coordinates (x, z, -y)
+            temp = np.copy(voxel_clusters[person][:, 2])
+            voxel_clusters[person][:, 2] = -voxel_clusters[person][:, 1]
+            voxel_clusters[person][:, 1] = temp
             idx = cv.projectPoints(
                 voxel_clusters[person],
                 self.rotation_vectors[cam],
@@ -78,7 +78,7 @@ class ColourModels:
     def matching_for_frame(self, voxel_clusters,   cameras_frames):
         # Assumes that self.cam_offline_color_models has been created already,
         # which for every camera, contains a GMM for each of the 4 persons.
-        for cluster in range(4):
+        for cluster in range(len(voxel_clusters)):
             if len(voxel_clusters[cluster]) < 500:
                 #For when the upper body is missing,
                 # less than ... voxels in cluster with y value between 100 and 180cm
@@ -88,7 +88,7 @@ class ColourModels:
                 voxel_clusters[cluster] = self.create_approximate_voxel_cluster(x_centre, z_centre)
 
         total_scores = np.zeros((4, 4))
-        for cam in range(4):
+        for cam in range(len(cameras_frames)):
             color_clusters = self.voxels_to_colors(voxel_clusters,  cameras_frames[cam], cam)
             total_scores += self.color_model_scores(self.cam_offline_color_models[cam], color_clusters)
         return self.hungarian_matching(total_scores)
