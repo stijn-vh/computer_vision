@@ -116,12 +116,16 @@ def show_four_images(images):
 #         # 5. Clustering
 #         # 6. Colour models
 
-def load_in_and_extrinsics(path):
+def load_parameters():
     parameters = {
-        'rotation_vectors': [], 'translation_vectors': [], 'intrinsics': [], 'dist_mtx': []
+        'rotation_vectors': [], 'translation_vectors': [], 'intrinsics': [], 'dist_mtx': [],
+        'stepsize': 4,
+        'amount_of_frames': 400,
+        'cam_numbers': 4,
+        'path': 'scaled_camera.pickle'
     }
 
-    with open(path, 'rb') as f:
+    with open(parameters['path'], 'rb') as f:
         camera_params = pickle.load(f)
 
         for camera in camera_params:
@@ -132,12 +136,30 @@ def load_in_and_extrinsics(path):
 
     return parameters
 
+
+def init_models(params):
+    global C, CM, VR, BS
+
+    C = Clustering()
+    BS = BackgroundSubstraction()
+    BS.create_background_model()
+
+    CM = ColourModels(params)
+
+    # four_good_offline_voxel_clusters_per_camera = load_from_json()
+    # corresponding_frame_per_camera = load_from_json()
+    CM = ColourModels(params)
+    # CM.create_offline_model(four_good_offline_voxel_clusters_per_camera, corresponding_frame_per_camera)
+
+    VR = VoxelReconstruction(params)
+
 def handle_frame(videos, cam_numbers, frame_number, prev):
     global C, CM, VR, BS
 
-    cameras_masks, cameras_frames = []
+    cameras_masks = []
+    cameras_frames = []
 
-    for i in cam_numbers:
+    for i in range(cam_numbers):
         ret, frame = BS.read_video(videos[i])
 
         cameras_frames.append(frame)
@@ -147,7 +169,7 @@ def handle_frame(videos, cam_numbers, frame_number, prev):
         voxels = VR.reconstruct_voxels(cameras_masks, None, frame_number)
     else:
         voxels = VR.reconstruct_voxels(cameras_masks, prev, frame_number)
-        
+
     Assignment.voxels_per_frame.append(voxels)
 
     voxel_clusters, cluster_centres, compactness  = C.cluster(voxels)
@@ -155,43 +177,27 @@ def handle_frame(videos, cam_numbers, frame_number, prev):
 
     return cameras_masks
 
-def handle_videos():
+def handle_videos(params):
     global C, CM, VR, BS
-
-    path = 'scaled_camera.pickle'
-    parameters = load_in_and_extrinsics(path)
-
-    videos = []
-    amount_of_frames = range(400)
-    cam_numbers = range(4)
-
-    C = Clustering()
-    BS = BackgroundSubstraction()
-    BS.create_background_model()
-
-    CM = ColourModels(parameters)
-
-    # four_good_offline_voxel_clusters_per_camera = load_from_json()
-    # corresponding_frame_per_camera = load_from_json()
-    # CM.create_offline_model(four_good_offline_voxel_clusters_per_camera, corresponding_frame_per_camera)
-
-    VR = VoxelReconstruction(parameters, path)
 
     # print('start creation')
     # lookup_table = VR.create_lookup_table()
-    # save_to_json("lookup_table_4", lookup_table)
+    # print('start saving to json')
+    # save_to_json("lookup_table_"+ str(params['stepsize']), lookup_table)
     # print('end')
-    print('start json')
-    VR.lookup_table = load_from_json('json_lookup')
-    print('done json')
+    print('start loading from json')
+    VR.lookup_table = load_from_json('lookup_table_' + str(params['stepsize']))
+    print('done loading json')
 
-    for i in cam_numbers:
+    videos = []
+
+    for i in range(params['cam_numbers']):
         videos.append(cv.VideoCapture(os.path.dirname(__file__) + "\\data\\cam" + str(i + 1) + "\\video.avi"))
 
     prev_cameras_masks = []
 
-    for frame_number in amount_of_frames:
-        prev_cameras_masks = handle_frame(videos, cam_numbers, frame_number, prev_cameras_masks)
+    for frame_number in range(params['amount_of_frames']):
+        prev_cameras_masks = handle_frame(videos, params['cam_numbers'], frame_number, prev_cameras_masks)
 
         #add cluster centres with their matching to a list
     # call a plot function which plots the different cluster centres and colours them according to their matching
@@ -199,4 +205,8 @@ def handle_videos():
 
 
 if __name__ == '__main__':
-    handle_videos()
+    params = load_parameters()
+
+    init_models(params)
+
+    handle_videos(params)

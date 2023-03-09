@@ -13,16 +13,17 @@ class VoxelReconstruction:
     intrinsics = []
     dist_mtx = []
     lookup_table = []
-    stepsize = 2
+    stepsize = 0
 
 
-    def __init__(self, params, path) -> None:
+    def __init__(self, params) -> None:
         self.rotation_vectors = params['rotation_vectors']
         self.translation_vectors = params['translation_vectors']
         self.intrinsics = params['intrinsics']
         self.dist_mtx = params['dist_mtx']
-        
-        Assignment.load_parameters_from_pickle(path)
+        self.stepsize = params['stepsize']
+
+        Assignment.load_parameters_from_pickle(params['path'])
         self.initialise_all_voxels()
 
     def initialise_all_voxels(self):
@@ -56,7 +57,7 @@ class VoxelReconstruction:
                     self.all_voxels[:, 2],
                     -self.all_voxels[:, 1]
             ])
-
+            
             idx = cv.projectPoints(
                 float_all_voxels, 
                 self.rotation_vectors[cam],
@@ -79,7 +80,7 @@ class VoxelReconstruction:
 
             for index in range(len(voxels)):
                 lookup_table[cam][ix[index]][iy[index]].append(voxels[index])
-                
+
         return lookup_table
 
     def return_visible_voxels(self, mask, cam_lookup_table):

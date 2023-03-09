@@ -2,6 +2,8 @@ import numpy as np
 import cv2 as cv
 import sklearn as sk
 import pickle
+from scipy.optimize import linear_sum_assignment
+
 
 class ColourModels:
     rotation_vectors = []
@@ -15,9 +17,14 @@ class ColourModels:
         self.translation_vectors = params['translation_vectors']
         self.intrinsics = params['intrinsics']
         self.dist_mtx = params['dist_mtx']
+        self.stepsize = params['stepsize']
 
     # single camera
     def voxels_to_colors(self, voxel_clusters, frame, cam):
+        #For projecting the voxels, we need to switch the x,y,z visualisation coordinates to normal coordinates (x, z, -y)
+        temp = np.copy(voxel_clusters[:,2])
+        voxel_clusters[:, 2] = -voxel_clusters[:, 1]
+        voxel_clusters[:, 1] = temp
         color_clusters = []
         for person in range(4):
             idx = cv.projectPoints(
@@ -52,12 +59,34 @@ class ColourModels:
         scores = np.zeros((4, 4))
         for model in range(4):
             for cluster in range(4):
-                scores[model][cluster] = offline_color_model[model].score(color_clusters[cluster])
+                scores[cluster][model] = offline_color_model[model].score(color_clusters[cluster])
         return scores
+
+    def create_approximate_voxel_cluster(self,x_centre, z_centre):
+        print("creating approximate voxel cluster")
+        voxel_rect_around_centre = [] 
+        radius = 15 // self.stepsize
+        height = 80 // self.stepsize
+        for x in self.stepsize*range(-radius, radius):
+            for z in self.stepsize*range(-radius, radius):
+                for y in self.stepsize*range(height):
+                    voxel_rect_around_centre.append([x_centre +x ,100+height, z_centre+ z])
+        return voxel_rect_around_centre
+
+
 
     def matching_for_frame(self, voxel_clusters,   cameras_frames):
         # Assumes that self.cam_offline_color_models has been created already,
         # which for every camera, contains a GMM for each of the 4 persons.
+        for cluster in range(4):
+            if len(voxel_clusters[cluster]) < 500:
+                #For when the upper body is missing,
+                # less than ... voxels in cluster with y value between 100 and 180cm
+                centres = np.sum(voxel_clusters[cluster], axis =0)/len(voxel_clusters[cluster])
+                x_centre = centres[0]
+                z_centre = centres[2]
+                voxel_clusters[cluster] = self.create_approximate_voxel_cluster(x_centre, z_centre)
+
         total_scores = np.zeros((4, 4))
         for cam in range(4):
             color_clusters = self.voxels_to_colors(voxel_clusters,  cameras_frames[cam], cam)
@@ -65,6 +94,6 @@ class ColourModels:
         return self.hungarian_matching(total_scores)
 
     def hungarian_matching(self, scores):
-        # Use the Hungarian algorithm to find an optimal matching between the models (rows in scores) and the current clusters (columns in scores)
-        matching = np.zeros((4, 4))
-        return matching
+        # Use the Hungarian algorithm to find an optimal matching between current clusters (rows in scores) and the models (columns in scores)
+        row_ind, col_ind = linear_sum_assignment(scores)
+        return col_ind
