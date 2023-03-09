@@ -116,23 +116,24 @@ def handle_videos():
     videos = []
     amount_of_frames = range(400)
     cam_numbers = range(4)
+    stepsize = 2
 
     BS = BackgroundSubstraction()
     BS.create_background_model()
     # four_good_offline_voxel_clusters_per_camera = load_from_json()
     # corresponding_frame_per_camera = load_from_json()
-    CM = ColourModels()
+    CM = ColourModels(stepsize)
     # CM.create_offline_model(four_good_offline_voxel_clusters_per_camera, corresponding_frame_per_camera)
 
-    VR = VoxelReconstruction('scaled_camera.pickle')
+    VR = VoxelReconstruction('scaled_camera.pickle', stepsize)
 
-    print('start creation')
-    lookup_table = VR.create_lookup_table()
-    print('start saving to json')
-    save_to_json("lookup_table", lookup_table)
-    print('end')
+    # print('start creation')
+    # lookup_table = VR.create_lookup_table()
+    # print('start saving to json')
+    # save_to_json("lookup_table", lookup_table)
+    # print('end')
     print('start loading from json')
-    VR.lookup_table = load_from_json('lookup_table')
+    VR.lookup_table = load_from_json('lookup_table_' + str(stepsize))
     print('done loading json')
 
     for i in cam_numbers:
@@ -160,8 +161,7 @@ def handle_videos():
 
         #voxel_clusters = clustering(voxels)
         #cluster_centres = ...
-        #matching = CM.matching_for_frame(voxel_clusters, cameras_frames)  # matching[i][j] = 1 if cluster j belongs to model i
-        #add cluster centres with their matching to a list
+        #matching = CM.matching_for_frame(voxel_clusters, cameras_frames)  # matching[i] = j means cluster i is assigned to model j.
     # call a plot function which plots the different cluster centres and colours them according to their matching
     Executable.main()
 

@@ -13,11 +13,9 @@ class VoxelReconstruction:
     intrinsics = []
     dist_mtx = []
     lookup_table = []
-    stepsize = 2
 
-
-    def __init__(self, path) -> None:
-
+    def __init__(self, path, stepsize) -> None:
+        self.stepsize =stepsize
         with open(path, 'rb') as f:
             camera_params = pickle.load(f)
             for camera in camera_params:
