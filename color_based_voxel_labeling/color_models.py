@@ -1,7 +1,7 @@
 import numpy as np
 import cv2 as cv
 import sklearn as sk
-
+import pickle
 
 class ColourModels:
     rotation_vectors = []
@@ -9,6 +9,12 @@ class ColourModels:
     intrinsics = []
     dist_mtx = []
     cam_offline_color_models = []
+
+    def __init__(self, params) -> None:
+        self.rotation_vectors = params['rotation_vectors']
+        self.translation_vectors = params['translation_vectors']
+        self.intrinsics = params['intrinsics']
+        self.dist_mtx = params['dist_mtx']
 
     # single camera
     def voxels_to_colors(self, voxel_clusters, frame, cam):

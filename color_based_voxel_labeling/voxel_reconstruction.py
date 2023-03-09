@@ -13,24 +13,17 @@ class VoxelReconstruction:
     intrinsics = []
     dist_mtx = []
     lookup_table = []
-    stepsize = 4
+    stepsize = 2
 
 
-    def __init__(self, path) -> None:
-
-        with open(path, 'rb') as f:
-            camera_params = pickle.load(f)
-            for camera in camera_params:
-                self.rotation_vectors.append(np.array(
-                    [camera_params[camera]['extrinsic_rvec'][0], camera_params[camera]['extrinsic_rvec'][1],
-                     camera_params[camera]['extrinsic_rvec'][2]]))
-                self.translation_vectors.append(np.array(
-                    [camera_params[camera]['extrinsic_tvec'][0], camera_params[camera]['extrinsic_tvec'][1],
-                     camera_params[camera]['extrinsic_tvec'][2]]))
-                self.intrinsics.append(camera_params[camera]['intrinsic_mtx'])
-                self.dist_mtx.append(camera_params[camera]['intrinsic_dist'])
-            Assignment.load_parameters_from_pickle(path)
-            self.initialise_all_voxels()
+    def __init__(self, params, path) -> None:
+        self.rotation_vectors = params['rotation_vectors']
+        self.translation_vectors = params['translation_vectors']
+        self.intrinsics = params['intrinsics']
+        self.dist_mtx = params['dist_mtx']
+        
+        Assignment.load_parameters_from_pickle(path)
+        self.initialise_all_voxels()
 
     def initialise_all_voxels(self):
         cam_coords = Assignment.get_cam_positions()
@@ -81,9 +74,12 @@ class VoxelReconstruction:
 
             ix = np.take(ix, indices).astype(int)
             iy = np.take(iy, indices).astype(int)
+
             voxels = np.take(self.all_voxels, indices, 0)
+
             for index in range(len(voxels)):
                 lookup_table[cam][ix[index]][iy[index]].append(voxels[index])
+                
         return lookup_table
 
     def return_visible_voxels(self, mask, cam_lookup_table):

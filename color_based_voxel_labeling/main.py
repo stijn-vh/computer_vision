@@ -23,6 +23,10 @@ class NumpyEncoder(json.JSONEncoder):
             return obj.tolist()
         return json.JSONEncoder.default(self, obj)
 
+BS = None
+VR = None
+C = None
+CM = None
 
 def save_to_json(name, object):
     with open(name + '.json', 'w') as handle:
@@ -112,26 +116,73 @@ def show_four_images(images):
 #         # 5. Clustering
 #         # 6. Colour models
 
+def load_in_and_extrinsics(path):
+    parameters = {
+        'rotation_vectors': [], 'translation_vectors': [], 'intrinsics': [], 'dist_mtx': []
+    }
+
+    with open(path, 'rb') as f:
+        camera_params = pickle.load(f)
+
+        for camera in camera_params:
+            parameters['rotation_vectors'].append(np.array(camera_params[camera]['extrinsic_rvec']))
+            parameters['translation_vectors'].append(np.array(camera_params[camera]['extrinsic_tvec']))
+            parameters['intrinsics'].append(camera_params[camera]['intrinsic_mtx'])
+            parameters['dist_mtx'].append(camera_params[camera]['intrinsic_dist'])
+
+    return parameters
+
+def handle_frame(videos, cam_numbers, frame_number, prev):
+    global C, CM, VR, BS
+
+    cameras_masks, cameras_frames = []
+
+    for i in cam_numbers:
+        ret, frame = BS.read_video(videos[i])
+
+        cameras_frames.append(frame)
+        cameras_masks.append(BS.compute_mask_in_frame(frame, i))
+
+    if frame_number == 0:
+        voxels = VR.reconstruct_voxels(cameras_masks, None, frame_number)
+    else:
+        voxels = VR.reconstruct_voxels(cameras_masks, prev, frame_number)
+        
+    Assignment.voxels_per_frame.append(voxels)
+
+    voxel_clusters, cluster_centres, compactness  = C.cluster(voxels)
+    matching = CM.matching_for_frame(voxel_clusters, cameras_frames)  # matching[i][j] = 1 if cluster j belongs to model i
+
+    return cameras_masks
+
 def handle_videos():
+    global C, CM, VR, BS
+
+    path = 'scaled_camera.pickle'
+    parameters = load_in_and_extrinsics(path)
+
     videos = []
     amount_of_frames = range(400)
     cam_numbers = range(4)
 
+    C = Clustering()
     BS = BackgroundSubstraction()
     BS.create_background_model()
+
+    CM = ColourModels(parameters)
+
     # four_good_offline_voxel_clusters_per_camera = load_from_json()
     # corresponding_frame_per_camera = load_from_json()
-    CM = ColourModels()
     # CM.create_offline_model(four_good_offline_voxel_clusters_per_camera, corresponding_frame_per_camera)
 
-    VR = VoxelReconstruction('scaled_camera.pickle')
+    VR = VoxelReconstruction(parameters, path)
 
     # print('start creation')
     # lookup_table = VR.create_lookup_table()
     # save_to_json("lookup_table_4", lookup_table)
     # print('end')
     print('start json')
-    VR.lookup_table = load_from_json('lookup_table_4')
+    VR.lookup_table = load_from_json('json_lookup')
     print('done json')
 
     for i in cam_numbers:
@@ -140,26 +191,8 @@ def handle_videos():
     prev_cameras_masks = []
 
     for frame_number in amount_of_frames:
-        cameras_masks = []
-        cameras_frames = []
+        prev_cameras_masks = handle_frame(videos, cam_numbers, frame_number, prev_cameras_masks)
 
-        for i in cam_numbers:
-            ret, frame = BS.read_video(videos[i])
-
-            cameras_frames.append(frame)
-            cameras_masks.append(BS.compute_mask_in_frame(frame, i))
-
-        if frame_number == 0:
-            voxels = VR.reconstruct_voxels(cameras_masks, None, frame_number)
-        else:
-            voxels = VR.reconstruct_voxels(cameras_masks, prev_cameras_masks, frame_number)
-        prev_cameras_masks = cameras_masks
-
-        Assignment.voxels_per_frame.append(voxels)
-
-        #voxel_clusters = clustering(voxels)
-        #cluster_centres = ...
-        #matching = CM.matching_for_frame(voxel_clusters, cameras_frames)  # matching[i][j] = 1 if cluster j belongs to model i
         #add cluster centres with their matching to a list
     # call a plot function which plots the different cluster centres and colours them according to their matching
     Executable.main()
