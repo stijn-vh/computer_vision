@@ -126,13 +126,14 @@ def handle_videos():
 
     VR = VoxelReconstruction('scaled_camera.pickle')
 
-    # print('start creation')
-    # lookup_table = VR.create_lookup_table()
-    # save_to_json("lookup_table_4", lookup_table)
-    # print('end')
-    print('start json')
-    VR.lookup_table = load_from_json('lookup_table_4')
-    print('done json')
+    print('start creation')
+    lookup_table = VR.create_lookup_table()
+    print('start saving to json')
+    save_to_json("lookup_table", lookup_table)
+    print('end')
+    print('start loading from json')
+    VR.lookup_table = load_from_json('lookup_table')
+    print('done loading json')
 
     for i in cam_numbers:
         videos.append(cv.VideoCapture(os.path.dirname(__file__) + "\\data\\cam" + str(i + 1) + "\\video.avi"))

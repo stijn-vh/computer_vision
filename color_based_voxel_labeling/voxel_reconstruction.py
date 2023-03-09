@@ -13,7 +13,7 @@ class VoxelReconstruction:
     intrinsics = []
     dist_mtx = []
     lookup_table = []
-    stepsize = 4
+    stepsize = 2
 
 
     def __init__(self, path) -> None:
