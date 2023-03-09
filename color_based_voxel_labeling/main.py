@@ -2,6 +2,7 @@ from background_substraction import BackgroundSubstraction
 from voxel_reconstruction import VoxelReconstruction
 from color_models import ColourModels
 from clustering import Clustering
+from trajectory_plotter import TrajectoryPlotter
 
 import numpy as np
 import pickle
@@ -27,6 +28,7 @@ BS = None
 VR = None
 C = None
 CM = None
+TP = None
 
 def save_to_json(name, object):
     with open(name + '.json', 'w') as handle:
@@ -138,24 +140,23 @@ def load_parameters():
 
 
 def init_models(params):
-    global C, CM, VR, BS
+    global C, CM, VR, BS, TP
 
     C = Clustering()
     BS = BackgroundSubstraction()
     BS.create_background_model()
 
     CM = ColourModels(params)
-
-    # four_good_offline_voxel_clusters_per_camera = load_from_json()
-    # corresponding_frame_per_camera = load_from_json()
-    CM = ColourModels(params)
     # CM.create_offline_model(four_good_offline_voxel_clusters_per_camera, corresponding_frame_per_camera)
 
     VR = VoxelReconstruction(params)
+    TP = TrajectoryPlotter((300, 300))
 
-def handle_frame(videos, cam_numbers, frame_number, prev):
-    global C, CM, VR, BS
+def first_clustering():
+     
+     return
 
+def determine_cameras_masks_frames(cam_numbers, videos):
     cameras_masks = []
     cameras_frames = []
 
@@ -165,6 +166,13 @@ def handle_frame(videos, cam_numbers, frame_number, prev):
         cameras_frames.append(frame)
         cameras_masks.append(BS.compute_mask_in_frame(frame, i))
 
+    return cameras_masks, cameras_frames
+
+def handle_frame(videos, cam_numbers, frame_number, prev):
+    global C, CM, VR, BS, TP
+
+    cameras_masks, cameras_frames = determine_cameras_masks_frames(cam_numbers, videos)
+
     if frame_number == 0:
         voxels = VR.reconstruct_voxels(cameras_masks, None, frame_number)
     else:
@@ -173,7 +181,9 @@ def handle_frame(videos, cam_numbers, frame_number, prev):
     Assignment.voxels_per_frame.append(voxels)
 
     voxel_clusters, cluster_centres, compactness  = C.cluster(voxels)
-    matching = CM.matching_for_frame(voxel_clusters, cameras_frames)  # matching[i][j] = 1 if cluster j belongs to model i
+    TP.add_to_plot(cluster_centres)
+
+    #matching = CM.matching_for_frame(voxel_clusters, cameras_frames)  # matching[i][j] = 1 if cluster j belongs to model i
 
     return cameras_masks
 
