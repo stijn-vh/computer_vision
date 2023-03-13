@@ -13,6 +13,7 @@ class TrajectoryPlotter():
 
     def __init__(self, bounds) -> None:
         self.bounds = bounds
+
         
     def initialize_graphs(self, new_centers):
         for i in range(len(new_centers)):
@@ -24,9 +25,14 @@ class TrajectoryPlotter():
 
         plt.legend()
 
+        plt.xlim([-100,350])
+        plt.ylim([-300,100])
+        plt.ion()
+
         self.firstDraw = False
 
     def append_new_points_to_plot(self, new_centers):
+        print(new_centers)
         for i in range(len(new_centers)):
             self.X[i].append(new_centers[i][0])
             self.Y[i].append(new_centers[i][1])

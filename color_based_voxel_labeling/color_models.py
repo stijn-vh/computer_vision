@@ -1,6 +1,7 @@
 import numpy as np
 import cv2 as cv
-import sklearn as sk
+import copy
+from sklearn.mixture import GaussianMixture
 from json_helper import JsonHelper
 from scipy.optimize import linear_sum_assignment
 
@@ -21,13 +22,14 @@ class ColourModels:
 
     #Possibly refactor code duplication
     def plot_projected_voxels(self, voxel_clusters, frame, cam):
-        for person in range(len(voxel_clusters)):
+        voxel_clusters1 = copy.deepcopy(voxel_clusters)
+        for person in range(len(voxel_clusters1)):
             # For projecting the voxels, we need to switch the x,y,z visualisation coordinates to normal coordinates (x, z, -y)
-            temp = np.copy(voxel_clusters[person][:, 2])
-            voxel_clusters[person][:, 2] = -voxel_clusters[person][:, 1]
-            voxel_clusters[person][:, 1] = temp
+            temp = np.copy(voxel_clusters1[person][:, 2])
+            voxel_clusters1[person][:, 2] = -voxel_clusters1[person][:, 1]
+            voxel_clusters1[person][:, 1] = temp
             idx = cv.projectPoints(
-                np.float32(voxel_clusters[person]),
+                np.float32(voxel_clusters1[person]),
                 self.rotation_vectors[cam],
                 self.translation_vectors[cam],
                 self.intrinsics[cam],
@@ -49,46 +51,63 @@ class ColourModels:
 
     # single camera
     def voxels_to_colors(self, voxel_clusters, frame, cam):
+        voxel_clusters1 = copy.deepcopy(voxel_clusters) #otherwise weird pointer behaviour
         color_clusters = []
-        for person in range(len(voxel_clusters)):
+        for person in range(len(voxel_clusters1)):
             # For projecting the voxels, we need to switch the x,y,z visualisation coordinates to normal coordinates (x, z, -y)
-            temp = np.copy(voxel_clusters[person][:, 2])
-            voxel_clusters[person][:, 2] = -voxel_clusters[person][:, 1]
-            voxel_clusters[person][:, 1] = temp
+            temp = copy.deepcopy(voxel_clusters1[person][:, 2])
+            voxel_clusters1[person][:, 2] = -voxel_clusters1[person][:, 1]
+            voxel_clusters1[person][:, 1] = temp
             idx = cv.projectPoints(
-                np.float32(voxel_clusters[person]),
+                np.float32(voxel_clusters1[person]),
                 self.rotation_vectors[cam],
                 self.translation_vectors[cam],
                 self.intrinsics[cam],
                 distCoeffs=self.dist_mtx[cam]
             )
-            ix = idx[0][:, 0][:, 0].astype(int)
-            iy = idx[0][:, 0][:, 1].astype(int)
+            ix1 = idx[0][:, 0][:, 0].astype(int)
+            iy1 = idx[0][:, 0][:, 1].astype(int)
+            iiy = np.asarray(abs(iy1) < 486).nonzero()
+            iix = np.asarray(abs(ix1) < 644).nonzero()
+
+            indices = np.intersect1d(iix, iiy)
+
+            ix = np.take(ix1, indices).astype(int)
+            iy = np.take(iy1, indices).astype(int)
+
+            if not np.array_equiv(ix, ix1):
+                print("?")
+            if not np.array_equiv(iy, iy1):
+                print("?")
+
             color_clusters.append(frame[(iy, ix)])
         return color_clusters  # similar shape as voxel_clusters, where now a list of HSVs values is given for every voxel cluster
 
     def create_offline_model(self, four_good_offline_voxel_clusters_per_camera, corresponding_frame_per_camera):
         # We require that the 4 clusters are ordered the same for every camera,
         # so that all i-th clusters belong to the same person.
-        offline_color_model = []
         for cam in range(4):
+            offline_color_model = []
             color_clusters = self.voxels_to_colors(four_good_offline_voxel_clusters_per_camera[cam],
-                                                   corresponding_frame_per_camera[cam])
+                                                   corresponding_frame_per_camera[cam], cam)
             for cluster in range(4):
-                gmm = sk.mixture.GaussianMixture(n_components=1, random_state=0).fit(color_clusters[cluster])
+                gmm = GaussianMixture(n_components=1, random_state=0).fit(color_clusters[cluster])
                 offline_color_model.append(gmm)
             self.cam_offline_color_models.append(offline_color_model)
 
     def load_create_offline_model(self):
         JH = JsonHelper()
         clusters124 = JH.load_from_json("clusters_cam_1_2_4")
-        camframes124 = JH.load_from_json("cameras_frames_1_2_4")
-        clusters3 = JH.load_from_json("clusters_cam_3")
-        camframes3 = JH.load_from_json("cameras_frames_3")
-        rearranged_cluster3 = [clusters3[1], clusters3[2], clusters3[0], clusters3[3]]
-        four_good_offline_voxel_clusters_per_camera = [clusters124, clusters124, rearranged_cluster3, clusters124]
+        camframes124 =  np.array(JH.load_from_json("cameras_frames_1_2_4"))
+        clusters3 =  JH.load_from_json("clusters_cam_3")
+        camframes3 =  np.array(JH.load_from_json("cameras_frames_3"))
+        rearranged_cluster3 =  [np.array(clusters3[1]), np.array(clusters3[2]), np.array(clusters3[0]), np.array(clusters3[3])]
+        np_clusters124 = []
+        for i in range(len(clusters124)):
+            np_clusters124.append(np.array(clusters124[i]))
+        four_good_offline_voxel_clusters_per_camera = [np_clusters124, np_clusters124, rearranged_cluster3, np_clusters124]
 
-        corresponding_frame_per_camera = [camframes124[0], camframes124[1], camframes3[2], camframes124[3]]
+        corresponding_frame_per_camera = np.array([camframes124[0], camframes124[1], camframes3[2], camframes124[3]])
         self.create_offline_model(four_good_offline_voxel_clusters_per_camera, corresponding_frame_per_camera)
 
     # single camera
