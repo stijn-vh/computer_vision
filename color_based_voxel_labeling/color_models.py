@@ -73,8 +73,6 @@ class ColourModels:
                     voxel_rect_around_centre.append([x_centre +x ,100+height, z_centre+ z])
         return voxel_rect_around_centre
 
-
-
     def matching_for_frame(self, voxel_clusters,   cameras_frames):
         # Assumes that self.cam_offline_color_models has been created already,
         # which for every camera, contains a GMM for each of the 4 persons.

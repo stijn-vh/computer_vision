@@ -24,6 +24,10 @@ class TrajectoryPlotter():
 
         plt.legend()
 
+        ax = plt.gca()
+        plt.xlim([-100, 350])
+        plt.ylim([-300, 100])
+
         self.firstDraw = False
 
     def append_new_points_to_plot(self, new_centers):
@@ -41,6 +45,6 @@ class TrajectoryPlotter():
             self.append_new_points_to_plot(new_centers)
 
         plt.draw()
-        plt.pause(0.01)
+        plt.pause(0.001)
 
 

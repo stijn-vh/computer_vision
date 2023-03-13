@@ -150,7 +150,7 @@ def init_models(params):
     # CM.create_offline_model(four_good_offline_voxel_clusters_per_camera, corresponding_frame_per_camera)
 
     VR = VoxelReconstruction(params)
-    TP = TrajectoryPlotter((300, 300))
+    TP = TrajectoryPlotter((VR.xb, VR.yb))
 
 def first_clustering():
      
