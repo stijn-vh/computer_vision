@@ -94,7 +94,7 @@ class VoxelReconstruction:
         return vis_vox
 
     def pixels_to_xyz_indices(self, pixels, cam):
-        xyz_indices =[]
+        xyz_indices = []
         for i in range(len(pixels[0])):
             iy = pixels[0][i]
             ix = pixels[1][i]

@@ -28,10 +28,10 @@ class Clustering:
 
             voxels_with_label = np.take(voxels, label_idx, axis = 0)
 
-            z_idx = np.where(np.logical_and(voxels_with_label[:, 1] > 100, voxels_with_label[:, 1] < 180))
+            z_idx = np.where(np.logical_and(voxels_with_label[:, 1] > 80, voxels_with_label[:, 1] < 140))
             voxel_clusters.append(np.take(voxels_with_label, z_idx, axis = 0)[0])
 
-        centers = self.matching_based_on_centres(centers)
+        #centers = self.matching_based_on_centres(centers)
         return voxel_clusters, centers, compactness
     
     def find_closest_point_index(self, point):
