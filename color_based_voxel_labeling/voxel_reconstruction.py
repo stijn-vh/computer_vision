@@ -14,7 +14,6 @@ class VoxelReconstruction:
     intrinsics = []
     dist_mtx = []
     lookup_table = []
-    stepsize = 0
 
 
     def __init__(self, params) -> None:
@@ -26,7 +25,6 @@ class VoxelReconstruction:
         self.remove_ghosts = params['ghosts']
 
         Assignment.load_parameters_from_pickle(params['path'])
-        self.initialise_all_voxels()
 
     def initialise_all_voxels(self):
         self.cam_coords = np.array(Assignment.get_cam_positions())
@@ -39,6 +37,8 @@ class VoxelReconstruction:
              range(-self.zb, self.zb)])
         self.cams_vis_vox_indices = np.tile(np.zeros(len(self.all_voxels)), (4, 1))
         self.cams_pos_vis_vox_indices = copy.deepcopy(self.cams_vis_vox_indices)
+
+        return self.xb, self.zb, self.yb
 
 
     def compute_xyz_index(self, vox):
@@ -115,29 +115,29 @@ class VoxelReconstruction:
 
 
 
-    def possible_visible_voxels_per_cam(self, masks, num_cameras):
-        for cam in range(num_cameras):
-            for iy in range(len(masks[cam])):
-                for ix in range(len(masks[cam])):
+    def compute_cam_vox_visibility(self):
+        for cam in range(4):
+            for iy in range(486):
+                for ix in range(644):
                     for vox in self.lookup_table[cam][ix][iy]:
                         xyz_index = self.compute_xyz_index(vox)
                         self.cams_pos_vis_vox_indices[cam][xyz_index] = 1
 
-        return self.cams_pos_vis_vox_indices
 
     def index_visible_voxels(self):
-        return np.ravel(
-            np.argwhere(
-                (self.cams_pos_vis_vox_indices >= self.cams_vis_vox_indices)
-                    .all(axis = 0)
-            )
-        )
+        # return np.ravel(
+        #     np.argwhere(
+        #         (self.cams_pos_vis_vox_indices <= self.cams_vis_vox_indices)
+        #             .all(axis = 0)
+        #     )
+        # )
+        # When using this we sometimes get empty clusters?
+        #return np.logical_and((np.sum(self.cams_vis_vox_indices >= self.cams_pos_vis_vox_indices, axis=0)==4), (np.sum(self.cams_vis_vox_indices, axis=0)>=3))
+        return np.sum(self.cams_vis_vox_indices, axis=0)==4
 
     def reconstruct_voxels(self, masks, prev_masks, frame_num):
         # masks shape: (4, 486, 644). Reconstructs a single frame
-        print('frame ' + str(frame_num))
         num_cameras = 4
-        self.possible_visible_voxels_per_cam(masks, num_cameras)
 
         if frame_num == 0:
             for cam in range(num_cameras):
@@ -160,7 +160,6 @@ class VoxelReconstruction:
                 added_xyz_indices = self.pixels_to_xyz_indices(added_pixels, cam)
                 self.cams_vis_vox_indices[cam][added_xyz_indices] = 1
 
-        # Eerst weer duidelijk krijgen wat nou precies de bodoeling is voor deze
         # if self.remove_ghosts:
         #     k= 100 #number of voxels to keep per camera
         #     visible_distances = self.distance_table * self.cams_vis_vox_indices

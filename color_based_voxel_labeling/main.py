@@ -127,6 +127,10 @@ def init_models(params):
 
 
     VR = VoxelReconstruction(params)
+    xb, zb, yb = VR.initialise_all_voxels()
+
+    CM.set_bounds(xb, yb, zb)
+
     TP = TrajectoryPlotter((VR.xb, VR.yb))
     # print('start creation')
     #lookup_table = VR.create_lookup_table()
@@ -138,6 +142,8 @@ def init_models(params):
     print('start lookup table loading from json')
     VR.lookup_table = JH.load_from_json('lookup_table_' + str(params['stepsize']))
     print('done loading json')
+    VR.compute_cam_vox_visibility()
+    CM.cams_pos_vis_vox_indices = VR.cams_pos_vis_vox_indices
 
 
 def determine_cameras_masks_frames(cam_numbers, videos):
@@ -179,7 +185,7 @@ def handle_frame(videos, cam_numbers, frame_number, prev):
         matched_cluster_centres[matching[i]] = cluster_centres[i]
 
     TP.add_to_plot(matched_cluster_centres)
-    #print(matched_cluster_centres)
+    print(matched_cluster_centres)
 
     return cameras_masks
 
@@ -199,7 +205,7 @@ def handle_videos(params):
 
     # add cluster centres with their matching to a list
     # call a plot function which plots the different cluster centres and colours them according to their matching
-    #Executable.main()
+    Executable.main()
 
 
 if __name__ == '__main__':

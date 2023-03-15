@@ -32,7 +32,6 @@ class TrajectoryPlotter():
         self.firstDraw = False
 
     def append_new_points_to_plot(self, new_centers):
-        print(new_centers)
         for i in range(len(new_centers)):
             self.X[i].append(new_centers[i][0])
             self.Y[i].append(new_centers[i][1])
