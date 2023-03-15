@@ -124,7 +124,7 @@ def init_models(params):
     VR = VoxelReconstruction(params)
     TP = TrajectoryPlotter((VR.xb, VR.yb))
     # print('start creation')
-    # lookup_table = VR.create_lookup_table()
+    #lookup_table = VR.create_lookup_table()
     # print('start saving to json')
     # save_to_json("lookup_table_"+ str(params['stepsize']), lookup_table)
     # print('end')

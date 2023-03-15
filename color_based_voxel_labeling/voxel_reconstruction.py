@@ -5,6 +5,7 @@ import executable as Executable
 import assignment as Assignment
 #import surface_mesh as Mesh
 from engine.config import config
+import copy
 
 
 class VoxelReconstruction:
@@ -36,6 +37,7 @@ class VoxelReconstruction:
             [[x, y, z] for x in range(-self.xb, self.xb) for y in range(0, 2 * self.yb) for z in
              range(-self.zb, self.zb)])
         self.cams_vis_vox_indices = np.tile(np.zeros(len(self.all_voxels)), (4, 1))
+        self.cams_pos_vis_vox_indices = copy.deepcopy(self.cams_vis_vox_indices)
 
 
     def compute_xyz_index(self, vox):
@@ -102,9 +104,28 @@ class VoxelReconstruction:
                 xyz_indices.append(self.compute_xyz_index(vox))
         return np.array(xyz_indices, dtype = int)
     
+    def possible_visible_voxels_per_cam(self, masks, num_cameras):
+        for cam in range(num_cameras):
+            for iy in range(len(masks[cam])):
+                for ix in range(len(masks[cam])):
+                    for vox in self.lookup_table[cam][ix][iy]:
+                        xyz_index = self.compute_xyz_index(vox)
+                        self.cams_pos_vis_vox_indices[cam][xyz_index] = 1
+        
+        return self.cams_pos_vis_vox_indices
+
+    def index_visible_voxels(self):
+        return np.ravel(
+            np.argwhere(
+                (self.cams_pos_vis_vox_indices.T >= self.cams_vis_vox_indices.T)
+                    .all(axis = 1)
+            )
+        )
+
     def reconstruct_voxels(self, masks, prev_masks, frame_num):
         # masks shape: (4, 486, 644)
         num_cameras = 4
+        self.possible_visible_voxels_per_cam(masks, num_cameras)
 
         if frame_num == 0:
             for cam in range(num_cameras):
@@ -115,7 +136,8 @@ class VoxelReconstruction:
                     for vox in self.lookup_table[cam][ix][iy]:
                         xyz_index = self.compute_xyz_index(vox)
                         self.cams_vis_vox_indices[cam][xyz_index] = 1
-            self.all_vis_voxels = self.all_voxels[np.sum(self.cams_vis_vox_indices, axis=0) == 4]
+                        
+            self.all_vis_voxels = self.all_voxels[self.index_visible_voxels()]
         else:
             for cam in range(num_cameras):
                 xor = np.logical_xor(prev_masks[cam], masks[cam])
@@ -128,7 +150,8 @@ class VoxelReconstruction:
                 added_xyz_indices = self.pixels_to_xyz_indices(added_pixels, cam)
                 self.cams_vis_vox_indices[cam][added_xyz_indices] = 1
 
-            self.all_vis_voxels = self.all_voxels[np.sum(self.cams_vis_vox_indices, axis=0) == 4]
+            self.all_vis_voxels = self.all_voxels[self.index_visible_voxels()]
+            
             print('frame ' + str(frame_num))
         return self.all_vis_voxels
 
