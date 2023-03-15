@@ -93,9 +93,11 @@ def load_parameters():
     parameters = {
         'rotation_vectors': [], 'translation_vectors': [], 'intrinsics': [], 'dist_mtx': [],
         'stepsize': 4,
-        'amount_of_frames': 200,
+        'amount_of_frames': 300,
         'cam_numbers': 4,
-        'path': 'scaled_camera.pickle'
+        'path': 'scaled_camera.pickle',
+        'ghosts': False,
+        'update_model': True
     }
 
     with open(parameters['path'], 'rb') as f:
@@ -119,7 +121,10 @@ def init_models(params):
     BS.create_background_model()
 
     CM = ColourModels(params)
+    print("start offline colourmodel creation")
     CM.load_create_offline_model()
+    print("end offline colourmodel creation")
+
 
     VR = VoxelReconstruction(params)
     TP = TrajectoryPlotter((VR.xb, VR.yb))
@@ -128,6 +133,8 @@ def init_models(params):
     # print('start saving to json')
     # save_to_json("lookup_table_"+ str(params['stepsize']), lookup_table)
     # print('end')
+    if params['ghosts']:
+        VR.create_distance_table()
     print('start lookup table loading from json')
     VR.lookup_table = JH.load_from_json('lookup_table_' + str(params['stepsize']))
     print('done loading json')
@@ -151,9 +158,9 @@ def determine_cameras_masks_frames(cam_numbers, videos):
 
 def handle_frame(videos, cam_numbers, frame_number, prev):
     global C, CM, VR, BS
+    print('frame ' + str(frame_number))
 
     cameras_masks, cameras_frames, cameras_framesBGR = determine_cameras_masks_frames(cam_numbers, videos)
-
     if frame_number == 0:
         voxels = VR.reconstruct_voxels(cameras_masks, None, frame_number)
     else:
@@ -165,12 +172,14 @@ def handle_frame(videos, cam_numbers, frame_number, prev):
 
     # save_offline_model_information(voxel_clusters,cameras_frames, cameras_framesBGR, frame_number)
 
-    matching = CM.matching_for_frame(voxel_clusters, cameras_frames)  # matching[i] = j if cluster i belongs to model/person j
-    matched_cluster_centres = np.zeros((4,2))
+    matching = CM.matching_for_frame(voxel_clusters,
+                                     cameras_frames)  # matching[i] = j if cluster i belongs to model/person j
+    matched_cluster_centres = np.zeros((4, 2))
     for i in range(len(cluster_centres)):
         matched_cluster_centres[matching[i]] = cluster_centres[i]
 
     TP.add_to_plot(matched_cluster_centres)
+    #print(matched_cluster_centres)
 
     return cameras_masks
 
@@ -190,7 +199,7 @@ def handle_videos(params):
 
     # add cluster centres with their matching to a list
     # call a plot function which plots the different cluster centres and colours them according to their matching
-    Executable.main()
+    #Executable.main()
 
 
 if __name__ == '__main__':
