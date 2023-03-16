@@ -15,16 +15,16 @@ class VoxelReconstruction:
     dist_mtx = []
     lookup_table = []
 
-
     def __init__(self, params) -> None:
         self.rotation_vectors = params['rotation_vectors']
         self.translation_vectors = params['translation_vectors']
         self.intrinsics = params['intrinsics']
         self.dist_mtx = params['dist_mtx']
         self.stepsize = params['stepsize']
-        self.remove_ghosts = params['ghosts']
+        self.remove_ghosts = params['remove_ghosts']
+        camera_params = params['camera_params']
 
-        Assignment.load_parameters_from_pickle(params['path'])
+        Assignment.initialise_camera_params(camera_params)
 
     def initialise_all_voxels(self):
         self.cam_coords = np.array(Assignment.get_cam_positions())

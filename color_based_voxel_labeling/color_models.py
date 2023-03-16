@@ -2,7 +2,7 @@ import numpy as np
 import cv2 as cv
 import copy
 from sklearn.mixture import GaussianMixture
-from json_helper import JsonHelper
+from color_based_voxel_labeling.helpers.json_helper import JsonHelper
 from scipy.optimize import linear_sum_assignment
 
 
@@ -119,10 +119,8 @@ class ColourModels:
             color_clusters = self.voxels_to_colors(four_good_offline_voxel_clusters_per_camera[cam],
                                                    corresponding_frame_per_camera[cam], cam, True)
             for cluster in range(4):
-                gmm = GaussianMixture(n_components=1, random_state=0, max_iter=1000, tol=1e-10, warm_start= True)
+                gmm = GaussianMixture(n_components=3, random_state=0, max_iter=1000, tol=1e-10, warm_start= True)
                 gmm.fit(color_clusters[cluster])
-                #print("cam ", cam, "person", cluster, "iterations till convergence = ", gmm.n_iter_)
-                #print("\n means = ", gmm.means_, "\n")
                 offline_color_model.append(gmm)
             self.cam_offline_color_models.append(offline_color_model)
 
