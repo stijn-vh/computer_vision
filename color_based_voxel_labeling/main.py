@@ -122,16 +122,16 @@ def handle_frame(videos, frame_number, prev):
 
     voxel_clusters, cluster_centres, compactness = C.cluster(voxels)
 
-    if params['save_new_offline_model_data']:
-        DG.save_offline_model_information(voxel_clusters,cameras_frames, cameras_framesBGR, frame_number)
+    # if params['save_new_offline_model_data']:
+    #     DG.save_offline_model_information(voxel_clusters,cameras_frames, cameras_framesBGR, frame_number)
 
-    # matching[i] = j if cluster i belongs to model/person j
-    matching = CM.matching_for_frame(voxel_clusters, cameras_frames)
-    matched_cluster_centres = CM.match_cluster_centres(cluster_centres, matching)
-    matched_clusters = CM.match_clusters(voxel_clusters, matching)
+    # # matching[i] = j if cluster i belongs to model/person j
+    # matching = CM.matching_for_frame(voxel_clusters, cameras_frames)
+    # matched_cluster_centres = CM.match_cluster_centres(cluster_centres, matching)
+    # matched_clusters = CM.match_clusters(voxel_clusters, matching)
 
-    #TP.add_to_plot(matched_cluster_centres)
-    print(matched_cluster_centres)
+    TP.add_to_plot(cluster_centres)
+    #print(matched_cluster_centres)
 
     return cameras_masks
 

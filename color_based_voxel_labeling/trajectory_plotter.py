@@ -9,6 +9,7 @@ class TrajectoryPlotter():
     X = [[], [], [], []]
     Y = [[], [], [], []]
 
+    colors = ['cornflowerblue', 'red', 'orange', 'green']
     graphs = []
 
     firstDraw = True
@@ -23,13 +24,13 @@ class TrajectoryPlotter():
             self.X[i].append(new_centers[i][0])
             self.Y[i].append(new_centers[i][1])
 
-            graph = plt.plot(self.X[i], self.Y[i], label = 'Person ' + str(i))[0]
+            graph = plt.plot(self.X[i], self.Y[i], label = 'Person ' + str(i), c = self.colors[i])[0]
             self.graphs.append(graph)
 
         plt.legend()
 
-        plt.xlim([-self.xb,self.xb])
-        plt.ylim([-self.zb,self.zb])
+        plt.xlim([-100,350])
+        plt.ylim([-300,100])
         plt.ion()
 
         self.firstDraw = False
