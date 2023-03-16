@@ -119,8 +119,11 @@ class ColourModels:
             color_clusters = self.voxels_to_colors(four_good_offline_voxel_clusters_per_camera[cam],
                                                    corresponding_frame_per_camera[cam], cam, True)
             for cluster in range(4):
-                gmm = GaussianMixture(n_components=3, random_state=0, max_iter=1000, tol=1e-10, warm_start= True)
+                gmm = GaussianMixture(n_components=3, random_state=0, max_iter=1000, tol=1e-10)
                 gmm.fit(color_clusters[cluster])
+                #For future model updates:
+                gmm.warm_start = True
+                gmm.tol = 0.01
                 offline_color_model.append(gmm)
             self.cam_offline_color_models.append(offline_color_model)
 
@@ -184,12 +187,7 @@ class ColourModels:
             print("updating colormodel")
             for cam in range(len(cameras_frames)):
                 for model in range(len(matching)):
-                    self.cam_offline_color_models[cam][model].max_iter= 5
-                    self.cam_offline_color_models[cam][model].warm_start = True
                     self.cam_offline_color_models[cam][model].fit(cam_color_clusters[cam][np.where(matching == model)[0][0]])
-                    # print(" cam ", cam, "person ", model, "iterations = ",
-                    #       self.cam_offline_color_models[cam][model].n_iter_)
-                    # print("\n means = ", self.cam_offline_color_models[cam][model].means_, "\n")
         self.update_model = True #If it was set to false with an approximate cluster
         return matching
 

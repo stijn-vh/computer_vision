@@ -1,4 +1,4 @@
 import json
 
-with open('config.json') as file:
+with open('data//saved_data//config.json') as file:
     config = json.load(file)

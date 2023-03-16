@@ -6,8 +6,8 @@ from trajectory_plotter import TrajectoryPlotter
 
 import numpy as np
 import cv2 as cv
-from color_based_voxel_labeling.helpers.json_helper import JsonHelper
-from data_generation import DataGenerator
+from helpers.json_helper import JsonHelper
+from helpers.data_generation import DataGenerator
 
 import assignment as Assignment
 import executable as Executable
