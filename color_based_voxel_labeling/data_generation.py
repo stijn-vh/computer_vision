@@ -1,5 +1,5 @@
 from calibration import Calibration
-from color_based_voxel_labeling.helpers.json_helper import JsonHelper
+from helpers.json_helper import JsonHelper
 from background_substraction import BackgroundSubstraction
 import numpy as np
 

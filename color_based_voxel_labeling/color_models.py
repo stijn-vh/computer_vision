@@ -2,7 +2,7 @@ import numpy as np
 import cv2 as cv
 import copy
 from sklearn.mixture import GaussianMixture
-from color_based_voxel_labeling.helpers.json_helper import JsonHelper
+from helpers.json_helper import JsonHelper
 from scipy.optimize import linear_sum_assignment
 
 
