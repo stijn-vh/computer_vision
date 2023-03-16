@@ -27,16 +27,26 @@ def load_parameters():
     global JH
     JH = JsonHelper()
     camera_params = JH.load_pickle_object("scaled_camera")
+    Assignment.initialise_camera_params(camera_params)
+    cam_coords = Assignment.get_cam_positions()
+    [max_x, max_y, max_z] = np.max(cam_coords, axis=0).astype(int)
     parameters = {
         'rotation_vectors': [], 'translation_vectors': [], 'intrinsics': [], 'dist_mtx': [],
         'stepsize': 4,
         'amount_of_frames': 2000,
         'cam_numbers': 4,
+        'cam_coords': cam_coords,
         'remove_ghosts': False,
-        'camera_params': camera_params,
         'update_model': True,
-        'create_new_offline' : False
+        'save_new_offline_model_data' : False,
+        'create_new_lookup_table' : False,
+        'create_new_inv_lookup_table' : False
     }
+
+    parameters['xb'] = max_x //parameters['stepsize']
+    parameters['yb'] = max_y //parameters['stepsize']
+    parameters['zb'] = max_z //parameters['stepsize']
+
 
     for camera in camera_params:
         parameters['rotation_vectors'].append(np.array(camera_params[camera]['extrinsic_rvec']))
@@ -60,24 +70,32 @@ def init_models(params):
     print("end offline colourmodel creation")
 
     VR = VoxelReconstruction(params)
-    xb, zb, yb = VR.initialise_all_voxels()
-
-    CM.set_bounds(xb, yb, zb)
-
-    TP = TrajectoryPlotter((VR.xb, VR.yb))
-    # print('start creation')
-    # lookup_table = VR.create_lookup_table()
-    # print('start saving to json')
-    # save_to_json("lookup_table_"+ str(params['stepsize']), lookup_table)
-    # print('end')
+    TP = TrajectoryPlotter(params)
+    if params['create_new_lookup_table']:
+        print('start lookup table creation')
+        lookup_table = VR.create_lookup_table()
+        print('start lookup table saving to json')
+        JH.save_to_json("lookup_table_"+ str(params['stepsize']), lookup_table)
+        print('end lookup table saving to json')
+    if params['create_new_inv_lookup_table']:
+        print('start inv lookuptable creation')
+        inv_lookup_table = CM.create_inverse_lookup_table()
+        print('start inv lookup table saving to json')
+        JH.save_to_json("inv_lookup_table_" + str(params['stepsize']), inv_lookup_table)
+        print('end inv lookup table saving to json')
     if params['remove_ghosts']:
         VR.create_distance_table()
-    if params['create_new_offline']:
+    if params['save_new_offline_model_data']:
         DG = DataGenerator()
 
     print('start lookup table loading from json')
     VR.lookup_table = JH.load_from_json('lookup_table_' + str(params['stepsize']))
-    print('done loading json')
+    print('done lookup table loading from json')
+
+    print('start inv lookup table loading from json')
+    CM.inv_lookup_table = JH.load_from_json('inv_lookup_table_' + str(params['stepsize']))
+    print('done inv lookup table loading from json')
+
     VR.compute_cam_vox_visibility()
     CM.cams_pos_vis_vox_indices = VR.cams_pos_vis_vox_indices
 
@@ -121,7 +139,7 @@ def handle_frame(videos, frame_number, prev):
 
     voxel_clusters, cluster_centres, compactness = C.cluster(voxels)
 
-    if params['create_new_offline']:
+    if params['save_new_offline_model_data']:
         DG.save_offline_model_information(voxel_clusters,cameras_frames, cameras_framesBGR, frame_number)
 
     # matching[i] = j if cluster i belongs to model/person j
@@ -129,7 +147,7 @@ def handle_frame(videos, frame_number, prev):
 
     matched_cluster_centres = match_cluster_centres(cluster_centres, matching)
 
-    TP.add_to_plot(matched_cluster_centres)
+    #TP.add_to_plot(matched_cluster_centres)
     print(matched_cluster_centres)
 
     return cameras_masks
