@@ -11,7 +11,7 @@ class NumpyEncoder(json.JSONEncoder):
 
 class JsonHelper:
     def save_to_json(self, name, object):
-        with open(name + '.json', 'w') as handle:
+        with open("data//saved_data//" +name + '.json', 'w') as handle:
             json.dump(object, handle, cls=NumpyEncoder)
 
     def load_from_json(self, name):

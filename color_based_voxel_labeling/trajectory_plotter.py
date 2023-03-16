@@ -2,8 +2,6 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 
 class TrajectoryPlotter():
-    bounds = ()
-    
     X = [[], [], [], []]
     Y = [[], [], [], []]
 
@@ -11,8 +9,9 @@ class TrajectoryPlotter():
 
     firstDraw = True
 
-    def __init__(self, bounds) -> None:
-        self.bounds = bounds
+    def __init__(self, params) -> None:
+        self.xb = params['xb']
+        self.zb = params['zb']
 
         
     def initialize_graphs(self, new_centers):
@@ -25,8 +24,8 @@ class TrajectoryPlotter():
 
         plt.legend()
 
-        plt.xlim([-100,350])
-        plt.ylim([-300,100])
+        plt.xlim([-self.xb,self.xb])
+        plt.ylim([-self.zb,self.zb])
         plt.ion()
 
         self.firstDraw = False

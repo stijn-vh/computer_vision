@@ -13,6 +13,7 @@ class ColourModels:
     dist_mtx = []
     cam_offline_color_models = []
     cams_pos_vis_vox_indices = []
+    inv_lookup_table = []
 
     yb = 0
     zb = 0
@@ -25,11 +26,24 @@ class ColourModels:
         self.dist_mtx = params['dist_mtx']
         self.stepsize = params['stepsize']
         self.update_model = params['update_model']
+        self.xb = params['xb']
+        self.yb = params['yb']
+        self.zb = params['zb']
 
-    def set_bounds(self, xb, yb, zb):
-        self.xb = xb
-        self.yb = yb
-        self.zb = zb
+    def indices(self, vox, cam):
+        idx = cv.projectPoints(
+            np.float32(vox),
+            self.rotation_vectors[cam],
+            self.translation_vectors[cam],
+            self.intrinsics[cam],
+            distCoeffs=self.dist_mtx[cam]
+        )
+        return idx[0][0][0]
+    def create_inverse_lookup_table(self):
+        inv_lookup_table = np.array([self.stepsize * np.array(
+            [self.indices([x,z,-y], cam) for x in range(-self.xb, self.xb) for y in range(0, 2 * self.yb) for z in
+                range(-self.zb, self.zb)]) for cam in range(4)])
+        return inv_lookup_table
 
     def compute_xyz_index(self, vox):
         # For a given voxel in all_voxels, compute the corresponding index of that voxel in all_voxels
@@ -38,7 +52,6 @@ class ColourModels:
                 x // self.stepsize + self.xb) + 2 * self.zb * y // self.stepsize + (
                 z // self.stepsize + self.zb)
 
-    #Possibly refactor code duplication
     def plot_projected_voxels(self, voxel_clusters, frame, cam):
         voxel_clusters1 = copy.deepcopy(voxel_clusters)
         for person in range(len(voxel_clusters1)):
@@ -64,7 +77,7 @@ class ColourModels:
                 frame[(iy, ix)] = [0, 255, 255]
             elif person == 3:
                 frame[(iy, ix)] = [255, 0, 255]
-        cv.imshow("frame cam "+str(cam), frame)
+        cv.imshow("frame cam " + str(cam), frame)
         cv.waitKey(10000)
 
     # single camera
@@ -79,10 +92,10 @@ class ColourModels:
             voxel_clusters1 = []
             for c in range(len(voxel_clusters)):
                 new_cluster = []
-                for [x,y,z] in voxel_clusters[c]:
-                    xyz_i = self.compute_xyz_index([x,y,z])
+                for [x, y, z] in voxel_clusters[c]:
+                    xyz_i = self.compute_xyz_index([x, y, z])
                     if self.cams_pos_vis_vox_indices[cam][xyz_i]:
-                        new_cluster.append([x,z,-y])
+                        new_cluster.append([x, z, -y])
                 voxel_clusters1.append(np.array(new_cluster))
 
         color_clusters = []
@@ -121,7 +134,7 @@ class ColourModels:
             for cluster in range(4):
                 gmm = GaussianMixture(n_components=3, random_state=0, max_iter=1000, tol=1e-10)
                 gmm.fit(color_clusters[cluster])
-                #For future model updates:
+                # For future model updates:
                 gmm.warm_start = True
                 gmm.tol = 0.01
                 offline_color_model.append(gmm)
@@ -130,14 +143,16 @@ class ColourModels:
     def load_create_offline_model(self):
         JH = JsonHelper()
         clusters124 = JH.load_from_json("clusters_cam_1_2_4")
-        camframes124 =  np.array(JH.load_from_json("cameras_frames_1_2_4"))
-        clusters3 =  JH.load_from_json("clusters_cam_3")
-        camframes3 =  np.array(JH.load_from_json("cameras_frames_3"))
-        rearranged_cluster3 =  [np.array(clusters3[1]), np.array(clusters3[2]), np.array(clusters3[0]), np.array(clusters3[3])]
+        camframes124 = np.array(JH.load_from_json("cameras_frames_1_2_4"))
+        clusters3 = JH.load_from_json("clusters_cam_3")
+        camframes3 = np.array(JH.load_from_json("cameras_frames_3"))
+        rearranged_cluster3 = [np.array(clusters3[1]), np.array(clusters3[2]), np.array(clusters3[0]),
+                               np.array(clusters3[3])]
         np_clusters124 = []
         for i in range(len(clusters124)):
             np_clusters124.append(np.array(clusters124[i]))
-        four_good_offline_voxel_clusters_per_camera = [np_clusters124, np_clusters124, rearranged_cluster3, np_clusters124]
+        four_good_offline_voxel_clusters_per_camera = [np_clusters124, np_clusters124, rearranged_cluster3,
+                                                       np_clusters124]
 
         corresponding_frame_per_camera = np.array([camframes124[0], camframes124[1], camframes3[2], camframes124[3]])
         self.create_offline_model(four_good_offline_voxel_clusters_per_camera, corresponding_frame_per_camera)
@@ -159,7 +174,7 @@ class ColourModels:
                 for y in range(height):
                     voxel_rect_around_centre.append(
                         [x_centre + self.stepsize * x, 100 + self.stepsize * y, z_centre + self.stepsize * z])
-        return np.array(voxel_rect_around_centre, dtype = int)
+        return np.array(voxel_rect_around_centre, dtype=int)
 
     def matching_for_frame(self, voxel_clusters, cameras_frames):
         # Assumes that self.cam_offline_color_models has been created already,
@@ -187,8 +202,9 @@ class ColourModels:
             print("updating colormodel")
             for cam in range(len(cameras_frames)):
                 for model in range(len(matching)):
-                    self.cam_offline_color_models[cam][model].fit(cam_color_clusters[cam][np.where(matching == model)[0][0]])
-        self.update_model = True #If it was set to false with an approximate cluster
+                    self.cam_offline_color_models[cam][model].fit(
+                        cam_color_clusters[cam][np.where(matching == model)[0][0]])
+        self.update_model = True  # If it was set to false with an approximate cluster
         return matching
 
     def hungarian_matching(self, scores):

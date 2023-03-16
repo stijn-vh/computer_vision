@@ -22,23 +22,18 @@ class VoxelReconstruction:
         self.dist_mtx = params['dist_mtx']
         self.stepsize = params['stepsize']
         self.remove_ghosts = params['remove_ghosts']
-        camera_params = params['camera_params']
-
-        Assignment.initialise_camera_params(camera_params)
+        self.cam_coords = params['cam_coords']
+        self.xb = params['xb']
+        self.yb = params['yb']
+        self.zb = params['zb']
+        self.initialise_all_voxels()
 
     def initialise_all_voxels(self):
-        self.cam_coords = np.array(Assignment.get_cam_positions())
-        [max_x, max_y, max_z] = np.max(self.cam_coords, axis=0).astype(int)
-        self.xb = max_x // self.stepsize
-        self.zb = max_z // self.stepsize
-        self.yb = max_y // self.stepsize
         self.all_voxels = self.stepsize * np.array(
             [[x, y, z] for x in range(-self.xb, self.xb) for y in range(0, 2 * self.yb) for z in
              range(-self.zb, self.zb)])
         self.cams_vis_vox_indices = np.tile(np.zeros(len(self.all_voxels)), (4, 1))
         self.cams_pos_vis_vox_indices = copy.deepcopy(self.cams_vis_vox_indices)
-
-        return self.xb, self.zb, self.yb
 
 
     def compute_xyz_index(self, vox):
@@ -105,15 +100,12 @@ class VoxelReconstruction:
                 xyz_indices.append(self.compute_xyz_index(vox))
         return np.array(xyz_indices, dtype = int)
 
-
     def cam_dist(self, cam, vox):
         return np.linalg.norm(self.cam_coords[cam]-vox)
 
     def create_distance_table(self):
         #method to compute the distance of each voxel to each camera
         self.distance_table = np.array([[self.cam_dist(i,vox) for vox in self.all_voxels] for i in range(4)])
-
-
 
     def compute_cam_vox_visibility(self):
         for cam in range(4):
