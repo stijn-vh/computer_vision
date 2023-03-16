@@ -23,9 +23,9 @@ class Model:
             data = json.load(file)
         return data
 
-    def set_multiple_positions(self, positions):
+    def set_multiple_positions(self, positions, colors):
         for mesh in self.meshes:
-            mesh.set_multiple_positions(positions)
+            mesh.set_multiple_positions(positions, colors)
 
     def draw(self, program):
         program.use()

@@ -5,6 +5,8 @@ layout (location = 1) in vec3 aNormal;
 layout (location = 2) in vec2 aTexCoords;
 layout (location = 3) in vec3 aTangent;
 layout (location = 4) in vec3 aInstancePos;
+layout (location = 5) in vec3 in_Color;
+
 
 out VS_OUT
 {
@@ -15,6 +17,7 @@ out VS_OUT
     vec3 tanFragPos;
     vec3 tanViewPos;
     vec4 fragPosLightSpace;
+    vec3 out_Color;
 } vs_out;
 
 uniform mat4 viewProject;
@@ -26,6 +29,7 @@ uniform mat4 lightSpaceMatrix;
 
 void main()
 {
+    vs_out.out_Color = in_Color;
     vs_out.texCoords = aTexCoords;
     vs_out.fragPos = vec3(model * rotation * vec4(aPos, 1.0)) + aInstancePos;
     vs_out.normal = transpose(inverse(mat3(model * rotation))) * aNormal + aInstancePos;

@@ -33,13 +33,15 @@ def load_parameters():
     parameters = {
         'rotation_vectors': [], 'translation_vectors': [], 'intrinsics': [], 'dist_mtx': [],
         'stepsize': 4,
-        'amount_of_frames': 2000,
+        'max_frame': 100,
+        'frame_step':10,
         'cam_numbers': 4,
         'cam_coords': cam_coords,
         'remove_ghosts': False,
         'update_model': True,
         'save_new_offline_model_data' : False,
         'create_new_lookup_table' : False,
+        'show_reconstruction': True
     }
 
     parameters['xb'] = max_x //parameters['stepsize']
@@ -146,12 +148,11 @@ def handle_videos(params):
 
     prev_cameras_masks = []
 
-    for frame_number in range(0, params['amount_of_frames'], 10):
+    for frame_number in range(0, params['max_frame'], params['frame_step']):
         prev_cameras_masks = handle_frame(videos, frame_number, prev_cameras_masks)
 
-    # add cluster centres with their matching to a list
-    # call a plot function which plots the different cluster centres and colours them according to their matching
-    Executable.main()
+    if params['show_reconstruction']:
+        Executable.main()
 
 
 if __name__ == '__main__':

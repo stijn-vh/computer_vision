@@ -52,11 +52,19 @@ class Mesh:
         glEnableVertexAttribArray(4)
         self.positionsLen = 1
 
+        self.VBO_COL = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, self.VBO_COL)
+        data = np.identity(4, dtype=np.float32)
+        glBufferData(GL_ARRAY_BUFFER, data, GL_DYNAMIC_DRAW)
+        glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, 0, None)
+        glEnableVertexAttribArray(5)
+
         glVertexAttribDivisor(0, 0)
         glVertexAttribDivisor(1, 0)
         glVertexAttribDivisor(2, 0)
         glVertexAttribDivisor(3, 0)
         glVertexAttribDivisor(4, 1)
+        glVertexAttribDivisor(5, 1)
 
         glBindBuffer(GL_ARRAY_BUFFER, 0)
         glBindVertexArray(0)
@@ -69,12 +77,20 @@ class Mesh:
                 indices_list.append(index)
         return indices_list
 
-    def set_multiple_positions(self, positions):
+    def set_multiple_positions(self, positions, colors):
+        assert len(positions) == len(colors), f'len(positions), {len(positions)}, must be equal to len(colors), {len(colors)}'
         data = np.array(positions, dtype=np.float32)
         glBindVertexArray(self.VAO)
         glBindBuffer(GL_ARRAY_BUFFER, self.VBO_POS)
         glBufferData(GL_ARRAY_BUFFER, data, GL_DYNAMIC_DRAW)
         glBindVertexArray(0)
+
+        data = np.array(colors, dtype=np.float32)
+        glBindVertexArray(self.VAO)
+        glBindBuffer(GL_ARRAY_BUFFER, self.VBO_COL)
+        glBufferData(GL_ARRAY_BUFFER, data, GL_DYNAMIC_DRAW)
+        glBindVertexArray(0)
+
         self.positionsLen = len(positions)
 
     def draw(self):
@@ -97,6 +113,7 @@ class Mesh:
             glDeleteBuffers(1, self.VBO_TAN)
             glDeleteBuffers(1, self.EBO)
             glDeleteBuffers(1, self.VBO_POS)
-            self.VAO, self.VBO, self.VBO_N, self.VBO_TEX, self.VBO_TAN, self.EBO, self.VBO_POS = 0, 0, 0, 0, 0, 0, 0
+            glDeleteBuffers(1, self.VBO_COL)
+            self.VAO, self.VBO, self.VBO_N, self.VBO_TEX, self.VBO_TAN, self.EBO, self.VBO_POS, self.VBO_COL = 0, 0, 0, 0, 0, 0, 0, 0
         except (NullFunctionError, TypeError):
             pass 
