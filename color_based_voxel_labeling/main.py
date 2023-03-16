@@ -1,6 +1,6 @@
 from background_substraction import BackgroundSubstraction
 from voxel_reconstruction import VoxelReconstruction
-from color_models import ColourModels
+from color_matcher import ColorMatcher
 from clustering import Clustering
 from trajectory_plotter import TrajectoryPlotter
 
@@ -40,12 +40,12 @@ def load_parameters():
         'update_model': True,
         'save_new_offline_model_data' : False,
         'create_new_lookup_table' : False,
-        'create_new_inv_lookup_table' : False
     }
 
     parameters['xb'] = max_x //parameters['stepsize']
     parameters['yb'] = max_y //parameters['stepsize']
     parameters['zb'] = max_z //parameters['stepsize']
+    parameters['torso_size'] = 60000 / (parameters['stepsize']** 3) #heuristic
 
 
     for camera in camera_params:
@@ -63,26 +63,16 @@ def init_models(params):
     C = Clustering()
     BS = BackgroundSubstraction()
     BS.create_background_model()
-
-    CM = ColourModels(params)
-    print("start offline colourmodel creation")
-    CM.load_create_offline_model()
-    print("end offline colourmodel creation")
-
+    CM = ColorMatcher(params)
     VR = VoxelReconstruction(params)
     TP = TrajectoryPlotter(params)
+
     if params['create_new_lookup_table']:
         print('start lookup table creation')
         lookup_table = VR.create_lookup_table()
         print('start lookup table saving to json')
         JH.save_to_json("lookup_table_"+ str(params['stepsize']), lookup_table)
         print('end lookup table saving to json')
-    if params['create_new_inv_lookup_table']:
-        print('start inv lookuptable creation')
-        inv_lookup_table = CM.create_inverse_lookup_table()
-        print('start inv lookup table saving to json')
-        JH.save_to_json("inv_lookup_table_" + str(params['stepsize']), inv_lookup_table)
-        print('end inv lookup table saving to json')
     if params['remove_ghosts']:
         VR.create_distance_table()
     if params['save_new_offline_model_data']:
@@ -92,12 +82,9 @@ def init_models(params):
     VR.lookup_table = JH.load_from_json('lookup_table_' + str(params['stepsize']))
     print('done lookup table loading from json')
 
-    print('start inv lookup table loading from json')
-    CM.inv_lookup_table = JH.load_from_json('inv_lookup_table_' + str(params['stepsize']))
-    print('done inv lookup table loading from json')
-
-    VR.compute_cam_vox_visibility()
-    CM.cams_pos_vis_vox_indices = VR.cams_pos_vis_vox_indices
+    print("start offline colourmodel creation")
+    CM.load_create_offline_model()
+    print("end offline colourmodel creation")
 
 
 def determine_cameras_masks_frames(videos, frame_number):
@@ -118,11 +105,7 @@ def determine_cameras_masks_frames(videos, frame_number):
     return cameras_masks, cameras_frames, cameras_framesBGR
 
 
-def match_cluster_centres(cluster_centres, matching):
-    matched_cluster_centres = np.zeros((4, 2))
-    for i in range(len(cluster_centres)):
-        matched_cluster_centres[matching[i]] = cluster_centres[i]
-    return matched_cluster_centres
+
 
 
 def handle_frame(videos, frame_number, prev):
@@ -144,8 +127,8 @@ def handle_frame(videos, frame_number, prev):
 
     # matching[i] = j if cluster i belongs to model/person j
     matching = CM.matching_for_frame(voxel_clusters, cameras_frames)
-
-    matched_cluster_centres = match_cluster_centres(cluster_centres, matching)
+    matched_cluster_centres = CM.match_cluster_centres(cluster_centres, matching)
+    matched_clusters = CM.match_clusters(voxel_clusters, matching)
 
     #TP.add_to_plot(matched_cluster_centres)
     print(matched_cluster_centres)

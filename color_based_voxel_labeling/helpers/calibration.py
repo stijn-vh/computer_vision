@@ -3,8 +3,8 @@ import random
 import pickle
 import cv2 as cv
 import numpy as np
-import helpers.offline_phase as OfflinePhase
-import helpers.online_phase as OnlinePhase
+import color_based_voxel_labeling.helpers.offline_phase as OfflinePhase
+import color_based_voxel_labeling.helpers.online_phase as OnlinePhase
 from bs4 import BeautifulSoup
 
 
