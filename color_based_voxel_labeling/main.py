@@ -8,6 +8,8 @@ import numpy as np
 import cv2 as cv
 from helpers.json_helper import JsonHelper
 from helpers.data_generation import DataGenerator
+from data_generation import DataGenerator
+
 
 import assignment as Assignment
 import executable as Executable

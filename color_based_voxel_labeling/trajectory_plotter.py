@@ -20,7 +20,7 @@ class TrajectoryPlotter():
             self.X[i].append(new_centers[i][0])
             self.Y[i].append(new_centers[i][1])
     
-            graph = plt.plot(self.X[i], self.Y[i], label = 'Person ' + str(i))[0]
+            graph = plt.scatter(self.X[i], self.Y[i], label = 'Person ' + str(i))[0]
             self.graphs.append(graph)
 
         plt.legend()
