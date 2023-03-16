@@ -1,14 +1,14 @@
 import glm
 import glfw
-from engine.base.program import get_linked_program
-from engine.renderable.model import Model
 from engine.buffer.texture import *
-from engine.buffer.hdrbuffer import HDRBuffer
-from engine.buffer.blurbuffer import BlurBuffer
-from engine.effect.bloom import Bloom
-from assignment import set_voxel_positions, generate_grid, get_cam_positions, get_cam_rotation_matrices
-from engine.camera import Camera
-from engine.config import config
+from color_based_voxel_labeling.engine.base.program import get_linked_program
+from color_based_voxel_labeling.engine.renderable.model import Model
+from color_based_voxel_labeling.engine.buffer.hdrbuffer import HDRBuffer
+from color_based_voxel_labeling.engine.buffer.blurbuffer import BlurBuffer
+from color_based_voxel_labeling.engine.effect.bloom import Bloom
+from color_based_voxel_labeling.assignment import set_voxel_positions, generate_grid, get_cam_positions, get_cam_rotation_matrices
+from color_based_voxel_labeling.engine.camera import Camera
+from color_based_voxel_labeling.engine.config import config
 
 cube, hdrbuffer, blurbuffer, lastPosX, lastPosY = None, None, None, None, None
 firstTime = True
@@ -82,10 +82,14 @@ def main():
     glEnable(GL_CULL_FACE)
     glCullFace(GL_BACK)
 
-    program = get_linked_program('resources/shaders/vert.vs', 'resources/shaders/frag.fs')
-    depth_program = get_linked_program('resources/shaders/shadow_depth.vs', 'resources/shaders/shadow_depth.fs')
-    blur_program = get_linked_program('resources/shaders/blur.vs', 'resources/shaders/blur.fs')
-    hdr_program = get_linked_program('resources/shaders/hdr.vs', 'resources/shaders/hdr.fs')
+    program = get_linked_program('resources/shaders/vert.vs',
+                                 '../color_based_voxel_labeling/resources/shaders/frag.fs')
+    depth_program = get_linked_program('resources/shaders/shadow_depth.vs',
+                                       '../color_based_voxel_labeling/resources/shaders/shadow_depth.fs')
+    blur_program = get_linked_program('resources/shaders/blur.vs',
+                                      '../color_based_voxel_labeling/resources/shaders/blur.fs')
+    hdr_program = get_linked_program('resources/shaders/hdr.vs',
+                                     '../color_based_voxel_labeling/resources/shaders/hdr.fs')
 
     blur_program.use()
     blur_program.setInt('image', 0)
@@ -94,10 +98,12 @@ def main():
     hdr_program.setInt('sceneMap', 0)
     hdr_program.setInt('bloomMap', 1)
 
+    window_width_px, window_height_px = glfw.get_framebuffer_size(window)
+
     hdrbuffer = HDRBuffer()
-    hdrbuffer.create(window_width, window_height)
+    hdrbuffer.create(window_width_px, window_height_px)
     blurbuffer = BlurBuffer()
-    blurbuffer.create(window_width, window_height)
+    blurbuffer.create(window_width_px, window_height_px)
 
     bloom = Bloom(hdrbuffer, hdr_program, blurbuffer, blur_program)
 
@@ -117,12 +123,12 @@ def main():
     depth = load_texture_2d('resources/textures/depth.jpg')
     depth_grid = load_texture_2d('resources/textures/depth_grid.jpg')
 
-    grid_positions = generate_grid(config['world_width'], config['world_depth'])
-    square.set_multiple_positions(grid_positions)
+    grid_positions, grid_colors = generate_grid(config['world_width'], config['world_width'])
+    square.set_multiple_positions(grid_positions, grid_colors)
 
-    cam_positions = get_cam_positions()
+    cam_positions, cam_colors = get_cam_positions()
     for c, cam_pos in enumerate(cam_positions):
-        cam_shapes[c].set_multiple_positions([cam_pos])
+        cam_shapes[c].set_multiple_positions([cam_pos], [cam_colors[c]])
 
     last_time = glfw.get_time()
     while not glfw.window_should_close(window):
@@ -139,13 +145,14 @@ def main():
         glClearColor(0.1, 0.2, 0.8, 1)
 
         square.draw_multiple(depth_program)
-
         cube.draw_multiple(depth_program)
         for cam in cam_shapes:
             cam.draw_multiple(depth_program)
 
         hdrbuffer.bind()
-        glViewport(0, 0, window_width, window_height)
+
+        window_width_px, window_height_px = glfw.get_framebuffer_size(window)
+        glViewport(0, 0, window_width_px, window_height_px)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
         draw_objs(square, program, perspective, light_pos, texture_grid, normal_grid, specular_grid, depth_grid)
@@ -160,6 +167,7 @@ def main():
 
         glfw.poll_events()
         glfw.swap_buffers(window)
+
     glfw.terminate()
 
 
@@ -168,10 +176,11 @@ def resize_callback(window, w, h):
         global window_width, window_height, hdrbuffer, blurbuffer
         window_width, window_height = w, h
         glm.perspective(45, window_width / window_height, config['near_plane'], config['far_plane'])
+        window_width_px, window_height_px = glfw.get_framebuffer_size(window)
         hdrbuffer.delete()
-        hdrbuffer.create(window_width, window_height)
+        hdrbuffer.create(window_width_px, window_height_px)
         blurbuffer.delete()
-        blurbuffer.create(window_width, window_height)
+        blurbuffer.create(window_width_px, window_height_px)
 
 
 def key_callback(window, key, scancode, action, mods):
@@ -179,8 +188,8 @@ def key_callback(window, key, scancode, action, mods):
         glfw.set_window_should_close(window, glfw.TRUE)
     if key == glfw.KEY_G:
         global cube
-        positions = set_voxel_positions(config['world_width'], config['world_height'], config['world_depth'])
-        cube.set_multiple_positions(positions)
+        positions, colors = set_voxel_positions(config['world_width'], config['world_height'], config['world_width'])
+        cube.set_multiple_positions(positions, colors)
 
 
 def mouse_move(win, pos_x, pos_y):

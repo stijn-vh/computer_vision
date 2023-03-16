@@ -12,6 +12,7 @@ in VS_OUT
     vec3 tanFragPos;
     vec3 tanViewPos;
     vec4 fragPosLightSpace;
+    vec3 out_Color;
 } fs_in;
 
 struct Textures
@@ -73,6 +74,7 @@ void main()
     vec3 result = calcLight(globalLight, material, normal, viewDir, shadowVal);
 
     fragColor = vec4(result, 1.0);
+    fragColor = vec4(fs_in.out_Color, 1.0);
     float brightness = dot(fragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
 //     if (brightness > 1.0)
 //         brightColor = vec4(fragColor.rgb, 1.0);
