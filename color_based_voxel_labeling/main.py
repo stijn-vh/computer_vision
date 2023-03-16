@@ -8,7 +8,6 @@ import numpy as np
 import cv2 as cv
 from helpers.json_helper import JsonHelper
 from helpers.data_generation import DataGenerator
-from data_generation import DataGenerator
 
 
 import assignment as Assignment
@@ -31,7 +30,7 @@ def load_parameters():
     parameters = {
         'rotation_vectors': [], 'translation_vectors': [], 'intrinsics': [], 'dist_mtx': [],
         'stepsize': 4,
-        'amount_of_frames': 50,
+        'amount_of_frames': 2000,
         'cam_numbers': 4,
         'remove_ghosts': False,
         'camera_params': camera_params,
@@ -83,13 +82,14 @@ def init_models(params):
     CM.cams_pos_vis_vox_indices = VR.cams_pos_vis_vox_indices
 
 
-def determine_cameras_masks_frames(videos):
+def determine_cameras_masks_frames(videos, frame_number):
     # Helper method for handle_frame
     cameras_masks = []
     cameras_frames = []
     cameras_framesBGR = []
 
     for cam in range(params['cam_numbers']):
+        videos[cam].set(cv.CAP_PROP_POS_FRAMES, frame_number)
         ret, frameBGR = videos[cam].read()
         frame = np.float32(cv.cvtColor(frameBGR, cv.COLOR_BGR2HSV))
 
@@ -111,7 +111,7 @@ def handle_frame(videos, frame_number, prev):
     global C, CM, VR, BS
     print('frame ' + str(frame_number))
 
-    cameras_masks, cameras_frames, cameras_framesBGR = determine_cameras_masks_frames(videos)
+    cameras_masks, cameras_frames, cameras_framesBGR = determine_cameras_masks_frames(videos, frame_number)
     if frame_number == 0:
         voxels = VR.reconstruct_voxels(cameras_masks, None, frame_number)
     else:
@@ -145,7 +145,7 @@ def handle_videos(params):
 
     prev_cameras_masks = []
 
-    for frame_number in range(params['amount_of_frames']):
+    for frame_number in range(0, params['amount_of_frames'], 10):
         prev_cameras_masks = handle_frame(videos, frame_number, prev_cameras_masks)
 
     # add cluster centres with their matching to a list
