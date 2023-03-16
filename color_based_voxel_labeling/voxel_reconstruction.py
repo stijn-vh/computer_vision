@@ -14,8 +14,6 @@ class VoxelReconstruction:
     intrinsics = []
     dist_mtx = []
     lookup_table = []
-    stepsize = 0
-
 
     def __init__(self, params) -> None:
         self.rotation_vectors = params['rotation_vectors']
@@ -23,13 +21,14 @@ class VoxelReconstruction:
         self.intrinsics = params['intrinsics']
         self.dist_mtx = params['dist_mtx']
         self.stepsize = params['stepsize']
+        self.remove_ghosts = params['remove_ghosts']
+        camera_params = params['camera_params']
 
-        Assignment.load_parameters_from_pickle(params['path'])
-        self.initialise_all_voxels()
+        Assignment.initialise_camera_params(camera_params)
 
     def initialise_all_voxels(self):
-        cam_coords = Assignment.get_cam_positions()
-        [max_x, max_y, max_z] = np.max(cam_coords, axis=0).astype(int)
+        self.cam_coords = np.array(Assignment.get_cam_positions())
+        [max_x, max_y, max_z] = np.max(self.cam_coords, axis=0).astype(int)
         self.xb = max_x // self.stepsize
         self.zb = max_z // self.stepsize
         self.yb = max_y // self.stepsize
@@ -38,6 +37,8 @@ class VoxelReconstruction:
              range(-self.zb, self.zb)])
         self.cams_vis_vox_indices = np.tile(np.zeros(len(self.all_voxels)), (4, 1))
         self.cams_pos_vis_vox_indices = copy.deepcopy(self.cams_vis_vox_indices)
+
+        return self.xb, self.zb, self.yb
 
 
     def compute_xyz_index(self, vox):
@@ -103,29 +104,40 @@ class VoxelReconstruction:
             for vox in self.lookup_table[cam][ix][iy]:
                 xyz_indices.append(self.compute_xyz_index(vox))
         return np.array(xyz_indices, dtype = int)
-    
-    def possible_visible_voxels_per_cam(self, masks, num_cameras):
-        for cam in range(num_cameras):
-            for iy in range(len(masks[cam])):
-                for ix in range(len(masks[cam])):
+
+
+    def cam_dist(self, cam, vox):
+        return np.linalg.norm(self.cam_coords[cam]-vox)
+
+    def create_distance_table(self):
+        #method to compute the distance of each voxel to each camera
+        self.distance_table = np.array([[self.cam_dist(i,vox) for vox in self.all_voxels] for i in range(4)])
+
+
+
+    def compute_cam_vox_visibility(self):
+        for cam in range(4):
+            for iy in range(486):
+                for ix in range(644):
                     for vox in self.lookup_table[cam][ix][iy]:
                         xyz_index = self.compute_xyz_index(vox)
                         self.cams_pos_vis_vox_indices[cam][xyz_index] = 1
-        
-        return self.cams_pos_vis_vox_indices
+
 
     def index_visible_voxels(self):
-        return np.ravel(
-            np.argwhere(
-                (self.cams_pos_vis_vox_indices.T >= self.cams_vis_vox_indices.T)
-                    .all(axis = 1)
-            )
-        )
+        # return np.ravel(
+        #     np.argwhere(
+        #         (self.cams_pos_vis_vox_indices <= self.cams_vis_vox_indices)
+        #             .all(axis = 0)
+        #     )
+        # )
+        # When using this we sometimes get empty clusters?
+        #return np.logical_and((np.sum(self.cams_vis_vox_indices >= self.cams_pos_vis_vox_indices, axis=0)==4), (np.sum(self.cams_vis_vox_indices, axis=0)>=3))
+        return np.sum(self.cams_vis_vox_indices, axis=0)==4
 
     def reconstruct_voxels(self, masks, prev_masks, frame_num):
-        # masks shape: (4, 486, 644)
+        # masks shape: (4, 486, 644). Reconstructs a single frame
         num_cameras = 4
-        self.possible_visible_voxels_per_cam(masks, num_cameras)
 
         if frame_num == 0:
             for cam in range(num_cameras):
@@ -136,8 +148,6 @@ class VoxelReconstruction:
                     for vox in self.lookup_table[cam][ix][iy]:
                         xyz_index = self.compute_xyz_index(vox)
                         self.cams_vis_vox_indices[cam][xyz_index] = 1
-                        
-            self.all_vis_voxels = self.all_voxels[self.index_visible_voxels()]
         else:
             for cam in range(num_cameras):
                 xor = np.logical_xor(prev_masks[cam], masks[cam])
@@ -150,8 +160,13 @@ class VoxelReconstruction:
                 added_xyz_indices = self.pixels_to_xyz_indices(added_pixels, cam)
                 self.cams_vis_vox_indices[cam][added_xyz_indices] = 1
 
-            self.all_vis_voxels = self.all_voxels[self.index_visible_voxels()]
-            
-            print('frame ' + str(frame_num))
+        # if self.remove_ghosts:
+        #     k= 100 #number of voxels to keep per camera
+        #     visible_distances = self.distance_table * self.cams_vis_vox_indices
+        #     visible_distances[visible_distances==0] =np.Inf #the zero distances are not visible. want them to be at the back of the sorted array
+        #     sorted_voxel_indices_on_cam_distance = np.argsort(visible_distances)
+        #     k_closest_indices = sorted_voxel_indices_on_cam_distance[:,:k]
+
+        self.all_vis_voxels = self.all_voxels[self.index_visible_voxels()]
         return self.all_vis_voxels
 

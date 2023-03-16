@@ -11,13 +11,10 @@ translation_vectors = []  # needs to be filled
 voxels_per_frame = []  # Need te be filled from voxel reconstruction
 frame = 0
 
-def load_parameters_from_pickle(path):
-    with open(path, 'rb') as f:
-        camera_params = pickle.load(f)
-
-        for camera in camera_params:
-            rotation_matrices.append(camera_params[camera]['R'][0])
-            translation_vectors.append(camera_params[camera]['extrinsic_tvec'].reshape(-1))
+def initialise_camera_params(camera_params):
+    for camera in camera_params:
+        rotation_matrices.append(camera_params[camera]['R'][0])
+        translation_vectors.append(camera_params[camera]['extrinsic_tvec'].reshape(-1))
 
 
 def generate_grid(width, depth):
