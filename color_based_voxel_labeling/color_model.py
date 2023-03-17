@@ -15,6 +15,7 @@ class ColorModel(VoxelModel):
         super().__init__(params)
         self.update_model = params['update_model']
         self.torso_size = params['torso_size']
+        
     def clusters_to_colors(self, voxel_clusters, frame, cam, offline=False):
         #Translates 4 clusters of voxels to 4 clusters of HSVs
         color_clusters = []

@@ -1,14 +1,14 @@
 import glm
 import glfw
 from engine.buffer.texture import *
-from color_based_voxel_labeling.engine.base.program import get_linked_program
-from color_based_voxel_labeling.engine.renderable.model import Model
-from color_based_voxel_labeling.engine.buffer.hdrbuffer import HDRBuffer
-from color_based_voxel_labeling.engine.buffer.blurbuffer import BlurBuffer
-from color_based_voxel_labeling.engine.effect.bloom import Bloom
-from color_based_voxel_labeling.assignment import set_voxel_positions, generate_grid, get_cam_positions, get_cam_rotation_matrices
-from color_based_voxel_labeling.engine.camera import Camera
-from color_based_voxel_labeling.engine.config import config
+from engine.base.program import get_linked_program
+from engine.renderable.model import Model
+from engine.buffer.hdrbuffer import HDRBuffer
+from engine.buffer.blurbuffer import BlurBuffer
+from engine.effect.bloom import Bloom
+from assignment import set_voxel_positions, generate_grid, get_cam_positions, get_cam_rotation_matrices
+from engine.camera import Camera
+from engine.config import config
 
 cube, hdrbuffer, blurbuffer, lastPosX, lastPosY = None, None, None, None, None
 firstTime = True

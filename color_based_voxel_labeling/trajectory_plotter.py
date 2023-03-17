@@ -55,6 +55,7 @@ class TrajectoryPlotter():
         plt.pause(0.01)
 
     def get_smooth_trajectories(self, X, Y):
+        return X, Y
         div_window_length = 3
         polyorder = 6
         

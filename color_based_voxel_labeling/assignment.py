@@ -4,13 +4,10 @@ import numpy as np
 
 block_size = 1.0
 voxels_per_frame = []  # Need te be filled from voxel reconstruction
-try:
-    rotation_matrices
-except NameError:
-    rotation_matrices = []  # needs to be filled
-    translation_vectors = []  # needs to be filled
-else:
-    print("huh")
+cluster_sizes = []
+rotation_matrices = []  # needs to be filled
+translation_vectors = []  # needs to be filled
+
 frame = 0
 
 def initialise_camera_params(camera_params):
@@ -33,28 +30,29 @@ def generate_grid(width, depth):
 
 def set_voxel_positions(width, height, depth):
     global frame
-    data, colors = [], []
+    colors = np.empty([1, 3])
+
+    values = [[0, 0, 90], [90, 0, 0], [90, 40, 0], [0, 90, 0]]
     voxels_to_return = voxels_per_frame[frame]
+
+    for i in range(len(cluster_sizes[frame])):
+        x = np.full((cluster_sizes[frame][i], len(values[i])), values[i])
+        colors = np.concatenate((colors, x))
 
     if frame == len(voxels_per_frame) - 1:
         frame = 0
     else:
         frame += 1
 
-    for x in range(width):
-        for y in range(height):
-            for z in range(depth):
-                if random.randint(0, 1000) < 5:
-                    colors.append([x / width, z / depth, y / height])
-
-    return voxels_to_return, colors
+    return voxels_to_return, colors[1:]
 
 def get_cam_positions():
     camera_coords = []
+    camera_colors = [150, 250, 330, 460]
     for i in range(4):
         [x, y, z] = - rotation_matrices[i].T @ translation_vectors[i]
         camera_coords.append([x, -z, y])  # check if this is the correct transformation in camera coords
-    return np.array(camera_coords)
+    return np.array(camera_coords), np.array(camera_colors)
 
 def get_cam_rotation_matrices():
     # Generates dummy camera rotation matrices, looking down 45 degrees towards the center of the room

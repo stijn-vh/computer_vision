@@ -32,6 +32,7 @@ class Clustering:
             voxel_clusters.append(np.take(voxels_with_label, z_idx, axis = 0)[0])
 
         #centers = self.matching_based_on_centres(centers)
+        
         return voxel_clusters, centers, compactness
     
     def find_closest_point_index(self, point):
