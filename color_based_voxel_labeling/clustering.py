@@ -28,13 +28,19 @@ class Clustering:
 
             voxels_with_label = np.take(voxels, label_idx, axis = 0)
 
-            z_idx = np.where(np.logical_and(voxels_with_label[:, 1] > 80, voxels_with_label[:, 1] < 140))
-            voxel_clusters.append(np.take(voxels_with_label, z_idx, axis = 0)[0])
+            voxel_clusters.append(voxels_with_label)
 
         #centers = self.matching_based_on_centres(centers)
         
         return voxel_clusters, centers, compactness
-    
+
+    def get_torsos(self, voxel_clusters):
+        voxel_torsos =[]
+        for cluster in voxel_clusters:
+            z_idx = np.where(np.logical_and(cluster[:, 1] > 80, cluster[:, 1] < 140))
+            voxel_torsos.append(np.take(cluster, z_idx, axis=0)[0])
+        return voxel_torsos
+
     def find_closest_point_index(self, point):
         distances = np.linalg.norm(self.old_centres - point, axis=1)
         min_index = np.argmin(distances)

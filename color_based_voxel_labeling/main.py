@@ -27,21 +27,21 @@ def load_parameters():
     global JH
     JH = JsonHelper()
     camera_params = JH.load_pickle_object("scaled_camera")
-    Assignment.initialise_camera_params(camera_params)
     cam_coords, cam_colors = Assignment.get_cam_positions()
     [max_x, max_y, max_z] = np.max(cam_coords, axis=0).astype(int)
     parameters = {
         'rotation_vectors': [], 'translation_vectors': [], 'intrinsics': [], 'dist_mtx': [],
         'stepsize': 4,
-        'max_frame': 2000,
-        'frame_step':10,
+        'max_frame': 2700,
+        'frame_step':5,
         'cam_numbers': 4,
         'cam_coords': cam_coords,
         'remove_ghosts': False,
         'update_model': True,
         'save_new_offline_model_data' : False,
         'create_new_lookup_table' : False,
-        'show_reconstruction': True
+        'show_reconstruction': True,
+        'update_tolerance' : 0.1
     }
 
     parameters['xb'] = max_x //parameters['stepsize']
@@ -106,22 +106,6 @@ def determine_cameras_masks_frames(videos, frame_number):
 
     return cameras_masks, cameras_frames, cameras_framesBGR
 
-def match_clusters(voxel_clusters, cluster_centres, cameras_frames):
-    matching = CM.matching_for_frame(voxel_clusters, cameras_frames)
-    matched_cluster_centres = CM.match_cluster_centres(cluster_centres, matching)
-    matched_clusters = CM.match_clusters(voxel_clusters, matching)
-
-    clusters_sizes = []
-    flattened_matched_clusters = np.empty([1, 3])
-
-    for m_cluster in np.array(matched_clusters, dtype=object):
-        clusters_sizes.append(len(m_cluster))
-        flattened_matched_clusters = np.concatenate((flattened_matched_clusters, m_cluster))
-
-    flattened_matched_clusters = flattened_matched_clusters[1:]
-
-    return flattened_matched_clusters, matched_cluster_centres, clusters_sizes
-
 def handle_frame(videos, frame_number, prev):
     global C, CM, VR, BS
     print('frame ' + str(frame_number))
@@ -133,18 +117,21 @@ def handle_frame(videos, frame_number, prev):
         voxels = VR.reconstruct_voxels(cameras_masks, prev, frame_number)
 
     voxel_clusters, cluster_centres, compactness = C.cluster(voxels)
+    voxel_torsos = C.get_torsos(voxel_clusters)
 
-    # if params['save_new_offline_model_data']:
-    #     DG.save_offline_model_information(voxel_clusters,cameras_frames, cameras_framesBGR, frame_number)
+    if params['save_new_offline_model_data']:
+        DG.save_offline_model_information(voxel_clusters,cameras_frames, cameras_framesBGR, frame_number)
 
-    # matching[i] = j if cluster i belongs to model/person j
-    flattened_matched_clusters, matched_cluster_centres, clusters_sizes = match_clusters(voxel_clusters, cluster_centres, cameras_frames)
+    matching = CM.matching_for_frame(voxel_torsos, cameras_frames) # matching[i] = j if cluster i belongs to model/person j
+    matched_cluster_centres = CM.match_cluster_centres(cluster_centres, matching)
+    matched_clusters = CM.match_clusters(voxel_clusters, matching)
+    flattened_matched_clusters, clusters_sizes = CM.process_clusters_for_visualisation(matched_clusters)
 
     Assignment.voxels_per_frame.append(flattened_matched_clusters)
     Assignment.cluster_sizes.append(clusters_sizes)
 
     TP.add_to_plot(matched_cluster_centres)
-    #print(matched_cluster_centres)
+    print(matched_cluster_centres)
 
     return cameras_masks
 

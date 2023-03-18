@@ -34,7 +34,7 @@ class OfflineColorModel(ColorModel):
                 gmm.fit(color_clusters[cluster])
                 # For future model updates:
                 gmm.warm_start = True
-                gmm.tol = 0.01
+                gmm.tol = self.update_tolerance
                 offline_color_model.append(gmm)
             cam_offline_color_models.append(offline_color_model)
         return cam_offline_color_models

@@ -24,6 +24,7 @@ class ColorMatcher(OfflineColorModel):
                 print("creating approximate voxel cluster with approximate centre", x_centre, z_centre)
                 np.append(voxel_clusters[cluster], self.approximate_voxel_cluster(x_centre, z_centre), axis=0)
                 self.update_model = False
+
     def color_model_scores(self, color_clusters, cam):
         scores = np.zeros((4, 4))
         for model in range(4):
@@ -67,5 +68,17 @@ class ColorMatcher(OfflineColorModel):
                     self.cam_offline_color_models[cam][model].fit(
                         cam_color_clusters[cam][np.where(matching == model)[0][0]])
         self.update_model = True  # If it was set to false with an approximate cluster
-        return matching
 
+        return matching     # matching[i] = j if cluster i belongs to model/person j
+
+    def process_clusters_for_visualisation(self, matched_clusters):
+        clusters_sizes = []
+        flattened_matched_clusters = np.empty([1, 3])
+
+        for m_cluster in np.array(matched_clusters, dtype=object):
+            clusters_sizes.append(len(m_cluster))
+            flattened_matched_clusters = np.concatenate((flattened_matched_clusters, m_cluster))
+
+        flattened_matched_clusters = flattened_matched_clusters[1:]
+
+        return flattened_matched_clusters, clusters_sizes
