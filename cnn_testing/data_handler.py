@@ -1,0 +1,1 @@
+#Imports fashion mnist dataset, split into train and test data, possibly perform preprocessing and augmentation
