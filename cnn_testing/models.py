@@ -1,24 +1,54 @@
 #Five models with slightly different architectures
+from keras import Input
+from keras import Model
+from keras.layers import Conv2D, AveragePooling2D, Flatten, Dense, Activation, BatchNormalization, Dropout
+from keras.losses import SparseCategoricalCrossentropy
 
-from keras.layers import Conv2D, Dropout, MaxPooling2D, Conv2DTranspose, Concatenate, Input, BatchNormalization, Activation
-
-#Input -> Convolutional -> BatchNormalization -> Pooling -> Dropout -> Convolutional
-# -> ReLU Activation -> Pooling -> Flatten -> Dense -> Dense (Output)
-
-def model(input_shape= (28,28,1), n_classes = 10, batch_size =32,
-          action_function = "tanh", batch_norm = False, kernel_size = (5,5), num_filters = []):
-
-    inputs = Input(shape = input_shape, batch_size = batch_size)
-    x = Conv2D( # Number of filters
-                  kernel_size,
-                  padding='same',
-                  kernel_initializer='he_normal')(inputs)
+def conv_block(x, conv1_filters, conv1_kernel_size, activation_function, batch_norm, pool_size, pool_stride):
+    x = Conv2D(conv1_filters,
+               conv1_kernel_size,
+               padding = 'same')(x)
     if batch_norm:
         x = BatchNormalization()(x)
-    x = Activation(action_function)(x)
+    out = Activation(activation_function)(x)
+    return out
 
+def cnn_model(input_shape=(28, 28, 1), num_classes=10,
+            conv1_filters=6, conv1_kernel_size=(5, 5),
+            pool_size=(2, 2),
+            pool_stride= (2,2),
+            conv2_filters=16, conv2_kernel_size=(5, 5),
+            dense1_units=120,
+            dense2_units=84,
+            activation_function= "tanh",
+            batch_norm = False,
+            dropout_rate = 0):
+    #The default parameters define the lenet-5 model.
 
-    model = model(inputs= inputs, output = x)
+    inputs = Input(shape=input_shape)
+
+    x = conv_block(inputs, conv1_filters, conv1_kernel_size, activation_function, batch_norm, pool_size, pool_stride)
+    x = AveragePooling2D(pool_size=pool_size, strides=pool_stride)(x)
+    x = conv_block(x, conv2_filters, conv2_kernel_size, activation_function, batch_norm, pool_size, pool_stride)
+    x = AveragePooling2D(pool_size=pool_size, strides=pool_stride)(x)
+
+    x = Flatten()(x)
+    x = Dense(dense1_units,
+              activation=activation_function)(x)
+    if dropout_rate>0:
+        x = Dropout(dropout_rate)(x)
+    x = Dense(dense2_units,
+              activation=activation_function)(x)
+    # if dropout_rate>0:
+    #     x = Dropout(dropout_rate)(x)
+    outputs = Dense(num_classes)(x)
+
+    model = Model(inputs=inputs,
+                  outputs=outputs)
+
+    model.compile(optimizer='adam',
+                  loss=SparseCategoricalCrossentropy(from_logits=True),
+                  metrics=['accuracy'])
+
     return model
 
-def model_dropout():
