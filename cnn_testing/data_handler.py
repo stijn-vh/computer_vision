@@ -11,7 +11,7 @@ def load_mnist_data():
     (X_train_full, Y_train_full), (X_test, Y_test) = fashion_mnist.load_data()
 
     # Split the full training set into training and validation sets
-    X_train, X_valid, Y_train, Y_valid = train_test_split(X_train_full, Y_train_full, test_size=0.2, random_state=42)
+    X_train, X_valid, Y_train, Y_valid = train_test_split(X_train_full, Y_train_full, test_size=0.5, random_state=25)
 
     # Normalize the pixel values to be between 0 and 1
     X_train = grayscale_images(X_train)
