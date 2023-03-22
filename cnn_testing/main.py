@@ -8,8 +8,8 @@ from json_helper import JsonHelper
 
 JH = JsonHelper()
 
-EPOCHS = 10
-LOAD_MODEL = False
+EPOCHS = 1
+LOAD_MODEL = True
 
 X_train, X_valid, X_test, Y_train, Y_valid, Y_test = load_mnist_data()
 
@@ -25,15 +25,15 @@ base_model.compile(optimizer='adam',
 if LOAD_MODEL:
     print("loading model")
     base_model.load_weights(saved_model_path)
-    history = JH.load_from_json(history_path)
+    history = JH.load_pickle_object(history_path)
 else:
     print("fitting model")
     history = base_model.fit(X_train, Y_train, epochs=EPOCHS, validation_data=(X_valid, Y_valid), verbose=1,
                              callbacks=[callback])
-    JH.save_to_json(history_path, history)
+    JH.pickle_object(history_path, history)
 
-plt.plot(base_model.history["accuracy"], base_model.history["val_accuracy"])
-plt.plot(base_model.history["val_loss"], base_model.history["loss"])
+plt.plot(history["accuracy"], history["val_accuracy"])
+plt.plot(history["val_loss"], history["loss"])
 
 out = base_model.evaluate(X_test, Y_test)
 

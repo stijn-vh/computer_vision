@@ -19,3 +19,12 @@ class JsonHelper:
             data = json.load(handle)
         return data
 
+    def pickle_object(self, name, object):
+        with open(name + '.pickle', 'wb') as handle:
+            pickle.dump(object, handle, pickle.HIGHEST_PROTOCOL)
+
+    def load_pickle_object(self, name):
+        with open(name + '.pickle', 'rb') as handle:
+            return pickle.load(handle)
+
+
