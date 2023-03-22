@@ -8,13 +8,13 @@ from json_helper import JsonHelper
 
 JH = JsonHelper()
 
-EPOCHS = 15
+EPOCHS = 10
 LOAD_MODEL = False
 
 X_train, X_valid, X_test, Y_train, Y_valid, Y_test = load_mnist_data()
 
-saved_model_path = "saved_base_model"
-history_path = "base_model_history"
+saved_model_path = "saved_data/saved_base_model"
+history_path = "saved_data/base_model_history"
 callback = tf.keras.callbacks.ModelCheckpoint(filepath=saved_model_path, verbose=1, save_best_only=True)
 
 # Base model

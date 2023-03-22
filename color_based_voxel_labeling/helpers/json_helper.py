@@ -11,18 +11,18 @@ class NumpyEncoder(json.JSONEncoder):
 
 class JsonHelper:
     def save_to_json(self, name, object):
-        with open("data//saved_data//" +name + '.json', 'w') as handle:
+        with open("saved_data//saved_data//" +name + '.json', 'w') as handle:
             json.dump(object, handle, cls=NumpyEncoder)
 
     def load_from_json(self, name):
-        with open("data//saved_data//" +name + '.json') as handle:
+        with open("saved_data//saved_data//" +name + '.json') as handle:
             data = json.load(handle)
         return data
 
     def pickle_object(self, name, object):
-        with open("data//saved_data//"+ name + '.pickle', 'wb') as handle:
+        with open("saved_data//saved_data//"+ name + '.pickle', 'wb') as handle:
             pd.to_pickle(object)
 
     def load_pickle_object(self, name):
-        with open("data//saved_data//" +name + '.pickle', 'rb') as handle:
+        with open("saved_data//saved_data//" +name + '.pickle', 'rb') as handle:
             return pickle.load(handle)

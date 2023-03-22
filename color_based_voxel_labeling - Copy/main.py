@@ -142,7 +142,7 @@ def handle_videos(params):
     videos = []
 
     for i in range(params['cam_numbers']):
-        videos.append(cv.VideoCapture(os.path.dirname(__file__) + "\\data\\cam" + str(i + 1) + "\\video.avi"))
+        videos.append(cv.VideoCapture(os.path.dirname(__file__) + "\\saved_data\\cam" + str(i + 1) + "\\video.avi"))
 
     prev_cameras_masks = []
 
