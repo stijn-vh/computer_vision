@@ -2,13 +2,32 @@
 import matplotlib.pyplot as plt
 from models import cnn_model
 from data_handler import load_mnist_data
+from keras.losses import SparseCategoricalCrossentropy
+import tensorflow as tf
+
+EPOCHS =10
+LOAD_MODEL = True
+
 
 X_train, X_valid, X_test, Y_train, Y_valid, Y_test = load_mnist_data()
 
+saved_model_path = "saved_base_model"
+callback = tf.keras.callbacks.ModelCheckpoint(filepath=saved_model_path, verbose=1, save_best_only=True)
+
+
 #Base model
 base_model = cnn_model()
-history = base_model.fit(X_train, Y_train, epochs = 3)
-plt.plot(history.history["accuracy"])
+base_model.compile(optimizer='adam',
+              loss=SparseCategoricalCrossentropy(from_logits=True),
+              metrics=['accuracy'])
+if LOAD_MODEL:
+    print("loading model")
+    base_model.load_weights(saved_model_path)
+else:
+    print("fitting model")
+    history = base_model.fit(X_train, Y_train, epochs = EPOCHS,  validation_data=(X_valid, Y_valid), verbose=1, callbacks=[callback])
+    plt.plot(base_model.history["accuracy"], base_model.history["val_accuracy"])
+    plt.plot(base_model.history["val_loss"], base_model.history["loss"] )
 
 out = base_model.evaluate(X_test, Y_test)
 
