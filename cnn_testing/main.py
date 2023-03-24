@@ -8,6 +8,8 @@ import tensorflow as tf
 from json_helper import JsonHelper
 
 
+print('Tensorflow version:', tf.__version__)
+
 def make_plots(histories, plot_titles, stop_epochs):
     stop_epochs = np.array(stop_epochs)-1 #Because plotting is from epoch 0 to 14 instead of 1 to 15
     for i in range(len(histories)):
