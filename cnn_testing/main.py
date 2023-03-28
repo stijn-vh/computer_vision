@@ -11,9 +11,9 @@ import os
 
 hyper_params = {
     "train_epochs": 15,
-    "batch_size": 10,
+    "batch_size": 32,
     "early_stopping": tf.keras.callbacks.EarlyStopping(monitor='val_loss',
-                                                       patience=10,
+                                                       patience=15,
                                                        verbose=1,
                                                        restore_best_weights=True)
 }
