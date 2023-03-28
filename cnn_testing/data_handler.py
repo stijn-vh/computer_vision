@@ -7,7 +7,6 @@ def grayscale_images(images):
     return images.astype('float32') / 255
 
 def load_mnist_data():
-    print("loading data")
     # Load the Fashion MNIST dataset from Keras
     (X_train_full, Y_train_full), (X_test, Y_test) = fashion_mnist.load_data()
 

@@ -3,80 +3,54 @@ import matplotlib.pyplot as plt
 from models import cnn_model
 from data_handler import load_mnist_data
 import numpy as np
+from keras.optimizers import Adam
 
 import tensorflow as tf
 from json_helper import JsonHelper
+import os
+
+hyper_params = {
+    "train_epochs": 15,
+    "batch_size": 10,
+    "early_stopping": tf.keras.callbacks.EarlyStopping(monitor='val_loss',
+                                                       patience=10,
+                                                       verbose=1,
+                                                       restore_best_weights=True)
+}
+
+def get_callbacks(model_name):
+    checkpoint_path = "./saved_data/" + model_name + "/weights"
+    tensor_board_path = "./saved_data/" + model_name + "/tensor_board_logs"
+    checkpoint = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path, verbose=1, save_best_only=True,
+                                                    save_weights_only=True)
+    tensor_board = tf.keras.callbacks.TensorBoard(
+        log_dir=tensor_board_path,
+        write_images=True, write_steps_per_second=True, histogram_freq=1)
+    return [checkpoint, tensor_board, hyper_params["early_stopping"]]
 
 
-print('Tensorflow version:', tf.__version__)
-
-def make_plots(histories, plot_titles, stop_epochs):
-    stop_epochs = np.array(stop_epochs)-1 #Because plotting is from epoch 0 to 14 instead of 1 to 15
-    for i in range(len(histories)):
-        plt.figure()
-        plt.plot(histories[i]["accuracy"], "b", label="training accuracy")
-        plt.plot(histories[i]["val_accuracy"], "r", label="validation accuracy")
-        plt.vlines(stop_epochs[i], 0.75, 1, "g", label="early stopping")
-        plt.legend()
-        plt.xlabel("epochs")
-        plt.ylabel("accuracy")
-        plt.title(plot_titles[i])
-        plt.show()
-
-        plt.figure()
-        plt.plot(histories[i]["loss"], "b", label="training loss")
-        plt.plot(histories[i]["val_loss"], "r", label="validation loss")
-        plt.vlines(stop_epochs[i], 0.75, 0, "g", label="early stopping")
-        plt.legend()
-        plt.xlabel("epochs")
-        plt.ylabel("loss")
-        plt.title(plot_titles[i])
-        plt.show()
+def train_new_model(model, model_name, X_train, X_valid, Y_train, Y_valid):
+    print("training model ", model_name)
+    callbacks = get_callbacks(model_name)
+    model.fit(X_train, Y_train, epochs=hyper_params["train_epochs"], batch_size=hyper_params["batch_size"], validation_data=(X_valid, Y_valid), verbose=1,
+              callbacks=callbacks)
 
 
-def load_and_plot_models():
+def train_models(models, models_names):
     X_train, X_valid, X_test, Y_train, Y_valid, Y_test = load_mnist_data()
-    print("loading models")
-    plot_titles = ["base_model", "dropout_model", "relu_model","extra_conv_model", "batch_norm_model"]
-    stop_epochs = [8, 15, 13, 9, 10]
-    base_model = cnn_model()
-    dropout_model = cnn_model(dropout_rate=0.3)
-    relu_model = cnn_model(activation_function="relu")
-    extra_conv_model = cnn_model(extra_conv=True)
-    batch_norm_model = cnn_model(batch_norm=True)
-    models = [base_model, dropout_model, relu_model,extra_conv_model, batch_norm_model]
-    model_paths = ["./saved_data/base_model", "./saved_data/dropout_model", "./saved_data/relu_model","./saved_data/extra_conv_model","./saved_data/batch_norm_model"]
-    history_paths = ["./saved_data/base_history", "./saved_data/dropout_history", "./saved_data/relu_history","./saved_data/extra_conv_history","./saved_data/batch_norm_history"]
+    if not os.path.isdir('./saved_data'):
+        os.mkdir('./saved_data')
 
-    histories = []
     for i in range(len(models)):
-        models[i].load_weights(model_paths[i]).expect_partial()
-        print(plot_titles[i], "training loss and accuracy are ", models[i].evaluate(X_train, Y_train))
-        print(plot_titles[i], "validation loss and accuracy are ", models[i].evaluate(X_valid, Y_valid))
-        histories.append(JH.load_pickle_object(history_paths[i]))
-
-    make_plots(histories, plot_titles, stop_epochs)
-
-
-def train_new_model(model, model_path, history_path, epochs=15):
-    X_train, X_valid, X_test, Y_train, Y_valid, Y_test = load_mnist_data()
-    callback = tf.keras.callbacks.ModelCheckpoint(filepath=model_path, verbose=1, save_best_only=True, save_weights_only=True)
-
-    history = model.fit(X_train, Y_train, epochs=epochs, validation_data=(X_valid, Y_valid), verbose=1,
-                        callbacks=[callback])
-    history = history.history
-    JH.pickle_object(history_path, history)
+        if os.path.isdir(os.path.join('./saved_data', models_names[i])):
+            continue
+        train_new_model(models[i], models_names[i], X_train, X_valid, Y_train, Y_valid)
+    return
 
 
 if __name__ == '__main__':
-    JH = JsonHelper()
+    models = [cnn_model(), cnn_model(extra_conv=True), cnn_model(activation_function="relu"),
+              cnn_model(dropout_rate=0.3), cnn_model(batch_norm=True)]
+    models_names = ["base_model", "extra_conv_model", "relu_model", "dropout_model", "batch_norm_model"]
 
-    load_and_plot_models()
-
-    # new_model = cnn_model(batch_norm=True)
-    # new_model_path = "./saved_data/batch_norm_model"
-    # new_history_path = "./saved_data/batch_norm_history"
-    # train_new_model(new_model, new_model_path, new_history_path)
-
-
-
+    train_models(models, models_names)
