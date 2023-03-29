@@ -43,8 +43,7 @@ def cnn_model(input_shape=(28, 28, 1), num_classes=10,
     inputs = Input(shape=input_shape)
     if data_augmentation:
         trainAug = Sequential([
-            Rescaling(scale=1.0 / 255),
-            RandomFlip("horizontal_and_vertical"),
+            RandomFlip("horizontal"),
             RandomZoom(
                 height_factor=(-0.05, -0.15),
                 width_factor=(-0.05, -0.15)),

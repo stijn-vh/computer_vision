@@ -16,16 +16,16 @@ hyper_params = {
     "early_stopping": tf.keras.callbacks.EarlyStopping(monitor='val_loss',
                                                        patience=15,
                                                        verbose=1,
-                                                       restore_best_weights=True)
+                                                       restore_best_weights=True),
+    "use_lr_scheduler" : False
 }
 
 current_lr = 1
 count = 0
 def learn_rate_scheduler(epoch):
     global count, current_lr
-
     if count == 5:
-        current_lr / 2
+        current_lr = current_lr / 2
         count = 0
     else:
         count += 1
@@ -46,7 +46,10 @@ def get_callbacks(model_name):
     tensor_board = tf.keras.callbacks.TensorBoard(
         log_dir=tensor_board_path,
         write_images=True, write_steps_per_second=True, histogram_freq=1)
-    return [checkpoint, tensor_board, hyper_params["early_stopping"], get_learning_rate_scheduler()]
+    if hyper_params["use_lr_scheduler"]:
+        return [checkpoint, tensor_board, hyper_params["early_stopping"], get_learning_rate_scheduler()]
+    else:
+        return [checkpoint, tensor_board, hyper_params["early_stopping"]]
 
 
 def load_models(models, models_names):
@@ -122,7 +125,14 @@ if __name__ == '__main__':
     models_names = ["base_model", "extra_conv_model", "relu_model", "dropout_model", "batch_norm_model"]
     # train_models(models, models_names)
 
-    combined_model = cnn_model(activation_function="relu", dropout_rate=0.3, batch_norm=True, data_augmentation=True)
-    analyse_best(combined_model, "combined_model_30_aug", epochs=30)
+    # lr_relu = cnn_model(activation_function="relu")
+    #hyper_params["use_lr_scheduler"] = True
+    # train_models([lr_relu], ["relu_model_lr"])
+
+    aug_relu = cnn_model(activation_function="relu", data_augmentation=True)
+    train_models([aug_relu], ["relu_model_aug"])
+
+    #combined_model = cnn_model(activation_function="relu", dropout_rate=0.3, batch_norm=True, data_augmentation=True)
+    #analyse_best(combined_model, "combined_model_30_aug", epochs=30)
     # analyse_best(models[2], models_names[2]+"_trainval", epochs = 12)
     # analyse_best(models[4], models_names[4]+"_trainval",  epochs = 14)
