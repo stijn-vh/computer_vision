@@ -4,7 +4,7 @@ from keras import Model
 from keras.layers import Conv2D, AveragePooling2D, Flatten, Dense, Activation, BatchNormalization, Dropout
 from keras.losses import SparseCategoricalCrossentropy
 from keras.metrics.accuracy_metrics import TopKCategoricalAccuracy
-
+import math
 
 def conv_block(x, conv1_filters, conv1_kernel_size, activation_function, batch_norm, padding):
     x = Conv2D(conv1_filters,
@@ -56,7 +56,6 @@ def cnn_model(input_shape=(28, 28, 1), num_classes=10,
     model = Model(inputs=inputs,
                   outputs=outputs)
 
-    
     model.compile(optimizer='adam',
                   loss=SparseCategoricalCrossentropy(from_logits=True),
                   metrics=['accuracy', TopKCategoricalAccuracy(1)])
