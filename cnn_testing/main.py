@@ -1,7 +1,7 @@
 # instantiating the models, compiling and training them. using tests to generate results
 import matplotlib.pyplot as plt
 from models import cnn_model
-from data_handler import load_mnist_data
+from data_handler import load_mnist_data, augment_data
 import numpy as np
 from keras.optimizers import Adam
 from keras.callbacks import LearningRateScheduler
@@ -11,17 +11,19 @@ from json_helper import JsonHelper
 import os
 
 hyper_params = {
-    "train_epochs": 15,
+    "train_epochs": 30,
     "batch_size": 32,
     "early_stopping": tf.keras.callbacks.EarlyStopping(monitor='val_loss',
                                                        patience=15,
                                                        verbose=1,
                                                        restore_best_weights=True),
-    "use_lr_scheduler" : False
+    "use_lr_scheduler": False
 }
 
 current_lr = 1
 count = 0
+
+
 def learn_rate_scheduler(epoch):
     global count, current_lr
     if count == 5:
@@ -32,8 +34,10 @@ def learn_rate_scheduler(epoch):
 
     return float(current_lr)
 
+
 def get_learning_rate_scheduler():
     return LearningRateScheduler(learn_rate_scheduler)
+
 
 stop_epochs = [9, 9, 12, 15, 14]
 
@@ -111,6 +115,19 @@ def train_models(models, models_names):
     return
 
 
+def train_augmented_model(model, model_name):
+    X_train, X_valid, X_test, Y_train, Y_valid, Y_test = load_mnist_data()
+    if not os.path.isdir(os.path.join('./saved_data', model_name)):
+        print("training model ", model_name, "with data augmentation")
+        train_data = augment_data(X_train, Y_train)
+        callbacks = get_callbacks(model_name)
+        model.fit(train_data, epochs=hyper_params["train_epochs"], batch_size=hyper_params["batch_size"],
+                  validation_data=(X_valid, Y_valid), verbose=1,
+                  callbacks=callbacks)
+    load_models([model], [model_name])
+    evaluate_models([model], [model_name], X_train, X_valid, Y_train, Y_valid)
+
+
 def model_test(model, X_test, Y_test):
     Y_pred = model.predict(X_test)
     Y_pred = np.argmax(tf.nn.softmax(Y_pred, axis=-1), axis=-1)
@@ -120,19 +137,26 @@ def model_test(model, X_test, Y_test):
 
 
 if __name__ == '__main__':
+    # Initializing the 5 model variants
     models = [cnn_model(), cnn_model(extra_conv=True), cnn_model(activation_function="relu"),
               cnn_model(dropout_rate=0.3), cnn_model(batch_norm=True)]
     models_names = ["base_model", "extra_conv_model", "relu_model", "dropout_model", "batch_norm_model"]
-    # train_models(models, models_names)
 
+    # Training the models, saving the weights/tensorboards and evaluating the models
+    train_models(models, models_names)
+
+    # Training the relu model with a different learning rate.
     # lr_relu = cnn_model(activation_function="relu")
-    #hyper_params["use_lr_scheduler"] = True
+    # hyper_params["use_lr_scheduler"] = True
     # train_models([lr_relu], ["relu_model_lr"])
+    # hyper_params["use_lr_scheduler"] = False
 
-    aug_relu = cnn_model(activation_function="relu", data_augmentation=True)
-    train_models([aug_relu], ["relu_model_aug"])
+    # Training the relu model with augmented data.
+    # aug_relu = cnn_model(activation_function="relu")
+    # train_augmented_model(aug_relu, "relu_model_aug_less")
 
-    #combined_model = cnn_model(activation_function="relu", dropout_rate=0.3, batch_norm=True, data_augmentation=True)
-    #analyse_best(combined_model, "combined_model_30_aug", epochs=30)
+    # Analyzing the best architectures trained on train+val and tested on the test data.
+    # combined_model = cnn_model(activation_function="relu", dropout_rate=0.3, batch_norm=True)
+    # analyse_best(combined_model, "combined_model_30", epochs=30)
     # analyse_best(models[2], models_names[2]+"_trainval", epochs = 12)
     # analyse_best(models[4], models_names[4]+"_trainval",  epochs = 14)

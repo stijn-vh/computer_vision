@@ -3,8 +3,7 @@ from keras import Input
 from keras import Model
 from keras.layers import Conv2D, AveragePooling2D, Flatten, Dense, Activation, BatchNormalization, Dropout
 from keras.losses import SparseCategoricalCrossentropy
-from keras.layers import Rescaling, RandomZoom, RandomFlip, RandomRotation
-from keras import Sequential
+
 from keras.metrics.accuracy_metrics import TopKCategoricalAccuracy
 import math
 
@@ -36,24 +35,11 @@ def cnn_model(input_shape=(28, 28, 1), num_classes=10,
               activation_function="tanh",
               extra_conv=False,
               batch_norm=False,
-              dropout_rate=0,
-              data_augmentation=False):
+              dropout_rate=0):
     # The default parameters define the lenet-5 model.
 
     inputs = Input(shape=input_shape)
-    if data_augmentation:
-        trainAug = Sequential([
-            RandomFlip("horizontal"),
-            RandomZoom(
-                height_factor=(-0.05, -0.15),
-                width_factor=(-0.05, -0.15)),
-            RandomRotation(0.3)
-        ])
-        x = trainAug(inputs)
-    else:
-        x = inputs
-
-    x = conv_block(x, conv1_filters, conv1_kernel_size, activation_function, batch_norm, padding='same')
+    x = conv_block(inputs, conv1_filters, conv1_kernel_size, activation_function, batch_norm, padding='same')
     x = AveragePooling2D(pool_size=pool_size, strides=pool_stride)(x)
     x = conv_block(x, conv2_filters, conv2_kernel_size, activation_function, batch_norm, padding='valid')
     x = AveragePooling2D(pool_size=pool_size, strides=pool_stride)(x)
