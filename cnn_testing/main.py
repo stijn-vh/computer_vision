@@ -30,7 +30,7 @@ def learn_rate_scheduler(epoch):
     else:
         count += 1
     
-    return current_lr
+    return float(current_lr)
 
 def get_learning_rate_scheduler():
     return LearningRateScheduler(learn_rate_scheduler)
