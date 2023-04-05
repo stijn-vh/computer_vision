@@ -5,21 +5,23 @@ from sklearn.model_selection import train_test_split
 import os
 import torchvision
 import torch.nn.functional as F
-import torchvision.transforms as transforms
+import torchvision.transforms as T
 import torch.optim as optim
 from torch.utils.data import random_split, DataLoader
+
 import torch
-import transforms as T
+
 import cv2 as cv
 
 keep_stanford40 = ["applauding", "climbing", "drinking", "jumping", "pouring_liquid", "riding_a_bike", "riding_a_horse", 
         "running", "shooting_an_arrow", "smoking", "throwing_frisby", "waving_hands"]
-with open('Stanford40/ImageSplits/train.txt', 'r') as f:
+
+with open('data/Stanford40/ImageSplits/train.txt', 'r') as f:
     # We won't use these splits but split them ourselves
     train_files = [file_name for file_name in list(map(str.strip, f.readlines())) if '_'.join(file_name.split('_')[:-1]) in keep_stanford40]
     train_labels = ['_'.join(name.split('_')[:-1]) for name in train_files]
 
-with open('Stanford40/ImageSplits/test.txt', 'r') as f:
+with open('data/Stanford40/ImageSplits/test.txt', 'r') as f:
     # We won't use these splits but split them ourselves
     test_files = [file_name for file_name in list(map(str.strip, f.readlines())) if '_'.join(file_name.split('_')[:-1]) in keep_stanford40]
     test_labels = ['_'.join(name.split('_')[:-1]) for name in test_files]
@@ -30,6 +32,7 @@ all_labels = train_labels + test_labels
 train_files, test_files = train_test_split(all_files, test_size=0.1,random_state=0, stratify=all_labels)
 train_labels = ['_'.join(name.split('_')[:-1]) for name in train_files]
 test_labels = ['_'.join(name.split('_')[:-1]) for name in test_files]
+
 print(f'Train files ({len(train_files)}):\n\t{train_files}')
 print(f'Train labels ({len(train_labels)}):\n\t{train_labels}\n'\
       f'Train Distribution:{list(Counter(sorted(train_labels)).items())}\n')
@@ -41,10 +44,8 @@ print(f'Action categories ({len(action_categories)}):\n{action_categories}')
 
 """### Visualize a photo from the training files and also print its label"""
 
-
-
 image_no = 234  # change this to a number between [0, 1200] and you can see a different training image
-img = cv.imread(f'Stanford40/JPEGImages/{train_files[image_no]}')
+img = cv.imread(f'/data/Stanford40/JPEGImages/{train_files[image_no]}')
 print(f'An image with the label - {train_labels[image_no]}')
 cv.imshow(img)
 
@@ -52,6 +53,8 @@ cv.imshow(img)
 
 keep_hmdb51 = ["clap", "climb", "drink", "jump", "pour", "ride_bike", "ride_horse", 
         "run", "shoot_bow", "smoke", "throw", "wave"]
+
+# Already downloaded and unrarred everything
 for files in os.listdir('video_data'):
     foldername = files.split('.')[0]
     if foldername in keep_hmdb51:
@@ -76,11 +79,11 @@ transform_test = transforms.Compose([
                                  T.CenterCrop((172, 172))])
 
 
-hmdb51_train = torchvision.datasets.HMDB51('video_data/', 'test_train_splits/', num_frames, frame_rate=5,
+hmdb51_train = torchvision.datasets.HMDB51('data/hmdb51_org/', 'testTrainMulti_7030_splits/', num_frames, frame_rate=5,
                                                 step_between_clips = clip_steps, fold=1, train=True,
                                                 transform=transform, num_workers=2)
 
-hmdb51_test = torchvision.datasets.HMDB51('video_data/', 'test_train_splits/', num_frames, frame_rate=5,
+hmdb51_test = torchvision.datasets.HMDB51('data/hmdb51_org/', 'testTrainMulti_7030_splits/', num_frames, frame_rate=5,
                                                 step_between_clips = clip_steps, fold=1, train=False,
                                                 transform=transform_test, num_workers=2)
 
