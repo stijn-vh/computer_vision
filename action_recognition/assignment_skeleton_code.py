@@ -5,12 +5,13 @@ from sklearn.model_selection import train_test_split
 import os
 import torchvision
 import torch.nn.functional as F
-from torchvision import transforms
 import torch.optim as optim
 from torch.utils.data import random_split, DataLoader
-
 import torch
 import cv2 as cv
+import torchvision.transforms as transforms
+
+import transforms as T
 
 if __name__ == '__main__':
 
@@ -63,12 +64,12 @@ if __name__ == '__main__':
 
     # torchvision.transforms.ToFloatTensorInZeroOne(),
 
-    transform = transforms.Compose([
-                                    transforms.Resize((200, 200)),
-                                    transforms.RandomCrop((172, 172))])
-    transform_test = transforms.Compose([
-                                         transforms.Resize((200, 200)),
-                                         transforms.CenterCrop((172, 172))])
+    transform = transforms.Compose([T.ToFloatTensorInZeroOne(),
+                                    T.Resize((200, 200)),
+                                    T.RandomCrop((172, 172))])
+    transform_test = transforms.Compose([T.ToFloatTensorInZeroOne(),
+                                         T.Resize((200, 200)),
+                                         T.CenterCrop((172, 172))])
 
     hmdb51_train = torchvision.datasets.HMDB51('data/hmdb51_org', 'data/testTrainMulti_7030_splits/', num_frames,
                                                frame_rate=5,
