@@ -3,6 +3,7 @@ from keras import Input
 from keras import Model
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Activation, BatchNormalization, Dropout
 from keras.losses import SparseCategoricalCrossentropy
+from single_stream_model import conv_block
 
 conv1_params = {
     'filters': 96,
@@ -54,7 +55,7 @@ def fully_connected(x, params):
         
     return Activation(params['act_func'])(x)
 
-def create_stream_model(input_shape):
+def create_first_four_conv_blocks(input_shape):
     inputs = Input(shape = input_shape)
 
     conv1 = conv_block(inputs, conv1_params)
@@ -67,20 +68,29 @@ def create_stream_model(input_shape):
     conv3 = conv_block(conv2, conv34_params)
     conv4 = conv_block(conv3, conv34_params)
 
-    conv5_params = conv34_params
-    conv5_params['pooling_size'] = (2, 2)
-    conv5_params['pooling_strides'] = (1, 1)
+    return conv4, inputs
 
-    conv5 = conv_block(conv4, conv5_params)
-
-    flatten = Flatten(conv5)
+def create_dense_layers(x):
+    flatten = Flatten(x)
 
     fc1 = fully_connected(flatten, fc_params)
 
     fc_params['units'] = 2048
     fc2 = fully_connected(fc1, fc_params)
 
-    outputs = Activation('softmax')(fc2)
+    return Activation('softmax')(fc2)
+
+
+def create_stream_model(input_shape):
+    conv4, inputs = create_first_four_conv_blocks(input_shape)
+
+    conv5_params = conv34_params
+    conv5_params['pooling_size'] = (2, 2)
+    conv5_params['pooling_strides'] = (1, 1)
+
+    conv5 = conv_block(conv4, conv5_params)
+
+    outputs = create_dense_layers(conv5)
 
     model = Model(inputs, outputs)
     model.compile(optimizer = 'adam',
