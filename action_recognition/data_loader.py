@@ -12,7 +12,6 @@ import numpy as np
 import re
 
 
-
 class DataLoader:
     def __init__(self, data_params):
         self.image_size = data_params["image_size"]
@@ -22,13 +21,21 @@ class DataLoader:
         self.val_size = data_params["val_size"]
         self.names_to_ints = None
         self.data_directory = None
+        self.train_augmentation = {"rotation_range": 10,
+                                   "horizontal_flip": True,
+                                   "width_shift_range": 0.2,
+                                   "height_shift_range": 0.2,
+                                   "zoom_range": 0.2,
+                                   "brightness_range": [0.7, 1.3]}
+        self.no_augmentation = {"rotation_range": 0,
+                                "horizontal_flip": False,
+                                "width_shift_range": 0,
+                                "height_shift_range": 0,
+                                "zoom_range": 0,
+                                "brightness_range": None}
 
-    def _print_info(self, train_labels, val_labels, test_labels):
-        print(f'Train Distribution:{list(Counter(sorted(train_labels)).items())}\n')
-        print(f'Validation Distribution:{list(Counter(sorted(val_labels)).items())}\n')
-        print(f'Test Distribution:{list(Counter(sorted(test_labels)).items())}\n')
-        action_categories = sorted(list(set(train_labels)))
-        print(f'Action categories ({len(action_categories)}):\n{action_categories}')
+    def get_image_generators(self):
+        raise NotImplementedError
 
     def _split_files_labels(self, all_files, all_labels):
         # Redo the split to obtain train/val/test sets. test set is 10% of total, validation is 9% of total (10% of remaining).
@@ -61,21 +68,37 @@ class StanfordLoader(DataLoader):
         train_files, train_labels, val_files, val_labels, test_files, test_labels = self._get_im_files_labels()
         if self.print_info:
             self._print_info(train_labels, val_labels, test_labels)
-        train_generator = self._files_labels_to_datagen(train_files, train_labels)
-        val_generator = self._files_labels_to_datagen(val_files, val_labels)
-        test_generator = self._files_labels_to_datagen(test_files, test_labels)
+        train_generator = self._files_labels_to_datagen(train_files, train_labels, use_data_augmentation=True)
+        val_generator = self._files_labels_to_datagen(val_files, val_labels, use_data_augmentation=False)
+        test_generator = self._files_labels_to_datagen(test_files, test_labels, use_data_augmentation=False)
         return train_generator, val_generator, test_generator
 
-    def _files_labels_to_datagen(self, files, labels):
+    def _files_labels_to_datagen(self, files, labels, use_data_augmentation):
+        if use_data_augmentation:
+            aug_params = self.train_augmentation
+        else:
+            aug_params = self.no_augmentation
         int_labels = self._labels_to_intlabels(labels)
         df = pd.DataFrame(list(zip(files, int_labels)),
                           columns=['file_name', 'label'])
-        datagen = ImageDataGenerator(rescale=1. / 255)
+        datagen = ImageDataGenerator(preprocessing_function=self.rgb_to_bgr,
+                                     rescale=1. / 255,
+                                     rotation_range=aug_params["rotation_range"],
+                                     horizontal_flip=aug_params["horizontal_flip"],
+                                     width_shift_range=aug_params["width_shift_range"],
+                                     height_shift_range=aug_params["height_shift_range"],
+                                     brightness_range=aug_params["brightness_range"],
+                                     zoom_range=aug_params["zoom_range"]
+                                     )
         generator = datagen.flow_from_dataframe(dataframe=df, directory=self.data_directory, x_col="file_name",
                                                 y_col="label",
                                                 class_mode="raw", target_size=self.image_size,
-                                                batch_size=self.batch_size)
+                                                batch_size=self.batch_size,
+                                                shuffle=True)
         return generator
+
+    def rgb_to_bgr(self, img):
+        return img[..., ::-1]
 
     def _get_im_files_labels(self):
         with open('data/ImageSplits/train.txt', 'r') as f:
@@ -94,6 +117,13 @@ class StanfordLoader(DataLoader):
         all_labels = train_labels + test_labels
         return self._split_files_labels(all_files, all_labels)
 
+    def _print_info(self, train_labels, val_labels, test_labels):
+        print(f'Train Distribution:{list(Counter(sorted(train_labels)).items())}\n')
+        print(f'Validation Distribution:{list(Counter(sorted(val_labels)).items())}\n')
+        print(f'Test Distribution:{list(Counter(sorted(test_labels)).items())}\n')
+        action_categories = sorted(list(set(train_labels)))
+        print(f'Action categories ({len(action_categories)}):\n{action_categories}')
+
 
 class Hmdb51Loader(DataLoader):
     def __init__(self, data_params):
@@ -105,31 +135,37 @@ class Hmdb51Loader(DataLoader):
 
     def get_optical_flow_generators(self):
         flow_directories = ["data/hmdb51_train_flow", "data/hmdb51_val_flow", "data/hmdb51_test_flow"]
-        return self._get_generators_from_directories(flow_directories)
+        return self._get_generators_from_directories(flow_directories, use_data_aug=[False, False, False],
+                                                     scale_factor=1)
 
     def get_image_generators(self):
         image_directories = ["data/hmdb51_train_images", "data/hmdb51_val_images", "data/hmdb51_test_images"]
-        return self._get_generators_from_directories(image_directories)
+        return self._get_generators_from_directories(image_directories, use_data_aug=[True, False, False],
+                                                     scale_factor=1. / 255)
 
-    def _get_generators_from_directories(self, directories):
+    def _get_generators_from_directories(self, directories, use_data_aug, scale_factor):
         generators = []
-        for directory in directories:
-            files = os.listdir(directory)
+        for i in range(len(directories)):
+            files = os.listdir(directories[i])
             int_labels = np.array([self.extract_int_label(f) for f in files])
-            generators.append(self._files_labels_to_datagen(files, int_labels, directory))
+            generators.append(
+                self._files_labels_to_datagen(files, int_labels, directories[i], use_data_aug[i], scale_factor))
         return generators
 
     def extract_int_label(self, string):
         match = re.search(r'\d{1,2}', string)
         return int(match.group())
 
-    def _files_labels_to_datagen(self, files, int_labels, directory):
+    def _files_labels_to_datagen(self, files, int_labels, directory, use_data_aug, scale_factor):
         df = pd.DataFrame(list(zip(files, int_labels)),
                           columns=['file_name', 'label'])
         generator = CustomDataGen(dataframe=df, directory=directory, x_col="file_name",
                                   y_col="label",
                                   input_size=self.image_size,
-                                  batch_size=self.batch_size)
+                                  batch_size=self.batch_size,
+                                  scale_factor=scale_factor,
+                                  aug_params=self.train_augmentation,
+                                  use_data_aug=use_data_aug)
         return generator
 
     '''
@@ -235,7 +271,11 @@ class CustomDataGen(tf.keras.utils.Sequence):
                  batch_size,
                  input_size,
                  directory,
-                 shuffle=True):
+                 scale_factor,
+                 aug_params,
+                 use_data_aug,
+                 shuffle=True
+                 ):
         self.df = dataframe.copy()
         self.x_col = x_col
         self.y_col = y_col
@@ -244,7 +284,17 @@ class CustomDataGen(tf.keras.utils.Sequence):
         self.directory = directory
         self.shuffle = shuffle
         self.n = len(self.df)
-        self.current_index =0
+        self.current_index = 0
+        self.scale_factor = scale_factor
+        self.use_data_aug = use_data_aug
+        if use_data_aug:
+            self.datagen = ImageDataGenerator( #No brightness range transform because weird behaviour with rgb and bgr representation of data
+                rotation_range=aug_params["rotation_range"],
+                horizontal_flip=aug_params["horizontal_flip"],
+                width_shift_range=aug_params["width_shift_range"],
+                height_shift_range=aug_params["height_shift_range"],
+                zoom_range=aug_params["zoom_range"],
+            )
 
     def on_epoch_end(self):
         if self.shuffle:
@@ -252,7 +302,9 @@ class CustomDataGen(tf.keras.utils.Sequence):
 
     def __get_input(self, path, target_size):
         arr = np.load(os.path.join(self.directory, path))
-        image_arr = tf.image.resize(arr, (target_size[0], target_size[1])).numpy() / 255
+        image_arr = tf.image.resize(arr, (target_size[0], target_size[1])).numpy() * self.scale_factor
+        if self.use_data_aug:
+            image_arr = self.datagen.random_transform(image_arr)
         return image_arr
 
     def __get_data(self, batches):
