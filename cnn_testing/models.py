@@ -3,8 +3,6 @@ from keras import Input
 from keras import Model
 from keras.layers import Conv2D, AveragePooling2D, Flatten, Dense, Activation, BatchNormalization, Dropout
 from keras.losses import SparseCategoricalCrossentropy
-
-from keras.metrics.accuracy_metrics import TopKCategoricalAccuracy
 import math
 
 def conv_block(x, conv1_filters, conv1_kernel_size, activation_function, batch_norm, padding):
