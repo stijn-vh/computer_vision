@@ -94,10 +94,5 @@ def create_single_stream_model(input_shape, num_classes=12):
     conv5 = conv_block(conv4, conv5_params)
 
     outputs = create_dense_layers(conv5, num_classes)
-
-    model = Model(inputs, outputs)
-    model.compile(optimizer='adam',
-                  loss=SparseCategoricalCrossentropy(),
-                  metrics=['accuracy', tf.keras.metrics.SparseTopKCategoricalAccuracy(k = 3)])
     
-    return model
+    return Model(inputs, outputs)
