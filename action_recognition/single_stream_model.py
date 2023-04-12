@@ -1,11 +1,8 @@
-# Integrate and adapt AlexNet to use 172x172x1 inputs
+
 from keras import Input
 from keras import Model
 
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Activation, BatchNormalization, Dropout
-from keras.losses import SparseCategoricalCrossentropy
-
-import tensorflow as tf
 
 conv1_params = {
     'filters': 48,
@@ -57,14 +54,13 @@ def conv_block(x, params):
         x = BatchNormalization()(x)
 
     x = Activation(params['act_func'])(x)
-
     if 'pooling_size' in params and 'pooling_strides' in params:
         x = MaxPooling2D(
             pool_size=params['pooling_size'],
             strides=params['pooling_strides']
         )(x)
-
     return x
+
 
 def fully_connected(x, params):
     x = Dense(params['units'])(x)
@@ -74,7 +70,7 @@ def fully_connected(x, params):
 
     return Activation(params['act_func'])(x)
 
-def create_dense_layers(x, num_classes):
+def dense_layers(x, num_classes):
     flatten = Flatten()(x)
 
     fc1 = fully_connected(flatten, fc1_params)
@@ -88,11 +84,13 @@ def create_single_stream_model(input_shape, num_classes=12):
     inputs = Input(shape=input_shape)
 
     conv1 = conv_block(inputs, conv1_params)
+
     conv2 = conv_block(conv1, conv2_params)
     conv3 = conv_block(conv2, conv34_params)
     conv4 = conv_block(conv3, conv34_params)
+
     conv5 = conv_block(conv4, conv5_params)
 
-    outputs = create_dense_layers(conv5, num_classes)
-    
+    outputs = dense_layers(conv5, num_classes)
+
     return Model(inputs, outputs)

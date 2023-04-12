@@ -64,11 +64,11 @@ class StanfordLoader(DataLoader):
                                 "running", "shooting_an_arrow", "smoking", "throwing_frisby", "waving_hands"]
         self.data_directory = "./data/JPEGImages"
 
-    def get_image_generators(self):
+    def get_image_generators(self, use_data_augmentation = True):
         train_files, train_labels, val_files, val_labels, test_files, test_labels = self._get_im_files_labels()
         if self.print_info:
             self._print_info(train_labels, val_labels, test_labels)
-        train_generator = self._files_labels_to_datagen(train_files, train_labels, use_data_augmentation=True)
+        train_generator = self._files_labels_to_datagen(train_files, train_labels, use_data_augmentation= use_data_augmentation)
         val_generator = self._files_labels_to_datagen(val_files, val_labels, use_data_augmentation=False)
         test_generator = self._files_labels_to_datagen(test_files, test_labels, use_data_augmentation=False)
         return train_generator, val_generator, test_generator
@@ -133,30 +133,34 @@ class Hmdb51Loader(DataLoader):
         self.keep_hmdb51 = ["clap", "climb", "drink", "jump", "pour", "ride_bike", "ride_horse",
                             "run", "shoot_bow", "smoke", "throw", "wave"]
 
-    def get_optical_flow_generators(self):
+    def get_optical_flow_generators(self, shuffle =True):
         flow_directories = ["data/hmdb51_train_flow", "data/hmdb51_val_flow", "data/hmdb51_test_flow"]
         return self._get_generators_from_directories(flow_directories, use_data_aug=[False, False, False],
-                                                     scale_factor=1)
+                                                     scale_factor=1, shuffle =shuffle)
 
-    def get_image_generators(self):
+    def get_image_generators(self, use_data_augmentation= True, shuffle=True):
         image_directories = ["data/hmdb51_train_images", "data/hmdb51_val_images", "data/hmdb51_test_images"]
-        return self._get_generators_from_directories(image_directories, use_data_aug=[True, False, False],
-                                                     scale_factor=1. / 255)
+        if use_data_augmentation:
+            return self._get_generators_from_directories(image_directories, use_data_aug=[True, False, False],
+                                                     scale_factor=1. / 255, shuffle=shuffle)
+        else:
+            return self._get_generators_from_directories(image_directories, use_data_aug=[False, False, False],
+                                                     scale_factor=1. / 255, shuffle= shuffle)
 
-    def _get_generators_from_directories(self, directories, use_data_aug, scale_factor):
+    def _get_generators_from_directories(self, directories, use_data_aug, scale_factor, shuffle):
         generators = []
         for i in range(len(directories)):
             files = os.listdir(directories[i])
             int_labels = np.array([self.extract_int_label(f) for f in files])
             generators.append(
-                self._files_labels_to_datagen(files, int_labels, directories[i], use_data_aug[i], scale_factor))
+                self._files_labels_to_datagen(files, int_labels, directories[i], use_data_aug[i], scale_factor, shuffle))
         return generators
 
     def extract_int_label(self, string):
         match = re.search(r'\d{1,2}', string)
         return int(match.group())
 
-    def _files_labels_to_datagen(self, files, int_labels, directory, use_data_aug, scale_factor):
+    def _files_labels_to_datagen(self, files, int_labels, directory, use_data_aug, scale_factor, shuffle):
         df = pd.DataFrame(list(zip(files, int_labels)),
                           columns=['file_name', 'label'])
         generator = CustomDataGen(dataframe=df, directory=directory, x_col="file_name",
@@ -165,7 +169,8 @@ class Hmdb51Loader(DataLoader):
                                   batch_size=self.batch_size,
                                   scale_factor=scale_factor,
                                   aug_params=self.train_augmentation,
-                                  use_data_aug=use_data_aug)
+                                  use_data_aug=use_data_aug,
+                                  shuffle=shuffle)
         return generator
 
     '''
@@ -323,6 +328,30 @@ class CustomDataGen(tf.keras.utils.Sequence):
         batches = self.df[index * self.batch_size:(index + 1) * self.batch_size]
         X, y = self.__get_data(batches)
         return X, y
+
+    def __len__(self):
+        return self.n // self.batch_size
+
+    def __next__(self):
+        if self.current_index >= len(self):
+            self.current_index = 0
+        result = self.__getitem__(self.current_index)
+        self.current_index += 1
+        return result
+
+
+class DualDataGen(tf.keras.utils.Sequence):
+    def __init__(self, im_datagen, flow_datagen):
+        self.im_datagen = im_datagen
+        self.flow_datagen = flow_datagen
+
+    def __getitem__(self, index):
+        im_batch = self.im_datagen.__next__()
+        flow_batch = self.flow_datagen.__next__()
+        X = [im_batch[0], flow_batch[0]]
+        if im_batch[1] != flow_batch[1]:
+            raise Exception("image and flow labels are not equal")
+        return
 
     def __len__(self):
         return self.n // self.batch_size
