@@ -1,5 +1,5 @@
 import keras
-from keras.layers import Maximum, Average, Concatenate, Conv2D
+from keras.layers import Multiply, Average, Concatenate, Conv2D
 import single_stream_model as ssm
 from keras import Input
 from keras import Model
@@ -32,11 +32,18 @@ def load_models(names, inputs):
 
     return models
 
+def get_formatted_layer_name(layer):
+    idx = layer.name.rfind('_')
+
+    if idx == -1: return layer.name
+
+    return layer.name[:idx]
+
 def remove_non_merged_layers(models, name_merged_layers):
     new_models = []
 
     for i in range(len(models)):
-        names = list(map(lambda x: x.name, models[i].layers))
+        names = list(map(get_formatted_layer_name, models[i].layers))
 
         layer_index = names.index(name_merged_layers[i])
 
@@ -57,41 +64,26 @@ def freeze_layers(models):
 
 def merge_layer(type, X):
     #X is a list of [X1,X2]
-    if type == 'max':
-        return Maximum()(X)
+    if type == 'product':
+        return Multiply()(X)
     elif type == 'average':
         return Average()(X)
     elif type == 'concatenate':
         return Concatenate()(X)
     elif type == '1d':
-        X = Concatenate()(X)
+        X1 = Concatenate()(X)
         return Conv2D(
             filters = X[0].shape[-1],
             strides = conv1d_params['strides'],
             kernel_size = conv1d_params['kernel_size']
-        )(X)
+        )(X1)
 
-def get_merge_layers(type, models):
-    X = list(map(lambda model: model.output[:-1], models))
-    if type == 'max':
-        return Maximum()(X)
-    elif type == 'average':
-        return Average()(X)
-    elif type == 'concatenate':
-        return Concatenate()(X)
-    elif type == '1d':
-        X = Concatenate()(X)
-        return Conv2D(
-            filters = X[0].shape[-1],
-            strides = conv1d_params['strides'],
-            kernel_size = conv1d_params['kernel_size']
-        )(X)
 
 def create_two_stream_model(
         img_shape, 
         flow_shape, 
         model_type, 
-        merge_on_layers = ['flatten', 'flatten_1'], 
+        merge_on_layers = ['flatten', 'flatten'],
         model_names = ['HMDB51_image_model', 'HMDB51_flow_model'],
         numclasses = 12
     ):
@@ -108,15 +100,3 @@ def create_two_stream_model(
     merged = merge_layer(model_type, [im_activation, flow_activation])
     output = ssm.dense_layers(merged, numclasses)
     return Model(inputs = [im_input, flow_input], outputs= output)
-
-    # old_models = load_models(model_names, [img_shape, flow_shape])
-    #
-    # inputs = list(map(lambda model: model.input, old_models))
-    #
-    # truncated_models = remove_non_merged_layers(old_models, merge_on_layers)
-    # truncated_models = freeze_layers(truncated_models)
-    #
-    # merge_output = get_merge_layers(model_type, truncated_models)
-    # outputs = ssm.dense_layers(merge_output, numclasses)
-    #
-    # return Model(inputs, outputs)

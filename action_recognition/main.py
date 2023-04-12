@@ -1,4 +1,4 @@
-from data_loader import StanfordLoader, Hmdb51Loader
+from data_loader import StanfordLoader, Hmdb51Loader, DualDataGen
 from double_stream_model import create_two_stream_model
 from single_stream_model import create_single_stream_model
 
@@ -44,7 +44,7 @@ def get_all_callbacks(model_names):
         log_dir=tensor_board_path,
         write_images=True, write_steps_per_second=True, histogram_freq=1) for tensor_board_path in tensorboard_paths]
     early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss',
-                                                      patience=20,
+                                                      patience=10,
                                                       verbose=1,
                                                       restore_best_weights=True)
     callbacks = []
@@ -76,6 +76,7 @@ def train_image_models(im_shape, epochs,last_layer_epochs, fine_tune_epochs, fin
                             loss=SparseCategoricalCrossentropy(),
                             metrics=['accuracy'])
         image_model = train_model(image_model, stanford_image_model_callbacks, epochs, S_train_gen, S_val_gen)
+        image_model.load_weights("./saved_data/stanford_image_model/weights").expect_partial() #Loads the best weights
     else:
         image_model.load_weights("./saved_data/stanford_image_model/weights").expect_partial()
 
@@ -103,6 +104,8 @@ def train_image_models(im_shape, epochs,last_layer_epochs, fine_tune_epochs, fin
 def train_flow_model(flow_shape, epochs):
     H_train_flow_gen, H_val_flow_gen, H_test_flow_gen = HL.get_optical_flow_generators()
     flow_model = create_single_stream_model(flow_shape)
+    print("The flow model architecture:")
+    flow_model.summary()
     flow_model.compile(optimizer=Adam(),
                        loss=SparseCategoricalCrossentropy(),
                        metrics=['accuracy'])
@@ -115,23 +118,19 @@ def train_two_stream_model(im_shape, flow_shape, epochs, callback, model_type):
     H_train_im_gen, H_val_im_gen, H_test_im_gen = HL.get_image_generators(use_data_augmentation=False, shuffle=False)
     H_train_flow_gen, H_val_flow_gen, H_test_flow_gen = HL.get_optical_flow_generators(shuffle=False)
     two_stream_model = create_two_stream_model(im_shape, flow_shape, model_type)
-    two_stream_model.compile(optimizer=Adam(),
+    two_stream_model.compile(optimizer="adam",
                              loss=SparseCategoricalCrossentropy(),
                              metrics=['accuracy'])
     print("the two stream model architecture is the following:")
     two_stream_model.summary()
-    train_model(two_stream_model, callback, epochs, combine_generators(H_train_im_gen, H_train_flow_gen),
-                combine_generators(H_val_im_gen, H_val_flow_gen))
-
-def combine_generators(gen1, gen2):
-    while True:
-        x1, y1 = gen1.__next__()
-        x2, y2 = gen2.__next__()
-        yield [x1, x2], y1
+    train_gen = DualDataGen(H_train_im_gen, H_train_flow_gen)
+    val_gen = DualDataGen(H_val_im_gen, H_val_flow_gen)
+    train_model(two_stream_model, callback, epochs, train_gen,
+                val_gen)
 
 def train_all_two_stream_models(im_shape, flow_shape, epochs):
     train_two_stream_model(im_shape, flow_shape, epochs, two_stream_model_avg_callbacks, "average")
-    train_two_stream_model(im_shape, flow_shape, epochs, two_stream_model_max_callbacks, "max")
+    train_two_stream_model(im_shape, flow_shape, epochs, two_stream_model_prod_callbacks, "product")
     train_two_stream_model(im_shape, flow_shape, epochs, two_stream_model_conc_callbacks, "concatenate")
     train_two_stream_model(im_shape, flow_shape, epochs, two_stream_model_1d_callbacks, "1d")
 
@@ -151,11 +150,13 @@ def load_evaluate_models(model_names, params):
             train_gen, val_gen, test_gen = H_train_flow_gen, H_val_flow_gen, H_test_flow_gen
             model = create_single_stream_model(params['flow_shape'])
         else:
-            train_gen, val_gen, test_gen =  [H_train_im_gen,H_train_flow_gen], [H_val_im_gen, H_val_flow_gen], [H_test_im_gen, H_test_flow_gen]
+            train_gen = DualDataGen(H_train_im_gen, H_train_flow_gen)
+            val_gen = DualDataGen(H_val_im_gen, H_val_flow_gen)
+            test_gen = DualDataGen(H_test_im_gen, H_test_flow_gen)
             if name == "two_stream_model_avg":
                 model = create_two_stream_model(params['im_shape'], params['flow_shape'], "average")
-            elif name == "two_stream_model_max":
-                model = create_two_stream_model(params['im_shape'], params['flow_shape'], "max")
+            elif name == "two_stream_model_prod":
+                model = create_two_stream_model(params['im_shape'], params['flow_shape'], "product")
             elif name == "two_stream_model_conc":
                 model = create_two_stream_model(params['im_shape'], params['flow_shape'], "concatenate")
             elif name == "two_stream_model_1d":
@@ -164,8 +165,8 @@ def load_evaluate_models(model_names, params):
                 raise Exception("invalid model name provided")
             
 
-        print("model name", name, "has summary")
-        model.summary()
+        # print("model name", name, "has summary")
+        # model.summary()
 
 
         model.compile(
@@ -177,8 +178,8 @@ def load_evaluate_models(model_names, params):
 
 
 if __name__ == '__main__':
-    model_names = ["stanford_image_model", "HMDB51_image_model", "HMDB51_flow_model", "two_stream_model_avg","two_stream_model_max","two_stream_model_conc","two_stream_model_1d" ]
-    stanford_image_model_callbacks, HMDB51_image_model_callbacks, HMDB51_flow_model_callbacks, two_stream_model_avg_callbacks, two_stream_model_max_callbacks, two_stream_model_conc_callbacks, two_stream_model_1d_callbacks = get_all_callbacks(
+    model_names = ["stanford_image_model", "HMDB51_image_model", "HMDB51_flow_model", "two_stream_model_avg","two_stream_model_prod","two_stream_model_conc","two_stream_model_1d" ]
+    stanford_image_model_callbacks, HMDB51_image_model_callbacks, HMDB51_flow_model_callbacks, two_stream_model_avg_callbacks, two_stream_model_prod_callbacks, two_stream_model_conc_callbacks, two_stream_model_1d_callbacks = get_all_callbacks(
         model_names)
 
     params = {
@@ -189,7 +190,7 @@ if __name__ == '__main__':
         'val_size': 0.1,
         'epochs': 75,
         'last_layer_epochs': 10,
-        'fine_tune_epochs': 20,
+        'fine_tune_epochs': 75,
         'fine_tune_lr': 1e-3
     }
     params['im_shape'] = (params["image_size"][0], params["image_size"][1], 3)
@@ -197,23 +198,8 @@ if __name__ == '__main__':
     SL = StanfordLoader(params)
     HL = Hmdb51Loader(params)
 
-    #train_image_models(params["im_shape"], params["epochs"], params["last_layer_epochs"], params['fine_tune_epochs'], params['fine_tune_lr'],retrain_stanford=False)
-    # train_flow_model(params["flow_shape"], params["epochs"])
+    train_image_models(params["im_shape"], params["epochs"], params["last_layer_epochs"], params['fine_tune_epochs'], params['fine_tune_lr'], retrain_stanford=True)
+    train_flow_model(params["flow_shape"], params["epochs"])
     #train_all_two_stream_models(params["im_shape"], params["flow_shape"], params["epochs"])
 
-    load_evaluate_models(model_names, params)
-
-    # Note that twostream model should not augment the training HMDB51 images. Also need some way to combine data inputs simultaneously
-    # The stanford_image_model_loss1.64_valacc0.46_epoch20 was trained on RGB images instead of BGR. Thus fine tuning will not work as intended.
-
-#     Epoch 34: val_loss improved from 1.59693 to 1.57232, saving model to ./saved_data/stanford_image_model\weights
-#    77/77 [==============================] - 33s 424ms/step - loss: 1.3975 - accuracy: 0.5075 - sparse_top_k_categorical_accuracy: 0.8024 - val_loss: 1.5723 - val_accuracy: 0.4745 - val_sparse_top_k_categorical_accuracy: 0.7445
-
-# Epoch 27: val_loss improved from 1.66525 to 1.57069, saving model to ./saved_data/HMDB51_image_model\weights
-# 38/38 [==============================] - 14s 367ms/step - loss: 1.4807 - accuracy: 0.5000 - sparse_top_k_categorical_accuracy: 0.7812 - val_loss: 1.5707 - val_accuracy: 0.5078 - val_sparse_top_k_categorical_accuracy: 0.7031
-# echter ook Epoch 43: val_loss did not improve from 1.57069
-# 38/38 [==============================] - 14s 369ms/step - loss: 1.1798 - accuracy: 0.6135 - sparse_top_k_categorical_accuracy: 0.8520 - val_loss: 1.6094 - val_accuracy: 0.5703 - val_sparse_top_k_categorical_accuracy: 0.7500
-# Epoch 44/50
-
-# Epoch 8: val_loss improved from 2.31198 to 2.05122, saving model to ./saved_data/HMDB51_flow_model\weights
-# 38/38 [==============================] - 31s 807ms/step - loss: 1.9933 - accuracy: 0.3051 - sparse_top_k_categorical_accuracy: 0.6217 - val_loss: 2.0512 - val_accuracy: 0.2578 - val_sparse_top_k_categorical_accuracy: 0.5547
+    #load_evaluate_models(model_names, params)

@@ -344,17 +344,20 @@ class DualDataGen(tf.keras.utils.Sequence):
     def __init__(self, im_datagen, flow_datagen):
         self.im_datagen = im_datagen
         self.flow_datagen = flow_datagen
+        self.current_index = 0
 
     def __getitem__(self, index):
         im_batch = self.im_datagen.__next__()
         flow_batch = self.flow_datagen.__next__()
         X = [im_batch[0], flow_batch[0]]
-        if im_batch[1] != flow_batch[1]:
+        if (im_batch[1] - flow_batch[1]).any():
             raise Exception("image and flow labels are not equal")
-        return
+        else:
+            y = im_batch[1]
+            return X, y
 
     def __len__(self):
-        return self.n // self.batch_size
+        return self.im_datagen.__len__()
 
     def __next__(self):
         if self.current_index >= len(self):
