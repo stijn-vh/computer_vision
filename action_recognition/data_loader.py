@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 import os
 import glob
 import tensorflow as tf
-from keras_preprocessing.image import ImageDataGenerator
+from keras.preprocessing.image import ImageDataGenerator
 import pandas as pd
 import cv2 as cv
 import numpy as np

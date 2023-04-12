@@ -162,6 +162,12 @@ def load_evaluate_models(model_names, params):
                 model = create_two_stream_model(params['im_shape'], params['flow_shape'], "1d")
             else:
                 raise Exception("invalid model name provided")
+            
+
+        print("model name", name, "has summary")
+        model.summary()
+
+
         model.compile(
             loss=SparseCategoricalCrossentropy(),
             metrics=['accuracy'])
@@ -193,7 +199,7 @@ if __name__ == '__main__':
 
     #train_image_models(params["im_shape"], params["epochs"], params["last_layer_epochs"], params['fine_tune_epochs'], params['fine_tune_lr'],retrain_stanford=False)
     # train_flow_model(params["flow_shape"], params["epochs"])
-    train_all_two_stream_models(params["im_shape"], params["flow_shape"], params["epochs"])
+    #train_all_two_stream_models(params["im_shape"], params["flow_shape"], params["epochs"])
 
     load_evaluate_models(model_names, params)
 
