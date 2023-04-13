@@ -200,6 +200,6 @@ if __name__ == '__main__':
 
     train_image_models(params["im_shape"], params["epochs"], params["last_layer_epochs"], params['fine_tune_epochs'], params['fine_tune_lr'], retrain_stanford=True)
     train_flow_model(params["flow_shape"], params["epochs"])
-    #train_all_two_stream_models(params["im_shape"], params["flow_shape"], params["epochs"])
+    train_all_two_stream_models(params["im_shape"], params["flow_shape"], params["epochs"])
 
-    #load_evaluate_models(model_names, params)
+    load_evaluate_models(model_names, params)
